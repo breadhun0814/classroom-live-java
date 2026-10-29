@@ -1,0 +1,252 @@
+Original resolution (recommended)|元の解像度（推奨）|原始分辨率（推荐）|Độ phân giải gốc (khuyên dùng)
+Send quality|送信画質|传输画质|Chất lượng gửi
+High (wired LAN recommended)|高画質（有線LAN推奨）|高画质（推荐有线）|Cao (khuyên dùng mạng dây)
+Standard / lower load|標準 / 負荷軽減|标准 / 降低负载|Chuẩn / giảm tải
+Maximum / high load|最高画質 / 高負荷|最高画质 / 高负载|Tối đa / tải cao
+Video codec|映像コーデック|视频编码|Bộ mã hóa video
+Automatic (recommended)|自動（推奨）|自动（推荐）|Tự động (khuyên dùng)
+H.264 / compatibility|H.264 / 互換性|H.264 / 兼容性|H.264 / tương thích
+VP9 / compare clarity|VP9 / 鮮明さを比較|VP9 / 比较清晰度|VP9 / so sánh độ nét
+Clear classroom text|授業の文字を鮮明に|课堂文字更清晰|Chữ bài học rõ nét
+Smooth video|動画を滑らかに|视频更流畅|Video mượt
+View original size|元のサイズで表示|原始大小显示|Xem kích thước gốc
+Fit to screen|画面に合わせる|适应屏幕|Vừa màn hình
+Presenter settings: for text, use original resolution, 30fps and text clarity mode.|共有側の設定です。文字には元の解像度・30fps・文字優先を推奨します。|共享方设置：文字建议使用原始分辨率、30fps和文字优先模式。|Thiết lập phía chia sẻ: dùng độ phân giải gốc, 30fps và ưu tiên chữ.
+Original resolution uses the selected surface dimensions. Configure send quality on the presenting PC. Higher limits do not guarantee bitrate or quality; results depend on hardware and networking.|元の解像度は選択した画面の実サイズです。共有PCで設定します。上限を上げても実際の速度や画質はPCとネットワークに依存します。|原始分辨率使用所选画面的实际尺寸。请在共享电脑设置。提高上限不保证码率或画质，结果取决于硬件和网络。|Độ phân giải gốc dùng kích thước màn hình đã chọn. Thiết lập trên máy chia sẻ. Tăng giới hạn không bảo đảm tốc độ hay chất lượng; kết quả tùy máy và mạng.
+User ID|ユーザーID|账号|ID người dùng
+Search user ID or nickname|IDまたは表示名で検索|搜索账号或昵称|Tìm ID hoặc biệt danh
+Connection help|接続ヘルプ|连接帮助|Trợ giúp kết nối
+Language|言語|语言|Ngôn ngữ
+Start the classroom server and open this address.|教室サーバーを起動し、このアドレスを開いてください。|启动教室服务器并打开此地址。|Bật máy chủ lớp rồi mở địa chỉ này.
+View setup instructions|導入手順を見る|查看安装说明|Xem hướng dẫn thiết lập
+Service setup required|サーバー設定が必要です|需要配置服务|Cần thiết lập máy chủ
+The service is being connected.|サービスを接続しています。|正在连接服务。|Đang kết nối dịch vụ.
+TOGETHER, WITHOUT INSTALLING|インストールせずに一緒に|无需安装，一起交流|CÙNG NHAU, KHÔNG CẦN CÀI
+From my screen,|私の画面から、|从我的屏幕，|Từ màn hình của tôi,
+to our shared space.|みんなの空間へ。|到我们的共享空间。|đến không gian chung.
+Share your screen in a password-protected room|パスワード付きの部屋で画面を共有し、|在密码房间中共享屏幕|Chia sẻ trong phòng có mật khẩu
+and start a conversation.|会話を始めましょう。|开始交流。|và bắt đầu trò chuyện.
+Screen sharing|画面共有|屏幕共享|Chia sẻ màn hình
+Protected rooms|パスワード付きルーム|密码房间|Phòng có mật khẩu
+Sign in|ログイン|登录|Đăng nhập
+Sign up|新規登録|注册|Đăng ký
+Email|メール|邮箱|Email
+Password|パスワード|密码|Mật khẩu
+Display name|表示名|显示名称|Tên hiển thị
+Nickname|ニックネーム|昵称|Biệt danh
+Nickname settings|表示名の設定|昵称设置|Thiết lập biệt danh
+You can use Korean, English, and other languages.|韓国語・英語などを使用できます。|支持韩语、英语及其他语言。|Có thể dùng tiếng Hàn, Anh và ngôn ngữ khác.
+Get started with your own account.|自分のアカウントで始めましょう。|使用自己的账号开始。|Bắt đầu bằng tài khoản của bạn.
+New here? Create an account|初めてですか？新規登録|没有账号？注册|Chưa có tài khoản? Đăng ký
+Already have an account? Sign in|登録済みですか？ログイン|已有账号？登录|Đã có tài khoản? Đăng nhập
+Create account|アカウント作成|创建账号|Tạo tài khoản
+Admin sign in|管理者ログイン|管理员登录|Đăng nhập quản trị
+Back to regular sign in|通常ログインに戻る|返回普通登录|Về đăng nhập thường
+Sign in with the account designated as the operator.|運営者として指定されたアカウントでログインしてください。|请使用指定的管理员账号登录。|Đăng nhập bằng tài khoản quản trị đã chỉ định.
+Sign out|ログアウト|退出登录|Đăng xuất
+Manage members|利用者管理|用户管理|Quản lý thành viên
+Members and rooms|利用者・ルーム管理|用户与房间管理|Thành viên và phòng
+Manage account access and rooms with your admin account.|管理者として利用状態と部屋を管理します。|使用管理员账号管理用户权限及房间。|Dùng quyền quản trị để quản lý tài khoản và phòng.
+Back to chat|チャットに戻る|返回聊天|Trở về chat
+Registered members|登録済み利用者|已注册用户|Thành viên đã đăng ký
+Search email or nickname|メールまたは表示名で検索|搜索邮箱或昵称|Tìm email hoặc biệt danh
+Search / refresh|検索 / 更新|搜索 / 刷新|Tìm / làm mới
+Manage all rooms|すべての部屋を管理|管理所有房间|Quản lý mọi phòng
+Refresh rooms|部屋を更新|刷新房间|Làm mới phòng
+Room participants|部屋の参加者|房间成员|Thành viên trong phòng
+Save|保存|保存|Lưu
+Back|戻る|返回|Quay lại
+Previous|前へ|上一页|Trước
+Next|次へ|下一页|Tiếp
+Open a room to get together.|みんなの部屋を開きましょう。|创建一个共享房间。|Mở phòng để cùng tham gia.
+Share the room link and password with your guests.|招待する人にリンクとパスワードを伝えてください。|将房间链接和密码告诉参与者。|Gửi liên kết và mật khẩu phòng cho người tham gia.
+Create a room|新しい部屋を作成|创建新房间|Tạo phòng mới
+Room name|部屋名|房间名称|Tên phòng
+Room password|部屋のパスワード|房间密码|Mật khẩu phòng
+Create room|部屋を作成|创建房间|Tạo phòng
+Join a room|招待された部屋に入る|加入房间|Tham gia phòng
+Join using|入室方法|加入方式|Cách tham gia
+Invitation code|招待コード|邀请码|Mã mời
+Join room|入室|进入房间|Vào phòng
+Available rooms|作成された部屋|现有房间|Các phòng hiện có
+Select a room, then enter its password.|部屋を選んでパスワードを入力してください。|请选择房间并输入密码。|Chọn phòng rồi nhập mật khẩu.
+Refresh list|一覧を更新|刷新列表|Làm mới danh sách
+Up to 8 connections including the presenter · One presenter at a time · Desktop Chrome / Edge recommended|共有者を含め最大8接続 · 共有者は同時に1人 · PC版Chrome / Edge推奨|含共享者最多8个连接 · 同时一人共享 · 推荐电脑Chrome / Edge|Tối đa 8 kết nối kể cả người chia sẻ · Mỗi lần một người chia sẻ · Khuyên dùng Chrome / Edge trên PC
+Copy invitation link|招待リンクをコピー|复制邀请链接|Sao chép liên kết mời
+Leave|退出|离开|Rời phòng
+Delete room|部屋を削除|删除房间|Xóa phòng
+Waiting for a shared screen.|共有画面を待っています。|正在等待共享屏幕。|Đang chờ màn hình chia sẻ.
+Start sharing your screen below.|下のボタンから共有を始めましょう。|请在下方开始共享屏幕。|Bắt đầu chia sẻ màn hình ở bên dưới.
+Waiting for a presenter|画面共有待ち|等待共享|Đang chờ người chia sẻ
+Sharing mode|共有モード|共享模式|Chế độ chia sẻ
+Prioritize text clarity|文字の鮮明さを優先|文字清晰优先|Ưu tiên chữ rõ nét
+Prioritize motion|動画・動きを優先|视频流畅优先|Ưu tiên chuyển động
+Resolution|解像度|分辨率|Độ phân giải
+Frame rate|フレームレート|帧率|Tốc độ khung hình
+Share screen|画面共有を開始|开始共享屏幕|Chia sẻ màn hình
+Stop sharing|共有を停止|停止共享|Dừng chia sẻ
+Reconnect video|映像に再接続|重新连接画面|Kết nối lại video
+Full screen|全画面|全屏|Toàn màn hình
+Exit full screen|全画面を終了|退出全屏|Thoát toàn màn hình
+Actual transmission quality appears after a viewer connects.|視聴者が接続すると実際の送信画質を表示します。|观看者连接后显示实际传输画质。|Chất lượng gửi thực tế hiện khi có người xem kết nối.
+Resolution and frame rate are targets. Actual quality depends on the source, computer, and network.|解像度・FPSは目標値です。実際の画質は元画面・PC・ネットワークに依存します。|分辨率和帧率为目标值，实际画质取决于源画面、电脑和网络。|Độ phân giải và FPS là mục tiêu; thực tế tùy nguồn, máy và mạng.
+Participants|参加者|参与者|Người tham gia
+Chat|チャット|聊天|Trò chuyện
+Message or code|メッセージまたはコード|消息或代码|Tin nhắn hoặc mã nguồn
+Send as code|コードとして送信|作为代码发送|Gửi dạng mã nguồn
+Send|送信|发送|Gửi
+Search chat|会話を検索|搜索聊天|Tìm chat
+Text size|文字サイズ|字号|Cỡ chữ
+Small|小|小|Nhỏ
+Normal|標準|中|Vừa
+Large|大|大|Lớn
+Export chat|会話を保存|导出聊天|Xuất chat
+Shortcuts|ショートカット|快捷键|Phím tắt
+Chat shortcuts|チャットのショートカット|聊天快捷键|Phím tắt chat
+Load earlier messages|以前の会話を読み込む|加载更早的消息|Tải tin nhắn cũ hơn
+New messages|新着メッセージ|新消息|Tin nhắn mới
+Chat history|会話履歴|聊天记录|Lịch sử chat
+Close|閉じる|关闭|Đóng
+Enter: Send|Enter: 送信|Enter：发送|Enter: Gửi
+Shift+Enter: New line|Shift+Enter: 改行|Shift+Enter：换行|Shift+Enter: Xuống dòng
+Ctrl+K: Search chat|Ctrl+K: 会話検索|Ctrl+K：搜索聊天|Ctrl+K: Tìm chat
+Alt+M: Focus message box|Alt+M: メッセージ入力|Alt+M：输入消息|Alt+M: Chọn ô nhắn tin
+Escape: Clear search|Escape: 検索を消去|Escape：清空搜索|Escape: Xóa tìm kiếm
+Checking connection|接続確認中|正在检查连接|Đang kiểm tra kết nối
+Connected|接続中|已连接|Đã kết nối
+Reconnecting|再接続中|正在重连|Đang kết nối lại
+Offline|オフライン|离线|Ngoại tuyến
+At least 8 characters|8文字以上|至少8个字符|Ít nhất 8 ký tự
+At least 6 characters|6文字以上|至少6个字符|Ít nhất 6 ký tự
+Study group|勉強会|学习小组|Nhóm học
+12-character room code|12文字の部屋コード|12位房间代码|Mã phòng 12 ký tự
+12-character invitation code|12文字の招待コード|12位邀请码|Mã mời 12 ký tự
+e.g. Janghun / student_01|例: Janghun / student_01|例如：Janghun / student_01|Ví dụ: Janghun / student_01
+Message or code · Enter to send / Shift+Enter for a new line|メッセージ・コード · Enter送信 / Shift+Enter改行|消息或代码 · Enter发送 / Shift+Enter换行|Tin nhắn hoặc code · Enter gửi / Shift+Enter xuống dòng
+Enter the exact room name|正確な部屋名を入力|请输入准确的房间名称|Nhập đúng tên phòng
+No rooms yet. Create the first one.|部屋はまだありません。最初の部屋を作りましょう。|暂无房间，请创建第一个房间。|Chưa có phòng. Hãy tạo phòng đầu tiên.
+Select room|この部屋を選択|选择房间|Chọn phòng
+Could not load rooms. Click Refresh list.|部屋を取得できません。一覧を更新してください。|无法加载房间，请刷新列表。|Không tải được phòng. Hãy làm mới danh sách.
+Admin|管理者|管理员|Quản trị viên
+Suspended|利用停止|已停用|Đình chỉ
+Active|利用可能|正常|Hoạt động
+Restore access|利用停止を解除|恢复使用|Khôi phục quyền
+Remove from room|強制退室|移出房间|Mời ra khỏi phòng
+View participants|参加者を見る|查看成员|Xem thành viên
+No members are currently connected.|現在の参加者はいません。|当前没有在线成员。|Hiện không có thành viên kết nối.
+No matching members.|該当する利用者がいません。|没有匹配的用户。|Không có thành viên phù hợp.
+There are no rooms.|部屋はありません。|没有房间。|Không có phòng.
+Access has been restored.|利用停止を解除しました。|已恢复使用权限。|Đã khôi phục quyền truy cập.
+The account is suspended and is being removed from its current rooms.|利用を停止し、参加中の部屋から退出させます。|账号已停用，将被移出当前房间。|Tài khoản bị đình chỉ và được đưa ra khỏi các phòng.
+All of this member’s connections to the room have been removed.|この利用者の部屋への全接続を終了しました。|该用户在此房间的所有连接已结束。|Đã ngắt mọi kết nối của thành viên với phòng này.
+Your nickname has been saved.|表示名を保存しました。|昵称已保存。|Đã lưu biệt danh.
+There are no earlier messages.|これより前の会話はありません。|没有更早的消息。|Không có tin nhắn cũ hơn.
+Copy message|メッセージをコピー|复制消息|Sao chép tin nhắn
+Copy code|コードをコピー|复制代码|Sao chép mã nguồn
+Copied.|コピーしました。|已复制。|Đã sao chép.
+The loaded messages have been exported as a TXT file.|読み込んだ会話をTXTで保存しました。|已将加载的聊天导出为TXT。|Đã xuất các tin nhắn đã tải thành TXT.
+Draft saved|下書き保存済み|草稿已保存|Đã lưu bản nháp
+Draft restored.|下書きを復元しました。|已恢复草稿。|Đã khôi phục bản nháp.
+Could not save the draft.|下書きを保存できませんでした。|无法保存草稿。|Không lưu được bản nháp.
+You are offline. We will retry when the connection returns.|オフラインです。接続が戻ると再試行します。|当前离线，网络恢复后将重试。|Bạn đang ngoại tuyến. Sẽ thử lại khi mạng trở lại.
+You are back online. Reconnecting…|接続が戻りました。再接続しています…|网络已恢复，正在重连…|Mạng đã trở lại. Đang kết nối lại…
+You are sharing or have an unsent draft. Leave this room?|共有中または未送信の文章があります。退出しますか？|正在共享或有未发送草稿，确定离开？|Đang chia sẻ hoặc có bản nháp. Rời phòng?
+The room was deleted.|部屋を削除しました。|房间已删除。|Đã xóa phòng.
+Delete this room and its chat history? All participants will be removed.|部屋と会話履歴を削除しますか？全員が退出します。|删除此房间及聊天记录？所有成员将离开。|Xóa phòng và lịch sử chat? Mọi người sẽ rời phòng.
+Invitation link copied. Share the room password separately.|招待リンクをコピーしました。パスワードは別途伝えてください。|邀请链接已复制，请另行告知房间密码。|Đã sao chép liên kết mời. Gửi mật khẩu phòng riêng.
+Your account is ready. Create or join a room.|登録完了です。部屋を作成または入室してください。|账号已就绪，请创建或加入房间。|Tài khoản đã sẵn sàng. Tạo hoặc vào phòng.
+You have signed out.|ログアウトしました。|已退出登录。|Đã đăng xuất.
+The server request could not be completed.|サーバーへの要求を完了できませんでした。|无法完成服务器请求。|Không hoàn tất được yêu cầu máy chủ.
+The request failed.|要求に失敗しました。|请求失败。|Yêu cầu thất bại.
+This is not an admin account. Use regular sign in.|管理者ではありません。通常ログインをご利用ください。|此账号不是管理员，请使用普通登录。|Đây không phải tài khoản quản trị. Hãy đăng nhập thường.
+Only an administrator can use this action.|管理者のみ操作できます。|仅管理员可以执行此操作。|Chỉ quản trị viên được thực hiện thao tác này.
+Please sign in.|ログインしてください。|请登录。|Vui lòng đăng nhập.
+This account is suspended. Contact the administrator.|利用停止中です。管理者にお問い合わせください。|此账号已停用，请联系管理员。|Tài khoản bị đình chỉ. Liên hệ quản trị viên.
+Admin accounts cannot be suspended.|管理者は利用停止できません。|不能停用管理员账号。|Không thể đình chỉ tài khoản quản trị.
+Admin accounts cannot be removed by this action.|管理者は強制退室できません。|不能通过此操作移出管理员。|Không thể dùng thao tác này để mời quản trị viên ra.
+Your room access has expired or you were removed. Enter the password to rejoin.|入室期限が切れたか退室させられました。パスワードで再入室してください。|房间连接已过期或已被移出，请输入密码重新加入。|Quyền vào phòng hết hạn hoặc bạn bị mời ra. Nhập mật khẩu để vào lại.
+That room name is already in use. Choose another name.|その部屋名は使用中です。別の名前を選んでください。|该房间名称已被使用，请更换。|Tên phòng đã được dùng. Chọn tên khác.
+Incorrect room name or password.|部屋名またはパスワードが違います。|房间名称或密码错误。|Sai tên phòng hoặc mật khẩu.
+Incorrect invitation code or room password.|招待コードまたは部屋のパスワードが違います。|邀请码或房间密码错误。|Sai mã mời hoặc mật khẩu phòng.
+Too many join attempts. Try again in five minutes.|入室試行が多すぎます。5分後に再試行してください。|尝试次数过多，请5分钟后再试。|Thử vào quá nhiều lần. Thử lại sau 5 phút.
+The room is full. It allows up to eight connections.|満室です。最大8接続です。|房间已满，最多8个连接。|Phòng đầy. Tối đa 8 kết nối.
+Only the room owner can delete this room.|部屋を作った人だけが削除できます。|只有房主可以删除此房间。|Chỉ chủ phòng có thể xóa phòng.
+This room has already been deleted.|すでに削除された部屋です。|此房间已被删除。|Phòng này đã bị xóa.
+Member not found.|利用者が見つかりません。|找不到用户。|Không tìm thấy thành viên.
+Someone else is sharing. Wait until they stop.|ほかの人が共有中です。終了までお待ちください。|其他人正在共享，请等待结束。|Có người khác đang chia sẻ. Hãy chờ họ dừng.
+This screen-sharing session has ended.|画面共有は終了しました。|屏幕共享已结束。|Phiên chia sẻ đã kết thúc.
+The other person has left the room.|相手が退出しました。|对方已离开房间。|Người kia đã rời phòng.
+You can send up to 30 messages per minute.|メッセージは1分間に30件までです。|每分钟最多发送30条消息。|Tối đa 30 tin nhắn mỗi phút.
+The browser could not apply the quality settings. Update Chrome/Edge and share again.|画質設定を適用できません。Chrome/Edgeを更新して共有し直してください。|浏览器无法应用画质设置，请更新Chrome/Edge后重新共享。|Không áp dụng được chất lượng. Cập nhật Chrome/Edge rồi chia sẻ lại.
+The browser did not provide video encoding settings.|ブラウザーが映像設定を提供しませんでした。|浏览器未提供视频编码设置。|Trình duyệt không cung cấp thiết lập mã hóa video.
+This browser cannot share a screen. Use desktop Chrome or Edge.|このブラウザーは画面共有に対応していません。PC版Chrome/Edgeをご利用ください。|此浏览器不支持屏幕共享，请使用电脑Chrome或Edge。|Trình duyệt không chia sẻ được màn hình. Dùng Chrome/Edge trên PC.
+Press the video play button.|映像の再生ボタンを押してください。|请点击视频播放按钮。|Nhấn nút phát video.
+Screen sharing started. Other people in this room can watch.|画面共有を開始しました。部屋の参加者が視聴できます。|已开始共享，房间内其他人可以观看。|Đã bắt đầu chia sẻ. Mọi người trong phòng có thể xem.
+Screen selection was canceled or sharing permission was denied.|画面選択を取り消したか、共有が許可されませんでした。|已取消选择屏幕或未授予共享权限。|Đã hủy chọn màn hình hoặc chưa cho phép chia sẻ.
+Both presenter and viewers must refresh with Ctrl+Shift+R.|共有側・視聴側ともCtrl+Shift+Rで更新してください。|共享者与观看者都请按Ctrl+Shift+R刷新。|Cả người chia sẻ và người xem hãy nhấn Ctrl+Shift+R.
+Connection restored.|接続が復旧しました。|连接已恢复。|Đã khôi phục kết nối.
+The connection was lost for too long. Please rejoin the room.|切断が長く続いたため退出しました。再入室してください。|连接中断过久，请重新加入房间。|Mất kết nối quá lâu. Hãy vào phòng lại.
+Video connection failed · Click Reconnect video|映像接続に失敗 · 再接続を押してください|画面连接失败 · 请重新连接|Kết nối video thất bại · Hãy kết nối lại
+Connected · Waiting for video frames|接続済み · 映像を待機中|已连接 · 等待画面|Đã kết nối · Đang chờ khung hình
+Live video connected|ライブ映像に接続しました|实时画面已连接|Đã kết nối video trực tiếp
+Connecting to the shared screen…|共有画面に接続しています…|正在连接共享屏幕…|Đang kết nối màn hình chia sẻ…
+This is your local preview. Actual sending statistics appear when a viewer connects.|これは自分のプレビューです。視聴者が接続すると送信統計を表示します。|这是本地预览，观看者连接后显示实际发送统计。|Đây là xem trước cục bộ. Thống kê gửi hiện khi có người xem.
+Waiting for actual video statistics…|実際の映像統計を待っています…|正在等待实际视频统计…|Đang chờ thống kê video thực tế…
+Troubleshoot connection|接続の問題を解決|连接故障排查|Khắc phục kết nối
+How to fix a missing shared screen|共有画面が見えない場合|看不到共享屏幕时|Cách xử lý khi không thấy màn hình
+Retry playback|再生を再試行|重试播放|Thử phát lại
+Recheck status|状態を再確認|重新检查状态|Kiểm tra lại trạng thái
+Copy connection diagnostics|接続診断をコピー|复制连接诊断|Sao chép chẩn đoán kết nối
+Use desktop Chrome or Edge on both computers and refresh with Ctrl+Shift+R.|両方のPCでChrome/Edgeを使い、Ctrl+Shift+Rで更新してください。|两台电脑都使用Chrome/Edge并按Ctrl+Shift+R刷新。|Dùng Chrome/Edge trên cả hai máy và nhấn Ctrl+Shift+R.
+The presenter should stop sharing, start again, and choose the intended screen.|共有を停止して再開し、目的の画面を選んでください。|共享者请停止后重新开始，并选择正确画面。|Người chia sẻ hãy dừng, bắt đầu lại và chọn đúng màn hình.
+For text or code, start with text clarity mode, 1080p, and 30fps.|文字・コードは文字優先、1080p、30fpsから確認してください。|文字或代码先尝试文字优先、1080p和30fps。|Với chữ hoặc code, thử ưu tiên chữ, 1080p và30fps.
+Computers in the same location may still be isolated. Ask the school network administrator to check browser access and device isolation. Do not disable the entire firewall.|同じ場所でも端末分離の可能性があります。ブラウザー通信と端末間制限を学校担当者に確認してください。全体のファイアウォールは切らないでください。|同一地点也可能存在设备隔离，请联系学校负责人检查浏览器通信及设备隔离，不要关闭整个防火墙。|Cùng nơi vẫn có thể bị cô lập thiết bị. Nhờ IT trường kiểm tra quyền mạng của trình duyệt và kết nối giữa máy. Không tắt toàn bộ tường lửa.
+If the problem persists, copy diagnostics from both the presenter and the affected viewer.|解決しない場合は共有側と問題の視聴側の両方で診断をコピーしてください。|如仍有问题，请在共享者和异常观看者两端复制诊断。|Nếu vẫn lỗi, sao chép chẩn đoán từ máy chia sẻ và máy xem bị lỗi.
+You are offline. Reconnect to the network, then click Reconnect video.|オフラインです。ネットワークに接続して映像再接続を押してください。|当前离线，恢复网络后点击重新连接画面。|Bạn ngoại tuyến. Kết nối mạng rồi chọn kết nối lại video.
+Some participants have an older app version. Everyone must refresh with Ctrl+Shift+R.|古い版を使う参加者がいます。全員Ctrl+Shift+Rで更新してください。|部分成员使用旧版本，请所有人按Ctrl+Shift+R刷新。|Một số người dùng bản cũ. Mọi người hãy nhấn Ctrl+Shift+R.
+No screen is being shared. The presenter must start sharing and choose a screen.|まだ共有されていません。共有者が開始して画面を選んでください。|尚未共享屏幕，请共享者开始并选择屏幕。|Chưa có màn hình được chia sẻ. Người chia sẻ phải bắt đầu và chọn màn hình.
+No viewer connection has been requested yet. Join the same room and click Reconnect video.|視聴要求がまだありません。同じ部屋で映像再接続を押してください。|尚无观看请求，请进入同一房间并重新连接画面。|Chưa có yêu cầu xem. Vào cùng phòng và kết nối lại video.
+Video negotiation is incomplete. Refresh both computers, then restart sharing.|映像の接続情報交換が未完了です。両方を更新し共有し直してください。|视频协商尚未完成，请刷新两台电脑并重新共享。|Chưa trao đổi xong kết nối video. Làm mới cả hai máy rồi chia sẻ lại.
+Connected, but no video frames have arrived. Retry playback and ask the presenter to verify the source and restart sharing.|接続済みですが映像が届きません。再生を再試行し、共有者は元画面を確認して共有し直してください。|已连接但未收到画面，请重试播放并让共享者检查源画面后重新共享。|Đã kết nối nhưng chưa có khung hình. Thử phát lại và nhờ người chia sẻ kiểm tra nguồn rồi chia sẻ lại.
+Playback is paused. Click Retry playback.|一時停止中です。再生を再試行してください。|播放已暂停，请重试播放。|Đang tạm dừng. Hãy thử phát lại.
+Video frames have arrived. If the image is blurry or frozen, check actual resolution and bandwidth/CPU limitations.|映像受信の記録があります。ぼやけ・停止時は実際の解像度と帯域・CPU制限を確認してください。|已收到视频帧，模糊或卡顿时请检查实际分辨率及网络/CPU限制。|Đã nhận khung hình. Nếu mờ hoặc đứng, kiểm tra độ phân giải thực tế và giới hạn mạng/CPU.
+The available information does not identify the cause. Follow the steps below and copy diagnostics from both computers.|現状の情報では原因を確定できません。手順を確認し両方の診断をコピーしてください。|当前信息无法确定原因，请按下列步骤并复制两端诊断。|Chưa đủ thông tin xác định nguyên nhân. Làm theo hướng dẫn và sao chép chẩn đoán hai máy.
+Playback was requested again. If the screen remains blank, reconnect the video.|再生を再要求しました。表示されなければ再接続してください。|已重新请求播放，如仍无画面请重新连接。|Đã yêu cầu phát lại. Nếu vẫn trống, hãy kết nối lại video.
+The classroom video connection failed. Refresh Chrome on both PCs and ask the school administrator to check device isolation.|教室内の映像接続に失敗しました。両方のChromeを更新し端末間制限を学校担当者に確認してください。|教室内视频连接失败，请刷新两端Chrome并联系学校检查设备隔离。|Kết nối video trong lớp thất bại. Làm mới Chrome hai máy và nhờ IT kiểm tra cô lập thiết bị.
+Negotiation exists but video is not connected. Ask your school administrator to check browser access and device isolation.|接続情報はありますが映像が未接続です。学校担当者にブラウザー通信と端末間制限を確認してください。|已交换连接信息但视频未连接，请联系学校检查浏览器通信与设备隔离。|Đã trao đổi thông tin nhưng chưa có đường video. Nhờ IT kiểm tra quyền trình duyệt và cô lập thiết bị.
+This version is for the classroom LAN. If video alone fails, ask your school administrator to check peer connectivity.|教室内LAN専用です。映像だけ接続できなければ端末間通信を学校担当者に確認してください。|本版本仅用于教室局域网，如仅视频失败，请联系学校检查电脑间通信。|Bản này dành cho LAN lớp học. Nếu chỉ video lỗi, nhờ IT kiểm tra kết nối giữa máy.
+Diagnostics copied. Copy the report from both presenter and affected viewer. No emails, passwords, keys, or IP addresses are included.|診断をコピーしました。共有側と問題の視聴側の結果を送ってください。メール・パスワード・鍵・IPは含みません。|诊断已复制，请提供共享端和异常观看端结果，不包含邮箱、密码、密钥或IP。|Đã sao chép chẩn đoán. Gửi kết quả cả máy chia sẻ và máy xem lỗi. Không có email, mật khẩu, khóa hay IP.
+The browser could not apply some capture settings. Check actual capture resolution.|キャプチャ設定の一部を適用できませんでした。実際の解像度を確認してください。|部分捕获设置未能应用，请检查实际捕获分辨率。|Không áp dụng được một số thiết lập chụp. Kiểm tra độ phân giải thực tế.
+The selected codec is unavailable; using automatic codec selection.|選択したコーデックは未対応のため自動選択します。|不支持所选编码，将自动选择。|Codec đã chọn không có; dùng lựa chọn tự động.
+Codec preference could not be applied; using automatic selection.|コーデックの優先順位を適用できず自動選択します。|无法应用编码优先顺序，将自动选择。|Không áp dụng được ưu tiên codec; dùng tự động.
+Selected original resolution, text clarity, high quality and 30fps.|元の解像度・文字優先・高画質・30fpsに設定しました。|已选择原始分辨率、文字优先、高画质和30fps。|Đã chọn độ phân giải gốc, ưu tiên chữ, chất lượng cao và30fps.
+Selected 1080p, motion priority, high quality and 60fps. Actual performance varies.|1080p・動き優先・高画質・60fpsに設定しました。実際の性能は環境に依存します。|已选择1080p、流畅优先、高画质和60fps，实际性能因环境而异。|Đã chọn1080p, ưu tiên chuyển động, chất lượng cao và60fps. Thực tế có thể khác.
+See actual bitrate in the statistics below.|実際の送信量は下の統計で確認してください。|实际码率请查看下方统计。|Xem tốc độ thực tế trong thống kê bên dưới.
+Some capture settings could not be applied.|キャプチャ設定の一部を適用できません。|部分捕获设置未能应用。|Một số thiết lập chụp chưa được áp dụng.
+The source is smaller than the target. A larger selection cannot add source detail.|元画面が目標より小さいため、設定を大きくしても細部は増えません。|源画面小于目标，提高设置不会增加原始细节。|Nguồn nhỏ hơn mục tiêu; tăng lựa chọn không tạo thêm chi tiết.
+Large sources require more processing. If video stutters, try 1440p or 1080p.|大きな元画面は高負荷です。途切れる場合は1440pや1080pを試してください。|大尺寸源画面负载较高，卡顿时请尝试1440p或1080p。|Nguồn lớn cần xử lý nhiều. Nếu giật, thử1440p hoặc1080p.
+Classroom Live · Classroom server|Classroom Live · 教室サーバー|Classroom Live · 教室服务器|Classroom Live · Máy chủ lớp
+Classroom Live LAN · Together in the classroom|Classroom Live LAN · 教室で一緒に|Classroom Live LAN · 教室内共享|Classroom Live LAN · Cùng học trong lớp
+Classroom LAN · Accounts and chats stay on the classroom server. Screens are not recorded.|教室LAN専用 · アカウントと会話は教室サーバーに保存します。画面は録画しません。|教室局域网 · 账号与聊天保存在教室服务器，不录制屏幕。|LAN lớp học · Tài khoản và chat lưu trên máy chủ lớp. Không ghi hình.
+Incorrect user ID or password.|IDまたはパスワードが違います。|账号或密码错误。|Sai ID hoặc mật khẩu.
+That user ID is already in use.|そのIDは使用中です。|该账号已被使用。|ID này đã được dùng.
+Please sign in again.|もう一度ログインしてください。|请重新登录。|Vui lòng đăng nhập lại.
+Registration is closed. Contact the administrator.|新規登録は終了しています。管理者にお問い合わせください。|已关闭注册，请联系管理员。|Đã đóng đăng ký. Liên hệ quản trị viên.
+Too many sign-in attempts. Try again in five minutes.|ログイン試行が多すぎます。5分後に再試行してください。|登录尝试过多，请5分钟后重试。|Thử đăng nhập quá nhiều. Thử lại sau 5 phút.
+Too many attempts. Try again in five minutes.|試行が多すぎます。5分後に再試行してください。|尝试过多，请5分钟后重试。|Thử quá nhiều lần. Thử lại sau 5 phút.
+Use 3–80 letters, digits or _.@+- for the user ID.|IDは英数字・_.@+-で3～80文字にしてください。|账号请使用3至80位英文字母、数字或_.@+-。|ID dùng 3–80 chữ Latin, số hoặc _.@+-.
+Incorrect room name, code or password.|部屋名・招待コード・パスワードが違います。|房间名称、邀请码或密码错误。|Sai tên phòng, mã mời hoặc mật khẩu.
+The administrator cannot be suspended or removed.|管理者は利用停止・強制退室できません。|不能停用或移出管理员。|Không thể đình chỉ hoặc mời quản trị viên ra.
+Each account can create up to ten rooms.|1アカウントにつき最大10部屋です。|每个账号最多创建10个房间。|Mỗi tài khoản tạo tối đa 10 phòng.
+Server connection or storage error. Check disk space and permissions on the server.|接続または保存エラーです。サーバーの空き容量と権限を確認してください。|服务器连接或存储错误，请检查磁盘空间与权限。|Lỗi kết nối hoặc lưu trữ. Kiểm tra dung lượng và quyền máy chủ.
+HTTPS and the classroom certificate are required for screen sharing. Open Connection help.|画面共有にはHTTPSと教室証明書が必要です。接続ヘルプを確認してください。|屏幕共享需要HTTPS及教室证书，请查看连接帮助。|Chia sẻ cần HTTPS và chứng chỉ lớp. Mở trợ giúp kết nối.
+Update and restart the classroom server.|教室サーバーを更新して再起動してください。|请更新并重启教室服务器。|Cập nhật và khởi động lại máy chủ lớp.
+Could not load rooms. Check the classroom server.|部屋を取得できません。教室サーバーを確認してください。|无法加载房间，请检查教室服务器。|Không tải được phòng. Kiểm tra máy chủ lớp.
+ (you)| (自分)| (我)| (bạn)
+ · sharing| · 共有中| · 共享中| · đang chia sẻ
+ · your room| · 自分の部屋| · 我的房间| · phòng của bạn
+ · Quality is limited by network bandwidth.| · ネットワーク帯域により画質が制限されています。| · 网络带宽限制了画质。| · Chất lượng bị giới hạn bởi băng thông mạng.
+ · Quality is limited by the presenter’s CPU.| · 共有PCのCPUにより画質が制限されています。| · 共享电脑的CPU限制了画质。| · Chất lượng bị giới hạn bởi CPU máy chia sẻ.
+ · The captured source is smaller than the selected resolution.| · 元のキャプチャが選択した解像度より小さいです。| · 捕获源小于所选分辨率。| · Nguồn chụp nhỏ hơn độ phân giải đã chọn.
+ · Actual sending resolution is below the target.| · 実際の送信解像度が目標より低くなっています。| · 实际发送分辨率低于目标。| · Độ phân giải gửi thực tế thấp hơn mục tiêu.
+ · Video is delayed. Reconnect it or lower the sharing frame rate.| · 映像が遅延しています。再接続または共有FPSを下げてください。| · 视频存在延迟，请重新连接或降低共享帧率。| · Video bị trễ. Kết nối lại hoặc giảm FPS chia sẻ.

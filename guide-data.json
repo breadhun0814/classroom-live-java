@@ -1,0 +1,277 @@
+{
+  "ko": {
+    "name": "한국어",
+    "title": "Classroom Live Java LAN",
+    "lead": "교실 컴퓨터 한 대로 로그인·채팅·화면 공유를 운영하세요.",
+    "notice": "이 페이지는 설치·사용 안내입니다. 실제 수업은 교실 서버를 켠 뒤 https://서버IP:포트/로 접속합니다. GitHub Pages는 Java 서버를 실행하지 않습니다.",
+    "language": "언어",
+    "download": "GitHub에서 받기",
+    "home": "교실로 돌아가기",
+    "sections": [
+      [
+        "어떤 프로그램인가요?",
+        "교수님 포함 한 방에 최대 8접속, 동시에 한 명이 화면을 공유합니다. 아이디·비밀번호 가입, 비밀번호 방, 텍스트·코드 채팅, 관리자 회원 관리, 고화질 화면 공유를 제공합니다. 계정과 채팅은 교실 서버에 저장하며 화면은 녹화하지 않습니다. 음성 공유와 파일 첨부는 포함하지 않습니다."
+      ],
+      [
+        "1. 서버 PC 준비",
+        "GitHub에서 Code → Download ZIP → 모두 압축 풀기를 선택하세요. ClassroomLive.jar와 00-Java-Check.cmd가 보이는 폴더에서 작업합니다. 서버 PC에는 Java 17 이상과 keytool이 필요합니다. Python·Maven·외부 클라우드는 필요 없습니다. 학생 PC에는 Chrome만 있으면 됩니다."
+      ],
+      [
+        "2. Spring Tools의 Java 연결",
+        "00-Java-Check.cmd를 실행합니다. Java를 못 찾으면 Spring Tools → Window → Preferences → Java → Installed JREs → Edit에서 JRE home을 복사하세요. 프로그램 폴더에 java-path.txt를 만들고 첫 줄에 실제 JDK 폴더 경로를 저장한 뒤 다시 확인하세요. 예시 경로를 그대로 쓰지 마세요."
+      ],
+      [
+        "3. 최초 서버 설정",
+        "PowerShell에서 ipconfig를 입력해 랜선 이더넷의 실제 IPv4와 마스크를 확인하세요. 01-Setup.cmd 실행 → 실제 서버 IP → 허용 대역 → 포트(기본 8443) → 관리자 아이디와 12자 이상 비밀번호를 설정합니다. 예: IP 192.168.22.156, 마스크 255.255.255.0이면 대역은 192.168.22.0/24입니다. 실제 주소로 바꾸세요."
+      ],
+      [
+        "4. 방화벽과 서버 시작",
+        "서버 PC에서 03-Firewall.cmd를 우클릭 → 관리자 권한으로 실행합니다. 설정한 대역에서 접속 포트만 허용합니다. 02-Start.cmd를 실행하고 수업 중 창·전원을 켜 두세요. 종료는 Ctrl+C입니다. 전체 방화벽을 끄지 마세요."
+      ],
+      [
+        "5. 학생 접속 준비",
+        "설정 후 생성된 data/STUDENT_SETUP.zip만 학생에게 전달합니다. 학생과 서버 PC의 Windows 사용자마다 압축 해제 → 안의 Setup.cmd → 교수님이 준 원본을 확인한 뒤 YES → 교실 인증서 등록 승인 → Chrome 완전 종료 후 다시 실행합니다. 학생에게 전체 서버 폴더나 data/tls를 보내지 마세요. 학교 정책으로 설치가 막히면 담당자에게 요청하세요."
+      ],
+      [
+        "6. 가입·방·수업",
+        "Chrome에 서버 창의 HTTPS 주소를 입력하세요. 학생은 아이디·8자 이상 비밀번호·닉네임으로 가입하며 이메일 인증은 없습니다. 교수님은 최초 설정한 관리자 계정으로 로그인 → 채팅 사이트로 돌아가기 → 비밀번호 방 만들기를 합니다. 학생은 방을 선택해 비밀번호로 입장합니다. Enter 전송 / Shift+Enter 줄바꿈, 코드는 코드로 보내기를 선택합니다."
+      ],
+      [
+        "7. 화질과 언어",
+        "공유 PC에서 수업 글씨 선명하게를 누르면 원본 해상도·고화질·30fps를 선택합니다. 영상 부드럽게는 1080p·60fps·H.264 우선입니다. 실제 해상도·FPS는 PC와 네트워크에 따라 다릅니다. 학생은 전체 화면 또는 원본 크기로 보기를 사용할 수 있습니다. 오른쪽 위 언어 선택은 버튼·안내의 표시 언어를 바꾸며 선택은 브라우저에 저장됩니다."
+      ],
+      [
+        "8. 관리자·백업·업데이트",
+        "관리자만 회원 조회, 이용 정지/해제, 방 강제 퇴장과 방 삭제를 할 수 있습니다. 관리자 본인은 정지할 수 없습니다. 서버 종료 후 04-Backup.cmd로 백업하거나 05-Reset-Password.cmd로 비밀번호를 변경하세요. 업데이트는 서버 종료 → 새 ClassroomLive.jar 교체 → 기존 data와 java-path.txt 유지 → 서버 시작 → 모두 Ctrl+Shift+R입니다. 재시작하면 다시 로그인·입장해야 합니다."
+      ],
+      [
+        "연결이 안 되거나 흐리면",
+        "서버 전원·실제 IP·포트·허용 대역·인증서를 확인하세요. 채팅만 되면 Chrome을 새로고침하고 연결 진단을 복사하세요. 같은 건물도 VLAN/PC 간 차단으로 영상이 안 될 수 있어 학교 담당자의 허용이 필요합니다. IP 대역 제한만으로 유선과 같은 대역의 Wi-Fi를 구분할 수는 없습니다. 고화질을 7명에게 보내면 공유 PC 부하가 늘며, 1080p 원본을 1440p로 바꾼다고 세부 정보가 생기지는 않습니다."
+      ],
+      [
+        "GitHub에 올리기",
+        "새 저장소에서 Add file → Upload files를 선택하고 압축을 푼 폴더 안의 파일·폴더를 올리세요. README.md가 최상위에 있어야 저장소 설명이 보입니다. 실행 후 생긴 data, 인증서 개인 키, 회원 데이터, 개인 java-path.txt는 올리지 마세요. 브라우저 업로드에서는 .gitignore만으로 제외되지 않습니다. Pages를 쓰려면 Settings → Pages → Deploy from a branch → main / (root)를 선택하면 이 다국어 안내 페이지가 열립니다."
+      ]
+    ]
+  },
+  "en": {
+    "name": "English",
+    "title": "Classroom Live Java LAN",
+    "lead": "Run classroom sign-in, chat and screen sharing from one local computer.",
+    "notice": "This is the installation guide. For a live class, start the classroom server and open https://SERVER_IP:PORT/. GitHub Pages does not run the Java server.",
+    "language": "Language",
+    "download": "Get from GitHub",
+    "home": "Back to classroom",
+    "sections": [
+      [
+        "What is included?",
+        "Up to 8 browser connections per room including the professor, with one presenter at a time. Local ID/password accounts, protected rooms, text/code chat, administrator controls and high-quality screen sharing are included. Accounts and chat stay on the classroom server. Screens are not recorded. Audio sharing and file attachments are not included."
+      ],
+      [
+        "1. Prepare the server PC",
+        "On GitHub select Code → Download ZIP, then extract all files. Work in the folder containing ClassroomLive.jar and 00-Java-Check.cmd. The server needs Java 17+ and keytool. No Python, Maven or cloud account is required. Students only need Chrome."
+      ],
+      [
+        "2. Use the Java in Spring Tools",
+        "Run 00-Java-Check.cmd. If Java is not found, open Spring Tools → Window → Preferences → Java → Installed JREs → Edit and copy JRE home. Create java-path.txt beside the JAR and put the actual JDK folder on its first line, then check again. Do not use the example path literally."
+      ],
+      [
+        "3. Initial server setup",
+        "Run ipconfig in PowerShell and find the wired Ethernet IPv4 and subnet mask. Run 01-Setup.cmd and enter the actual server IP, allowed subnet, port (default 8443), and your sole administrator ID and a password of at least 12 characters. Example only: 192.168.22.156 with mask 255.255.255.0 uses subnet 192.168.22.0/24. Use your actual values."
+      ],
+      [
+        "4. Firewall and start",
+        "On the server, right-click 03-Firewall.cmd → Run as administrator. It allows only the configured TCP port from the classroom subnet. Run 02-Start.cmd and keep the window and PC powered on during lessons. Stop with Ctrl+C. Do not disable the entire firewall."
+      ],
+      [
+        "5. Prepare student access",
+        "Distribute only the generated data/STUDENT_SETUP.zip. Each Windows user, including the server user, extracts it, runs Setup.cmd, verifies it came from the teacher, types YES and approves the classroom certificate. Completely close and reopen Chrome. Never distribute the whole server folder or data/tls. If school policy blocks installation, ask IT."
+      ],
+      [
+        "6. Accounts, rooms and lessons",
+        "Open the HTTPS address printed by the server in Chrome. Students create an ID, password of at least 8 characters and nickname; no email confirmation is used. The professor signs in with the setup administrator account, returns to chat and creates a password-protected room. Students select the room and enter its password. Enter sends; Shift+Enter adds a line. Select Send as code for code."
+      ],
+      [
+        "7. Quality and language",
+        "On the presenting PC, Clear classroom text selects original resolution, high quality and 30fps. Smooth video selects 1080p, 60fps and H.264 preference. Actual resolution/FPS depend on hardware and networking. Viewers can use full screen or original-size view. The language picker changes interface labels and help; the selection is saved in the browser."
+      ],
+      [
+        "8. Admin, backup and updates",
+        "Only the designated administrator can list members, suspend/restore access, remove room participants and delete rooms. The administrator cannot suspend themselves. Stop the server before 04-Backup.cmd or 05-Reset-Password.cmd. To update: stop, replace ClassroomLive.jar, preserve data and java-path.txt, restart, and refresh all browsers with Ctrl+Shift+R. Everyone signs in and rejoins after a restart."
+      ],
+      [
+        "Connection or clarity problems",
+        "Check server power, actual IP, port, allowed subnet and certificate trust. If chat works but video fails, refresh Chrome and copy diagnostics. Even within one building, VLANs or device isolation can block video; school IT may need to allow peer traffic. An IP subnet cannot distinguish Ethernet from Wi-Fi on the same subnet. Sending high quality to seven viewers increases presenter load. Selecting 1440p cannot create details absent from a 1080p source."
+      ],
+      [
+        "Upload to GitHub",
+        "Create a repository, select Add file → Upload files and upload the extracted contents. README.md must be at the repository root for GitHub to display the description. Never upload generated data, private certificate keys, account records or your personal java-path.txt. Browser uploads do not automatically honor .gitignore. For the guide site: Settings → Pages → Deploy from a branch → main / (root)."
+      ]
+    ]
+  },
+  "ja": {
+    "name": "日本語",
+    "title": "Classroom Live Java LAN",
+    "lead": "教室のパソコン1台でログイン・チャット・画面共有を運用できます。",
+    "notice": "このページは導入ガイドです。授業には教室サーバーを起動し、https://サーバーIP:ポート/ に接続してください。GitHub PagesではJavaサーバーは動作しません。",
+    "language": "言語",
+    "download": "GitHubから取得",
+    "home": "教室に戻る",
+    "sections": [
+      [
+        "できること",
+        "教員を含め1部屋最大8接続、同時に1人が画面共有できます。ID・パスワード登録、パスワード付きルーム、文章・コードのチャット、管理者による利用者管理、高画質の画面共有を備えています。アカウントとチャットは教室サーバーに保存し、画面は録画しません。音声共有・添付ファイルは含みません。"
+      ],
+      [
+        "1. サーバーPCの準備",
+        "GitHubのCode → Download ZIPで取得し、すべて展開します。ClassroomLive.jarと00-Java-Check.cmdがあるフォルダーを開いてください。サーバーにはJava 17以上とkeytoolが必要です。Python・Maven・クラウド登録は不要です。学生PCはChromeのみ使用します。"
+      ],
+      [
+        "2. Spring ToolsのJavaを指定",
+        "00-Java-Check.cmdを実行します。Javaが見つからない場合は、Spring Tools → Window → Preferences → Java → Installed JREs → EditのJRE homeをコピーします。JARの隣にjava-path.txtを作り、1行目に実際のJDKフォルダーを保存して再確認します。例のパスをそのまま使わないでください。"
+      ],
+      [
+        "3. 初回設定",
+        "PowerShellでipconfigを実行し、有線Ethernetの実際のIPv4とサブネットマスクを確認します。01-Setup.cmdでサーバーIP、許可するネットワーク、ポート（標準8443）、管理者IDと12文字以上のパスワードを設定します。例：IPが192.168.22.156、マスクが255.255.255.0ならネットワークは192.168.22.0/24です。実際の値に置き換えてください。"
+      ],
+      [
+        "4. ファイアウォールと起動",
+        "サーバーPCで03-Firewall.cmdを右クリック → 管理者として実行。指定した教室ネットワークから接続ポートだけを許可します。02-Start.cmdを実行し、授業中はウィンドウと電源を維持してください。終了はCtrl+Cです。ファイアウォール全体を無効にしないでください。"
+      ],
+      [
+        "5. 学生PCの接続準備",
+        "生成されたdata/STUDENT_SETUP.zipだけを学生に配布します。サーバー利用者を含む各Windows利用者が展開し、Setup.cmdを実行します。教員から受け取った正規のファイルと確認してYESを入力し、教室証明書の登録を承認します。Chromeを完全終了して開き直してください。サーバーフォルダー全体やdata/tlsは配布しません。学校の制限がある場合は担当者に依頼します。"
+      ],
+      [
+        "6. 登録・入室・授業",
+        "サーバーに表示されたHTTPSアドレスをChromeで開きます。学生はID、8文字以上のパスワード、表示名で登録します。メール認証はありません。教員は設定した管理者アカウントでログインし、チャット画面に戻ってパスワード付きルームを作ります。学生は部屋を選び、部屋のパスワードで入室します。Enterで送信、Shift+Enterで改行。コードはコード形式を選びます。"
+      ],
+      [
+        "7. 画質と言語",
+        "共有側で「授業の文字を鮮明に」を選ぶと、元の解像度・高画質・30fpsになります。「動画を滑らかに」は1080p・60fps・H.264優先です。実際の画質とFPSはPCとネットワークに依存します。視聴側は全画面・元のサイズ表示を利用できます。言語設定は画面の案内とボタンに適用され、ブラウザーに保存されます。"
+      ],
+      [
+        "8. 管理・バックアップ・更新",
+        "指定された管理者だけが利用者一覧、停止・解除、部屋からの退室、部屋の削除を操作できます。管理者本人は停止できません。04-Backup.cmdと05-Reset-Password.cmdはサーバー終了後に実行します。更新は停止 → ClassroomLive.jarを置換 → dataとjava-path.txtを保持 → 再起動 → 全員Ctrl+Shift+Rです。再起動後は再ログイン・再入室が必要です。"
+      ],
+      [
+        "接続や画質の問題",
+        "電源、実際のIP、ポート、許可ネットワーク、証明書登録を確認します。チャットだけ使える場合はChromeを更新し、接続診断をコピーしてください。同じ建物でもVLANや端末分離で映像が遮断される場合があり、学校担当者の許可が必要です。同じサブネット内の有線とWi-FiをIP制限だけでは区別できません。7人への高画質送信は共有PCの負荷を増やします。1080pの元画面を1440pにしても元にない細部は増えません。"
+      ],
+      [
+        "GitHubへ公開",
+        "新しいリポジトリでAdd file → Upload filesを選び、展開した内容をアップロードします。README.mdを最上位に置くと説明が表示されます。生成されたdata、証明書の秘密鍵、会員情報、個人用java-path.txtは公開しないでください。ブラウザーでのアップロードは.gitignoreで自動除外されません。案内サイトはSettings → Pages → Deploy from a branch → main / (root)で設定します。"
+      ]
+    ]
+  },
+  "zh-CN": {
+    "name": "简体中文",
+    "title": "Classroom Live Java LAN",
+    "lead": "使用教室内一台电脑提供登录、聊天和屏幕共享。",
+    "notice": "本页是安装使用指南。上课时请启动教室服务器，再访问 https://服务器IP:端口/。GitHub Pages不能运行Java服务器。",
+    "language": "语言",
+    "download": "从GitHub获取",
+    "home": "返回教室",
+    "sections": [
+      [
+        "功能介绍",
+        "每个房间最多8个浏览器连接，包含教师；同一时间仅一人共享屏幕。支持本地账号密码、密码保护房间、文字和代码聊天、管理员用户管理及高画质屏幕共享。账号和聊天记录保存在教室服务器，不录制屏幕。不包含音频共享或附件上传。"
+      ],
+      [
+        "1. 准备服务器电脑",
+        "在GitHub选择Code → Download ZIP，然后全部解压。打开包含ClassroomLive.jar和00-Java-Check.cmd的文件夹。服务器需要Java 17或更高版本及keytool，不需要Python、Maven或云服务账号。学生电脑只需Chrome。"
+      ],
+      [
+        "2. 使用Spring Tools中的Java",
+        "运行00-Java-Check.cmd。如找不到Java，在Spring Tools → Window → Preferences → Java → Installed JREs → Edit中复制JRE home。在JAR旁新建java-path.txt，第一行写入实际JDK文件夹路径，再次检查。不要直接使用示例路径。"
+      ],
+      [
+        "3. 首次配置",
+        "在PowerShell输入ipconfig，查找有线以太网的实际IPv4和子网掩码。运行01-Setup.cmd，设置服务器IP、允许的网段、端口（默认8443）、唯一管理员账号及至少12位密码。例如：IP为192.168.22.156、掩码为255.255.255.0，则网段为192.168.22.0/24。请使用实际数值。"
+      ],
+      [
+        "4. 防火墙与启动",
+        "在服务器电脑右键03-Firewall.cmd → 以管理员身份运行，仅允许指定教室网段访问所选TCP端口。运行02-Start.cmd，上课期间保持窗口和电脑开启。Ctrl+C停止。不要关闭整个防火墙。"
+      ],
+      [
+        "5. 学生连接准备",
+        "只分发生成的data/STUDENT_SETUP.zip。每个Windows用户（包括服务器用户）先解压，运行Setup.cmd，确认是教师提供的原版文件后输入YES，批准安装教室证书。完全退出并重新打开Chrome。不要分发整个服务器文件夹或data/tls。如学校策略阻止安装，请联系负责人。"
+      ],
+      [
+        "6. 注册、入室与上课",
+        "在Chrome输入服务器窗口显示的HTTPS地址。学生使用账号、至少8位密码和昵称注册，无需邮件验证。教师使用首次配置的管理员账号登录，返回聊天界面后创建密码房间。学生选择房间并输入房间密码。Enter发送，Shift+Enter换行；发送代码时选择代码模式。"
+      ],
+      [
+        "7. 画质与语言",
+        "共享方选择“课堂文字更清晰”，设置为原始分辨率、高画质、30fps。“视频更流畅”选择1080p、60fps并优先H.264。实际分辨率和帧率取决于电脑及网络。观看者可使用全屏或原始大小显示。语言菜单切换界面文字和帮助，选择保存在浏览器中。"
+      ],
+      [
+        "8. 管理、备份与更新",
+        "只有指定管理员可以查看用户、停用/恢复账号、移出房间及删除房间。不能停用管理员本人。先停止服务器，再运行04-Backup.cmd或05-Reset-Password.cmd。更新顺序：停止 → 替换ClassroomLive.jar → 保留data和java-path.txt → 启动 → 所有人按Ctrl+Shift+R。重启后需要重新登录和入室。"
+      ],
+      [
+        "连接或清晰度问题",
+        "检查电源、实际IP、端口、允许网段及证书。能聊天但没画面时刷新Chrome并复制连接诊断。同一建筑也可能因VLAN或设备隔离阻止视频，需要学校负责人放行。同一子网的有线和Wi-Fi无法仅靠IP限制区分。向7人发送高画质会增加共享电脑负担。把1080p源画面设为1440p不会产生原本不存在的细节。"
+      ],
+      [
+        "上传到GitHub",
+        "新建仓库，选择Add file → Upload files，上传解压后的内容。README.md应位于仓库根目录，GitHub才会显示说明。不要上传生成的data、证书私钥、用户数据或个人java-path.txt。浏览器上传不会自动遵守.gitignore。启用说明网页：Settings → Pages → Deploy from a branch → main / (root)。"
+      ]
+    ]
+  },
+  "vi": {
+    "name": "Tiếng Việt",
+    "title": "Classroom Live Java LAN",
+    "lead": "Dùng một máy tính trong lớp để đăng nhập, trò chuyện và chia sẻ màn hình.",
+    "notice": "Đây là trang hướng dẫn. Để học trực tiếp, hãy bật máy chủ lớp rồi mở https://IP_MAY_CHU:CONG/. GitHub Pages không chạy máy chủ Java.",
+    "language": "Ngôn ngữ",
+    "download": "Lấy từ GitHub",
+    "home": "Trở về lớp",
+    "sections": [
+      [
+        "Có những chức năng gì?",
+        "Mỗi phòng có tối đa 8 kết nối trình duyệt, kể cả giảng viên; mỗi lần chỉ một người chia sẻ. Có tài khoản/mật khẩu cục bộ, phòng có mật khẩu, chat văn bản/mã nguồn, quản lý thành viên và chia sẻ màn hình chất lượng cao. Tài khoản và chat được lưu trên máy chủ lớp. Không ghi hình; không có chia sẻ âm thanh hoặc tệp đính kèm."
+      ],
+      [
+        "1. Chuẩn bị máy chủ",
+        "Trên GitHub chọn Code → Download ZIP rồi giải nén tất cả. Mở thư mục có ClassroomLive.jar và 00-Java-Check.cmd. Máy chủ cần Java 17 trở lên và keytool. Không cần Python, Maven hoặc tài khoản đám mây. Máy sinh viên chỉ cần Chrome."
+      ],
+      [
+        "2. Dùng Java trong Spring Tools",
+        "Chạy 00-Java-Check.cmd. Nếu không tìm thấy Java, mở Spring Tools → Window → Preferences → Java → Installed JREs → Edit và sao chép JRE home. Tạo java-path.txt cạnh JAR, ghi đường dẫn thư mục JDK thực tế ở dòng đầu rồi kiểm tra lại. Không chép nguyên đường dẫn ví dụ."
+      ],
+      [
+        "3. Thiết lập lần đầu",
+        "Gõ ipconfig trong PowerShell để tìm IPv4 Ethernet có dây và mặt nạ mạng thực tế. Chạy 01-Setup.cmd, nhập IP máy chủ, dải mạng được phép, cổng (mặc định 8443), tài khoản quản trị duy nhất và mật khẩu từ 12 ký tự. Ví dụ: IP 192.168.22.156 với mặt nạ 255.255.255.0 dùng dải 192.168.22.0/24. Hãy dùng thông số thực tế."
+      ],
+      [
+        "4. Tường lửa và khởi động",
+        "Trên máy chủ, nhấp phải 03-Firewall.cmd → Run as administrator. Chỉ mở cổng TCP đã chọn cho dải mạng lớp. Chạy 02-Start.cmd, giữ cửa sổ và máy tính hoạt động trong buổi học. Dừng bằng Ctrl+C. Không tắt toàn bộ tường lửa."
+      ],
+      [
+        "5. Chuẩn bị máy sinh viên",
+        "Chỉ gửi tệp data/STUDENT_SETUP.zip được tạo sau thiết lập. Mỗi người dùng Windows, kể cả trên máy chủ, giải nén rồi chạy Setup.cmd; xác nhận tệp gốc do giảng viên cung cấp, nhập YES và chấp thuận chứng chỉ lớp. Đóng hoàn toàn rồi mở lại Chrome. Không gửi cả thư mục máy chủ hoặc data/tls. Nếu chính sách trường chặn cài đặt, liên hệ người phụ trách."
+      ],
+      [
+        "6. Đăng ký, vào phòng và học",
+        "Mở địa chỉ HTTPS hiện trong cửa sổ máy chủ bằng Chrome. Sinh viên đăng ký ID, mật khẩu ít nhất 8 ký tự và biệt danh; không cần xác nhận email. Giảng viên đăng nhập bằng tài khoản quản trị đã tạo, trở về chat và tạo phòng có mật khẩu. Sinh viên chọn phòng và nhập mật khẩu phòng. Enter gửi; Shift+Enter xuống dòng. Chọn chế độ mã nguồn khi gửi code."
+      ],
+      [
+        "7. Chất lượng và ngôn ngữ",
+        "Trên máy chia sẻ, chọn “Chữ bài học rõ nét” để dùng độ phân giải gốc, chất lượng cao và 30fps. “Video mượt” chọn 1080p, 60fps và ưu tiên H.264. Chất lượng/FPS thực tế phụ thuộc máy và mạng. Người xem có thể dùng toàn màn hình hoặc kích thước gốc. Bộ chọn ngôn ngữ đổi nhãn giao diện và hướng dẫn; lựa chọn được lưu trong trình duyệt."
+      ],
+      [
+        "8. Quản trị, sao lưu và cập nhật",
+        "Chỉ quản trị viên đã chỉ định được xem thành viên, đình chỉ/khôi phục, mời ra khỏi phòng và xóa phòng. Không thể đình chỉ chính quản trị viên. Dừng máy chủ trước khi chạy 04-Backup.cmd hoặc 05-Reset-Password.cmd. Cập nhật: dừng → thay ClassroomLive.jar → giữ data và java-path.txt → bật lại → mọi người nhấn Ctrl+Shift+R. Sau khi khởi động lại phải đăng nhập và vào phòng lại."
+      ],
+      [
+        "Lỗi kết nối hoặc hình mờ",
+        "Kiểm tra nguồn máy chủ, IP, cổng, dải mạng và chứng chỉ. Nếu chat được nhưng không có hình, làm mới Chrome và sao chép chẩn đoán. Cùng tòa nhà vẫn có thể bị VLAN hoặc cô lập thiết bị chặn video; cần người phụ trách trường cho phép. IP không phân biệt được Ethernet và Wi-Fi cùng dải. Gửi hình chất lượng cao cho 7 người làm tăng tải máy chia sẻ. Chọn 1440p không tạo thêm chi tiết từ nguồn 1080p."
+      ],
+      [
+        "Đưa lên GitHub",
+        "Tạo kho mã, chọn Add file → Upload files và tải nội dung đã giải nén lên. README.md phải nằm ở thư mục gốc để GitHub hiển thị mô tả. Không tải data được tạo lúc chạy, khóa riêng chứng chỉ, dữ liệu tài khoản hoặc java-path.txt cá nhân. Tải qua trình duyệt không tự loại tệp theo .gitignore. Bật trang hướng dẫn: Settings → Pages → Deploy from a branch → main / (root)."
+      ]
+    ]
+  }
+}

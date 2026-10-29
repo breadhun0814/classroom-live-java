@@ -1,0 +1,19 @@
+# Classroom Live Java LAN
+
+One classroom PC runs the included ClassroomLive.jar using Java 17+ and keytool. Students use desktop Chrome; they do not need Java, Eclipse, Python or Maven. No external services, APIs, cloud STUN/TURN, CDN or email are used. The executable JAR and full Java source are included.
+
+Windows: extract → 00-Java-Check.cmd → 01-Setup.cmd → run 03-Firewall.cmd as administrator → 02-Start.cmd. If Java is not on PATH, copy the actual JDK home from Spring Tools / Window / Preferences / Java / Installed JREs into java-path.txt (one line).
+
+Setup asks for the actual LAN IP, allowed subnet, port (default 8443), and the sole administrator account. It creates a classroom CA, HTTPS server certificate and data/STUDENT_SETUP.zip. Give students only that generated ZIP, never the complete server folder or private data. Each Windows user extracts it, runs Setup.cmd, types YES and approves the classroom CA, then completely restarts Chrome and opens the generated HTTPS address. Install only the original package supplied by your classroom administrator.
+
+Administrator signs in with the setup account, returns to the classroom, creates a password-protected room and starts screen sharing. Students create local IDs/passwords/nicknames with no email confirmation and join the room with its password. Maximum 8 concurrent browser sessions per room including the presenter; only one presenter at a time. Start with 1080p30 text clarity mode. Enter sends chat/code, Shift+Enter adds a newline. Bilingual Korean/English UI and admin suspension/restore, room kick/delete are included.
+
+The local JSON database data/classroom-data.json contains salted PBKDF2 password hashes and persistent accounts, profiles, rooms and up to 1,000 messages per room. Live sessions/members/signaling stay in memory: restarting the server requires users to log in, rejoin and restart sharing. Stop the server before 04-Backup.cmd, 05-Reset-Password.cmd or reconfiguration. For a complete move or recovery, securely back up the entire data directory while stopped, including the CA keys. Do not publish this directory.
+
+LAN IP allowlisting does not distinguish Ethernet from Wi-Fi on the same subnet. Ask school IT to enforce wired-only access if needed. Device isolation or browser firewall restrictions may prevent direct WebRTC video even when chat works. Video goes separately from the presenting PC to each viewer; this is not an SFU. No video recording, audio, file attachments, home internet access, or automatic migration from the prior Python/Supabase edition. Actual video quality and nine-hour sessions require an on-site test.
+
+Ubuntu: bash run-ubuntu.sh check, then setup, then serve. Use a bridged VM LAN IP if hosting inside VirtualBox. Allow the configured TCP port only from the classroom subnet if UFW is enabled. See START_HERE_KO.md for all steps and troubleshooting.
+
+Quality update java-lan2: native-resolution capture without a forced 16:9 width, higher LAN bitrate ceilings, text/motion presets, optional codec preference with fallbacks, original pixel-size view and capture diagnostics. Stop the existing server, replace ClassroomLive.jar, preserve data and java-path.txt, restart and refresh every browser with Ctrl+Shift+R. The JAR now serves its embedded UI before the optional development public directory. No certificate reinstall is needed if the server IP/port and CA remain the same. See QUALITY_KO.txt for detailed instructions and bitrate caveats. Real eight-PC quality has not been measured here.
+
+Multilingual release java-lan3 adds Japanese, Simplified Chinese and Vietnamese alongside Korean and English for the main web UI and local help. Open START_HERE.html for the five-language installation guide. Root index.html is the same guide for GitHub Pages; the actual classroom application still runs on the Java LAN server. See README.md and docs/guide-en.md for repository instructions.

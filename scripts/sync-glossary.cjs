@@ -1,0 +1,4 @@
+// Developer tool: regenerate the offline UI glossary. No translation network/API.
+const fs=require('node:fs'),path=require('node:path');const root=path.join(__dirname,'..'),dict={};
+for(const line of fs.readFileSync(path.join(__dirname,'translations.tsv'),'utf8').split(/\r?\n/)){if(!line.trim())continue;const parts=line.split('|');if(parts.length!==4)throw Error('Expected English|Japanese|Chinese|Vietnamese: '+line);const [en,ja,zh,vi]=parts;if(Object.hasOwn(dict,en)||![ja,zh,vi].every(Boolean))throw Error('Duplicate/empty translation: '+en);dict[en]={ja,'zh-CN':zh,vi};}
+const file=path.join(root,'public/web/languages.js');let s=fs.readFileSync(file,'utf8');const start=s.indexOf(' const dictionary=')+' const dictionary='.length,end=s.indexOf(';\n const templates');if(end<0)throw Error('Glossary marker not found');fs.writeFileSync(file,s.slice(0,start)+JSON.stringify(dict)+s.slice(end));console.log('Updated offline UI glossary.');
