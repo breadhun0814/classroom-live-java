@@ -24,6 +24,16 @@
 >
 > GitHub Pages hosts the guide. The live app runs at the classroom server’s HTTPS address.
 
+## Windows 바탕화면 서버 앱 / Desktop server control
+
+기존 서버 종료 → 서버 폴더 백업 → 새 파일을 기존 폴더에 복사 → **data**와 **java-path.txt** 유지 → **Create-Desktop-Shortcut.cmd** 한 번 실행.
+
+바탕화면의 **Classroom Live 서버** 바로가기를 누르면 CMD 창 없이 관리 앱이 열립니다. 앱의 **서버 시작 / 서버 종료** 버튼을 사용하세요. 원본 서버 폴더는 이동하거나 삭제하지 마세요. 학생 PC와 기존 주소·인증서는 그대로 사용합니다.
+
+Stop the old server, back up its folder, copy the updated files into that folder, preserve **data** and **java-path.txt**, then run **Create-Desktop-Shortcut.cmd** once. The desktop shortcut opens the control window without a console. Keep the original server folder in place. Student setup is unchanged.
+
+상세 안내 / Instructions: [SERVER_APP_KO.md](SERVER_APP_KO.md). 시작 문제는 **Server-App-Debug.cmd**로 확인하세요. 실제 Windows의 바로가기·창 없는 실행은 별도 현장 확인이 필요합니다.
+
 ## 언어별 설명 / Guides
 
 - [한국어](docs/guide-ko.md)

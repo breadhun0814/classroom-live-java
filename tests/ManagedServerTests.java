@@ -18,6 +18,7 @@ public class ManagedServerTests {
         Path home=Files.createTempDirectory("교실 server app test ");Path data=home.resolve("data");Files.createDirectories(data);ManagedServer managed=new ManagedServer();
         try{
             Files.copy(Path.of("ClassroomLive.jar"),home.resolve("ClassroomLive.jar"));
+            Files.copy(Path.of("ServerControl.jar"),home.resolve("ServerControl.jar"));
             ClassroomServer.Store store=new ClassroomServer.Store(data);store.admin("teacher","TeacherPassword-123");
             String fingerprint=ClassroomServer.certificates(data,"192.168.22.50");int port;try(var socket=new java.net.ServerSocket(0)){port=socket.getLocalPort();}
             var cfg=ClassroomServer.obj("server_ip","192.168.22.50","port",port,"allowed_cidrs",List.of("192.168.22.0/24"),"signup_enabled",true);
@@ -26,6 +27,10 @@ public class ManagedServerTests {
             KeyStore trust=KeyStore.getInstance(KeyStore.getDefaultType());trust.load(null);trust.setCertificateEntry("ca",ClassroomServer.readCert(data.resolve("tls/classroom-ca.crt")));
             TrustManagerFactory tm=TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());tm.init(trust);SSLContext ssl=SSLContext.getInstance("TLS");ssl.init(null,tm.getTrustManagers(),null);
             HttpClient client=HttpClient.newBuilder().sslContext(ssl).connectTimeout(Duration.ofSeconds(2)).build();String origin="https://127.0.0.1:"+port;
+            Path javaExe=Path.of(System.getProperty("java.home"),"bin",System.getProperty("os.name").startsWith("Windows")?"java.exe":"java");
+            Process preflight=new ProcessBuilder(javaExe.toString(),"-jar",home.resolve("ServerControl.jar").toString(),"--check").directory(home.getParent().toFile()).redirectErrorStream(true).start();
+            String result=new String(preflight.getInputStream().readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);
+            check(preflight.waitFor()==0&&result.contains(home.toString())&&result.contains("192.168.22.50"),"app resolves JAR folder from unrelated working directory: "+result);
             BlockingQueue<Integer> exits=new LinkedBlockingQueue<>();List<String> logs=new CopyOnWriteArrayList<>();
             managed.start(home,logs::add,exits::add);ready(managed,client,origin);
             // The existing file lock rejects a second launcher without killing the running server.

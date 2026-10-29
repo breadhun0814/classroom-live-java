@@ -10,7 +10,7 @@ public final class ManagedServer {
     public synchronized boolean isRunning(){return child!=null&&child.isAlive();}
     public synchronized void start(Path home,Consumer<String> log,IntConsumer exited)throws IOException {
         if(isRunning())throw new IOException("이 앱에서 서버가 이미 실행 중입니다.");
-        Path java=Path.of(System.getProperty("java.home"),"bin",System.getProperty("os.name").startsWith("Windows")?"java.exe":"java");
+        Path java=Path.of(System.getProperty("java.home"),"bin",System.getProperty("os.name").startsWith("Windows")?"javaw.exe":"java");
         Process p=new ProcessBuilder(java.toString(),"-Dfile.encoding=UTF-8","--add-modules","jdk.httpserver","-jar",home.resolve("ClassroomLive.jar").toString(),"serve-managed")
             .directory(home.toFile()).redirectErrorStream(true).start();child=p;
         Thread reader=new Thread(()->{

@@ -73,8 +73,18 @@ public final class ServerControl {
         final boolean ok=ready;SwingUtilities.invokeLater(()->{if(generation==run&&server.isRunning()&&!stopping)status.setText(ok?"● 실행 중 · HTTPS 응답 정상":"● 시작 중 / 응답 확인 중 · 실행 기록을 확인하세요");});
     }
     void dispose(){worker.shutdownNow();frame.dispose();System.exit(0);}
-    public static void main(String[] args){
-        Path home=args.length==1?Path.of(args[0]).toAbsolutePath():Path.of("").toAbsolutePath();
+    static Path resolveHome(String[] args)throws Exception{
+        if(args.length==1&&!args[0].equals("--check"))return Path.of(args[0]).toAbsolutePath();
+        Path location=Path.of(ServerControl.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+        return Files.isRegularFile(location)&&location.getFileName().toString().endsWith(".jar")?location.getParent():Path.of("").toAbsolutePath();
+    }
+    public static void main(String[] args)throws Exception{
+        Path home=resolveHome(args);
+        if(args.length==1&&args[0].equals("--check")){
+            Map<String,Object> cfg=ClassroomServer.config(home.resolve("data"));
+            if(!Files.isRegularFile(home.resolve("data/tls/classroom-ca.crt")))throw new IOException("교실 CA 인증서가 없습니다.");
+            System.out.println("Server app home: "+home+" / https://"+cfg.get("server_ip")+":"+cfg.get("port")+"/");return;
+        }
         SwingUtilities.invokeLater(()->{try{UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());new ServerControl(home).frame.setVisible(true);}
             catch(Exception e){JOptionPane.showMessageDialog(null,"기존 서버 폴더에 파일을 넣었는지 확인하세요.\nClassroomLive.jar와 data 폴더 옆에서 실행해야 합니다.\n\n"+e.getMessage(),"서버 관리 앱 시작 실패",JOptionPane.ERROR_MESSAGE);System.exit(1);}});
     }
