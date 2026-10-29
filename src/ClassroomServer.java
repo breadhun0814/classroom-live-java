@@ -292,7 +292,7 @@ public class ClassroomServer {
     public static void main(String[] args)throws Exception{
         String command=args.length>0?args[0]:"serve";Path dir=base.resolve("data");for(int i=1;i<args.length;i++){if(args[i].equals("--data")&&i+1<args.length)dir=Path.of(args[++i]).toAbsolutePath();else if(args[i].equals("--home")&&i+1<args.length)base=Path.of(args[++i]).toAbsolutePath();else throw new UserError("명령 인수를 확인하세요.");}
         if(command.equals("check")){System.out.println("Java "+System.getProperty("java.version")+" / "+System.getProperty("java.home"));System.out.println("Certificate tool: "+keytool());return;}
-        if(!Set.of("setup","serve","backup","reset-password").contains(command)){System.err.println("사용법: java -jar ClassroomLive.jar setup|serve|backup|reset-password");System.exit(1);}
+        if(!Set.of("setup","serve","serve-managed","backup","reset-password").contains(command)){System.err.println("사용법: java -jar ClassroomLive.jar setup|serve|backup|reset-password");System.exit(1);}
         Files.createDirectories(dir);
         // One process owns this data directory. Administrative CLI changes require stopping the server.
         try(FileChannel lockFile=FileChannel.open(dir.resolve("server.lock"),StandardOpenOption.CREATE,StandardOpenOption.WRITE)){
@@ -305,9 +305,19 @@ public class ClassroomServer {
                 Map<String,Object> cfg=config(dir);X509Certificate cert;char[] pw=Files.readString(dir.resolve("tls/store-password.txt"),StandardCharsets.UTF_8).strip().toCharArray();KeyStore ks=KeyStore.getInstance("PKCS12");try(InputStream in=Files.newInputStream(dir.resolve("tls/server.p12"))){ks.load(in,pw);}cert=(X509Certificate)ks.getCertificate("server");Arrays.fill(pw,'\0');if(cert.getNotAfter().getTime()<now()+30L*86400000){System.out.println("서버 인증서를 갱신합니다.");String fp=certificates(dir,str(cfg.get("server_ip")));studentPack(dir,cfg,fp);}
                 // Bound request time prevents idle clients occupying worker threads indefinitely.
                 System.setProperty("sun.net.httpserver.maxReqTime","15");System.setProperty("sun.net.httpserver.maxRspTime","30");System.setProperty("sun.net.httpserver.idleInterval","15");System.setProperty("sun.net.httpserver.maxConnections","96");
-                Service service=new Service(cfg,store,dir,(int)num(cfg.get("port")));Runtime.getRuntime().addShutdownHook(new Thread(service::close));service.start();
+                Service service=new Service(cfg,store,dir,(int)num(cfg.get("port")));Thread shutdown=new Thread(service::close);Runtime.getRuntime().addShutdownHook(shutdown);service.start();
                 System.out.println("Classroom Live Java LAN 실행: https://"+cfg.get("server_ip")+":"+num(cfg.get("port"))+"/\n허용 대역: "+cfg.get("allowed_cidrs")+"\n종료: Ctrl+C / 서버 전원과 창을 켜 두세요. 영상은 녹화하지 않습니다.");
-                new CountDownLatch(1).await();
+                try {
+                    if(command.equals("serve-managed")) {
+                        // Private parent-child stdin pipe only; no remote shutdown endpoint.
+                        try(var input=new BufferedReader(new InputStreamReader(System.in,StandardCharsets.UTF_8))) {
+                            String line;while((line=input.readLine())!=null)if(line.equals("STOP"))break;
+                        }
+                    } else new CountDownLatch(1).await();
+                } finally {
+                    service.close();
+                    try{Runtime.getRuntime().removeShutdownHook(shutdown);}catch(IllegalStateException ignored){}
+                }
             }
         }catch(UserError ex){System.err.println("설정 오류: "+ex.getMessage());System.exit(1);}catch(BindException ex){System.err.println("서버 포트를 다른 프로그램이 사용 중입니다. 기존 서버를 종료하거나 setup에서 다른 포트를 선택하세요.");System.exit(1);}catch(Exception ex){System.err.println("실행 오류: "+ex.getClass().getSimpleName()+": "+ex.getMessage()+"\n처음 설정은 01-Setup.cmd, 자세한 설명은 START_HERE.html을 확인하세요.");System.exit(1);}
     }
