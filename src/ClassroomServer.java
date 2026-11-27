@@ -90,6 +90,12 @@ public class ClassroomServer {
             }catch(UserError e){save();return new Auth(obj("error",e.getMessage()),null);}
         }
         void requireAdmin(Map<String,Object> u){if(!yes(u.get("admin")))throw new UserError("관리자만 사용할 수 있습니다.");}
+        String callEpoch(Map<String,Object> first, Map<String,Object> second) {
+            String a=str(first.get("call_id")), b=str(second.get("call_id"));
+            if(a.isEmpty()||b.isEmpty())return null;
+            return str(first.get("client_id")).compareTo(str(second.get("client_id")))<0 ? a+":"+b : b+":"+a;
+        }
+
         String memberKey(String room,String client){return room+":"+client;}
         Map<String,Object> requireMember(Map<String,Object> u,String room,String client){if(find("rooms","id",room)==null)throw new UserError("이미 삭제된 방입니다.");Map<String,Object> m=members.get(memberKey(room,client));if(m==null||!Objects.equals(m.get("user_id"),u.get("id"))||num(m.get("seen"))<now()-90000)throw new UserError("방 접속이 만료되었습니다. 비밀번호를 입력해 다시 입장하세요.");return m;}
         void removeMembers(Predicate<Map<String,Object>> filter){List<Map<String,Object>> gone=members.values().stream().filter(filter).toList();for(Map<String,Object> m:gone){String rid=str(m.get("room_id")),cid=str(m.get("client_id"));Map<String,Object> s=shares.get(rid);if(s!=null&&Objects.equals(s.get("client"),cid))shares.remove(rid);signals.removeIf(g->Objects.equals(g.get("room_id"),rid)&&(Objects.equals(g.get("sender"),cid)||Objects.equals(g.get("recipient"),cid)));members.remove(memberKey(rid,cid));}}
@@ -144,11 +150,15 @@ public class ClassroomServer {
             switch(name){
                 case "live_leave_room":removeMembers(m->Objects.equals(m.get("room_id"),rid)&&Objects.equals(m.get("client_id"),cid));return null;
                 case "live_room_state":{
-                    member.put("seen",t);members.values().removeIf(m->num(m.get("seen"))<t-86400000);signals.removeIf(s->num(s.get("created"))<t-600000);
+                    member.put("seen",t);
+                    String callId=str(a.get("p_call_id"));
+                    member.put("call_id",callId.isEmpty()?null:client(callId));
+                    member.put("call_camera",!callId.isEmpty()&&yes(a.get("p_call_camera")));
+                    members.values().removeIf(m->num(m.get("seen"))<t-86400000);signals.removeIf(s->num(s.get("created"))<t-600000);
                     if(share!=null){Map<String,Object> source=members.get(memberKey(rid,str(share.get("client"))));if(source==null||num(source.get("seen"))<t-45000){shares.remove(rid);share=null;}}
                     Map<String,Object> rs=obj("id",rid,"code",room.get("code"),"title",room.get("title"),"owner_id",room.get("owner_id"),"share_client",share==null?null:share.get("client"),"share_epoch",share==null?null:share.get("epoch"));
-                    List<Object> ms=new ArrayList<>();for(Map<String,Object> m:members.values())if(Objects.equals(m.get("room_id"),rid)&&num(m.get("seen"))>t-45000)ms.add(obj("client_id",m.get("client_id"),"user_id",m.get("user_id"),"name",m.get("name")));
-                    long after=Math.max(0,num(a.get("p_after_message"))),afterSignal=Math.max(0,num(a.get("p_after_signal")));List<Map<String,Object>> msgs=list("messages").stream().filter(m->Objects.equals(m.get("room_id"),rid)&&num(m.get("id"))>after).toList();if(after==0)msgs=msgs.subList(Math.max(0,msgs.size()-100),msgs.size());else msgs=msgs.subList(0,Math.min(100,msgs.size()));List<Object> ss=new ArrayList<>();String epoch=share==null?null:str(share.get("epoch"));for(Map<String,Object> s:signals)if(Objects.equals(s.get("room_id"),rid)&&Objects.equals(s.get("recipient"),cid)&&num(s.get("id"))>afterSignal&&Objects.equals(s.get("epoch"),epoch)&&ss.size()<200)ss.add(obj("id",s.get("id"),"sender",s.get("sender"),"epoch",s.get("epoch"),"kind",s.get("kind"),"payload",s.get("payload")));
+                    List<Object> ms=new ArrayList<>();for(Map<String,Object> m:members.values())if(Objects.equals(m.get("room_id"),rid)&&num(m.get("seen"))>t-45000)ms.add(obj("client_id",m.get("client_id"),"user_id",m.get("user_id"),"name",m.get("name"),"call_id",m.get("call_id"),"call_camera",yes(m.get("call_camera"))));
+                    long after=Math.max(0,num(a.get("p_after_message"))),afterSignal=Math.max(0,num(a.get("p_after_signal")));List<Map<String,Object>> msgs=list("messages").stream().filter(m->Objects.equals(m.get("room_id"),rid)&&num(m.get("id"))>after).toList();if(after==0)msgs=msgs.subList(Math.max(0,msgs.size()-100),msgs.size());else msgs=msgs.subList(0,Math.min(100,msgs.size()));List<Object> ss=new ArrayList<>();String epoch=share==null?null:str(share.get("epoch"));for(Map<String,Object> s:signals)if(Objects.equals(s.get("room_id"),rid)&&Objects.equals(s.get("recipient"),cid)&&num(s.get("id"))>afterSignal&&(str(s.get("kind")).startsWith("call-")||Objects.equals(s.get("epoch"),epoch))&&ss.size()<200)ss.add(obj("id",s.get("id"),"sender",s.get("sender"),"epoch",s.get("epoch"),"kind",s.get("kind"),"payload",s.get("payload")));
                     return obj("room",rs,"members",ms,"messages",msgs.stream().map(this::message).toList(),"signals",ss);
                 }
                 case "live_chat_history":{long before=num(a.get("p_before"));List<Map<String,Object>> msgs=list("messages").stream().filter(m->Objects.equals(m.get("room_id"),rid)&&num(m.get("id"))<before).toList();return msgs.subList(Math.max(0,msgs.size()-50),msgs.size()).stream().map(this::message).toList();}
@@ -159,7 +169,19 @@ public class ClassroomServer {
                     String body=text(a.get("p_body"),1,8000,"메시지",false);if(body.isBlank())throw new UserError("메시지를 입력하세요.");if(list("messages").stream().filter(m->Objects.equals(m.get("room_id"),rid)&&Objects.equals(m.get("user_id"),userId)&&num(m.get("created"))>t-60000).count()>=30)throw new UserError("메시지는 분당 30개까지 보낼 수 있습니다.");long id=num(data.get("messageId"))+1;data.put("messageId",id);list("messages").add(obj("id",id,"room_id",rid,"user_id",userId,"display_name",member.get("name"),"body",body,"is_code",yes(a.get("p_is_code")),"created",t));List<Map<String,Object>> ms=list("messages").stream().filter(m->Objects.equals(m.get("room_id"),rid)).toList();if(ms.size()>1000){long first=num(ms.get(ms.size()-1000).get("id"));list("messages").removeIf(m->Objects.equals(m.get("room_id"),rid)&&num(m.get("id"))<first);}save();return null;
                 }
                 case "live_send_signal":{
-                    String target=client(a.get("p_target")),epoch=str(a.get("p_epoch")),kind=str(a.get("p_kind"));if(share==null||!Objects.equals(share.get("epoch"),epoch)||target.equals(cid))throw new UserError("종료된 화면 공유입니다.");Map<String,Object> dest=members.get(memberKey(rid,target));if(dest==null||num(dest.get("seen"))<t-45000)throw new UserError("상대방이 방을 나갔습니다.");boolean presenter=Objects.equals(share.get("client"),cid);if(!((presenter&&Set.of("offer","ice").contains(kind))||(Objects.equals(share.get("client"),target)&&Set.of("watch","answer","ice").contains(kind))))throw new UserError("허용되지 않은 신호입니다.");Map<String,Object> payload=map(a.get("p_payload"));if(Json.encode(payload).getBytes(StandardCharsets.UTF_8).length>65536)throw new UserError("신호가 너무 큽니다.");if(signals.stream().filter(s->Objects.equals(s.get("room_id"),rid)&&Objects.equals(s.get("sender"),cid)&&num(s.get("created"))>t-60000).count()>=600)throw new UserError("잠시 후 다시 연결하세요.");signals.add(obj("id",++signalId,"room_id",rid,"sender",cid,"recipient",target,"epoch",epoch,"kind",kind,"payload",payload,"created",t));return null;
+                    String target=client(a.get("p_target")),epoch=str(a.get("p_epoch")),kind=str(a.get("p_kind"));
+                    Map<String,Object> dest=members.get(memberKey(rid,target));
+                    if(target.equals(cid)||dest==null||num(dest.get("seen"))<t-45000)throw new UserError("상대방이 방을 나갔습니다.");
+                    if(Set.of("call-offer","call-answer","call-ice").contains(kind)){
+                        boolean initiator=cid.compareTo(target)<0;
+                        if(!epoch.equals(callEpoch(member,dest)) || (kind.equals("call-offer")&&!initiator) ||
+                            (kind.equals("call-answer")&&initiator))throw new UserError("종료된 화상 통화입니다.");
+                    }else{
+                        if(share==null||!Objects.equals(share.get("epoch"),epoch))throw new UserError("종료된 화면 공유입니다.");
+                        boolean presenter=Objects.equals(share.get("client"),cid);
+                        if(!((presenter&&Set.of("offer","ice").contains(kind))||(Objects.equals(share.get("client"),target)&&Set.of("watch","answer","ice").contains(kind))))throw new UserError("허용되지 않은 신호입니다.");
+                    }
+                    Map<String,Object> payload=map(a.get("p_payload"));if(Json.encode(payload).getBytes(StandardCharsets.UTF_8).length>65536)throw new UserError("신호가 너무 큽니다.");if(signals.stream().filter(s->Objects.equals(s.get("room_id"),rid)&&Objects.equals(s.get("sender"),cid)&&num(s.get("created"))>t-60000).count()>=600)throw new UserError("잠시 후 다시 연결하세요.");signals.add(obj("id",++signalId,"room_id",rid,"sender",cid,"recipient",target,"epoch",epoch,"kind",kind,"payload",payload,"created",t));return null;
                 }
             }
             throw new UserError("지원하지 않는 요청입니다.");
@@ -196,7 +218,7 @@ public class ClassroomServer {
         void start(){server.start();}public void close(){server.stop(1);pool.shutdownNow();}
         boolean allowed(InetAddress ip){return ip.isLoopbackAddress()||nets.stream().anyMatch(n->n.has(ip.getHostAddress()));}
         String token(HttpExchange e){String h=e.getRequestHeaders().getFirst("Cookie");if(h!=null)for(String item:h.split(";")){String v=item.strip();if(v.startsWith(COOKIE+"="))return v.substring(COOKIE.length()+1);}return "";}
-        void output(HttpExchange e,int code,byte[] body,String type,String cookie)throws IOException{Headers h=e.getResponseHeaders();h.set("Content-Type",type);h.set("Cache-Control","no-store");h.set("X-Content-Type-Options","nosniff");h.set("X-Frame-Options","DENY");h.set("Referrer-Policy","same-origin");h.set("Permissions-Policy","display-capture=(self), camera=(), microphone=()");h.set("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; media-src 'self' blob:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'");if(cookie!=null)h.add("Set-Cookie",COOKIE+"="+cookie+"; Path=/; Secure; HttpOnly; SameSite=Strict; Max-Age="+(cookie.isEmpty()?0:604800));if(code>=400)h.set("Connection","close");e.sendResponseHeaders(code,body.length);try(OutputStream out=e.getResponseBody()){out.write(body);}}
+        void output(HttpExchange e,int code,byte[] body,String type,String cookie)throws IOException{Headers h=e.getResponseHeaders();h.set("Content-Type",type);h.set("Cache-Control","no-store");h.set("X-Content-Type-Options","nosniff");h.set("X-Frame-Options","DENY");h.set("Referrer-Policy","same-origin");h.set("Permissions-Policy","display-capture=(self), camera=(self), microphone=(self)");h.set("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; media-src 'self' blob:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'");if(cookie!=null)h.add("Set-Cookie",COOKIE+"="+cookie+"; Path=/; Secure; HttpOnly; SameSite=Strict; Max-Age="+(cookie.isEmpty()?0:604800));if(code>=400)h.set("Connection","close");e.sendResponseHeaders(code,body.length);try(OutputStream out=e.getResponseBody()){out.write(body);}}
         void json(HttpExchange e,int code,Object body,String cookie)throws IOException{output(e,code,Json.encode(body).getBytes(StandardCharsets.UTF_8),"application/json; charset=utf-8",cookie);}
         byte[] asset(String name)throws IOException{try(InputStream in=ClassroomServer.class.getResourceAsStream("/public/"+name)){if(in!=null)return in.readAllBytes();}Path file=base.resolve("public").resolve(name);return Files.isRegularFile(file)?Files.readAllBytes(file):null;}
         void handle(HttpExchange e){try{

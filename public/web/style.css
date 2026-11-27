@@ -12,3 +12,18 @@
 .lan-banner{text-align:center;padding:10px 18px;background:#172337;color:#b9cce5;font-size:13px}.lan-banner a{color:#a7c7ff}
 
 .video-card.native-size{aspect-ratio:auto;height:min(70dvh,900px);overflow:auto;overscroll-behavior:contain}.video-card.native-size video{max-width:none;max-height:none;object-fit:contain}.video-card.native-size:fullscreen{height:100dvh;width:100vw}.share-bar select{max-width:220px}#capture-stats{color:#c0d8ef}#native-size[aria-pressed="true"]{border-color:#b8d1ff;background:#304269}
+
+.call-panel { margin-block: 1rem; }
+.call-videos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: .75rem; }
+.call-videos figure { min-width: 0; margin: 0; }
+.call-videos video { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: contain; background: #121826; border-radius: .5rem; }
+.call-videos figcaption { overflow-wrap: anywhere; }
+
+.call-setup { width: min(34rem, calc(100% - 2rem)); max-height: calc(100% - 2rem); overflow: auto; color: inherit; }
+.call-setup::backdrop { background: #111827a8; }
+.call-setup video { width: 100%; max-height: 17rem; object-fit: contain; background: #121826; border-radius: .5rem; }
+.call-devices { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1rem; }
+.call-devices label { min-width: 0; }
+.call-devices select { width: 100%; }
+.call-videos figure button { margin-top: .35rem; }
+.call-videos video[hidden], .call-setup video[hidden] { display: none; }

@@ -25,7 +25,8 @@
     {title:'비밀번호 방',description:'이름이나 초대 코드와 비밀번호로 수업 공간에 입장합니다. 실제 서비스는 방마다 공유자를 포함해 최대 8개 접속을 허용합니다.'},
     {title:'코드 채팅',description:'코드의 줄바꿈을 유지해 보내고 대화를 검색·복사·저장할 수 있습니다. 대화창에 예시 메시지를 직접 입력해 보세요.'},
     {title:'화면 공유',description:'실제 앱은 브라우저 화면을 WebRTC로 직접 전달합니다. 아래 프리셋은 설정의 차이를 설명하는 예시이며 화면을 캡처하지 않습니다.'},
-    {title:'관리자 운영',description:'관리자는 회원의 이용 정지·복구, 방 참여자 퇴장과 방 삭제를 할 수 있습니다. 예시 버튼은 이 페이지의 표시 상태만 바꿉니다.'}
+    {title:'관리자 운영',description:'관리자는 회원의 이용 정지·복구, 방 참여자 퇴장과 방 삭제를 할 수 있습니다. 예시 버튼은 이 페이지의 표시 상태만 바꿉니다.'},
+    {title:'화상 통화',description:'실제 수업방에서는 카메라 미리보기와 기기 선택, 듣기만 참여, 참여자별 음소거, 재연결을 사용할 수 있습니다.'}
   ];
   function activateStep(index, focus=false) {
     document.querySelectorAll('[data-step]').forEach((button,i)=>{button.setAttribute('aria-selected',String(i===index));button.tabIndex=i===index?0:-1;if(i===index&&focus)button.focus();});
@@ -40,6 +41,33 @@
     $('preset-description').textContent=button.dataset.preset==='text'?'글자 프리셋 예시: 원본 해상도 · 30fps · 해상도 유지 우선':'움직임 프리셋 예시: 1080p · 60fps · H.264 우선';
   }
   document.querySelectorAll('[data-preset]').forEach(button=>button.addEventListener('click',()=>setPreset(button)));
+  const demoCall = { joined: false, camera: false, mic: false };
+  function renderDemoCall() {
+    for (const [kind, label] of [['camera', '카메라'], ['mic', '마이크']]) {
+      const button = $('demo-call-' + kind);
+      button.setAttribute('aria-pressed', String(demoCall[kind]));
+      button.textContent = label + (demoCall[kind] ? ' 끄기' : ' 켜기');
+    }
+    $('demo-call-join').hidden = demoCall.joined;
+    $('demo-call-join').textContent = demoCall.camera || demoCall.mic ? '통화 참여' : '듣기만 참여';
+    $('demo-call-leave').hidden = !demoCall.joined;
+    $('demo-call-status').textContent = demoCall.joined
+      ? '예시 통화 연결됨 · 카메라 ' + (demoCall.camera ? '켜짐' : '꺼짐') + ' · 마이크 ' + (demoCall.mic ? '켜짐' : '꺼짐')
+      : '입장할 때 사용할 기기를 선택하세요.';
+  }
+  for (const kind of ['camera', 'mic']) {
+    $('demo-call-' + kind).addEventListener('click', () => { demoCall[kind] = !demoCall[kind]; renderDemoCall(); });
+  }
+  function resetDemoCall() {
+    Object.assign(demoCall, { joined: false, camera: false, mic: false });
+    renderDemoCall();
+  }
+  $('demo-call-join').addEventListener('click', () => {
+    demoCall.joined = true;
+    renderDemoCall();
+    $('demo-call-leave').focus();
+  });
+  $('demo-call-leave').addEventListener('click', () => { resetDemoCall(); $('demo-call-join').focus(); });
   const roomForm=$('demo-room-form');
   function clearRoomResult(){['demo-room-code','demo-room-password'].forEach(id=>$(id).removeAttribute('aria-invalid'));$('room-result').textContent='예시 값으로 입장을 확인해 보세요.';$('room-next').hidden=true;}
   $('fill-room-example').addEventListener('click',()=>{$('demo-room-code').value='20261127ABCD';$('demo-room-password').value='demo123';clearRoomResult();});
@@ -57,7 +85,7 @@
     while(messages.children.length>25)messages.firstElementChild.remove();
     input.value='';messages.scrollTop=messages.scrollHeight;input.focus();
   });
-  $('reset-demo').addEventListener('click',()=>{messages.replaceChildren(...initialMessages.map(message=>message.cloneNode(true)));messages.scrollTop=0;$('demo-message').value='';composing=false;roomForm.reset();clearRoomResult();setPreset(document.querySelector('[data-preset=text]'));document.querySelectorAll('[data-suspend]').forEach(b=>{b.setAttribute('aria-pressed','false');b.textContent='이용 정지';});$('copy-code').textContent='예시 코드 복사';activateStep(0);$('demo-tabs').querySelector('[data-step]').focus();announce('체험을 처음 상태로 되돌렸습니다.');});
+  $('reset-demo').addEventListener('click',()=>{messages.replaceChildren(...initialMessages.map(message=>message.cloneNode(true)));messages.scrollTop=0;$('demo-message').value='';composing=false;resetDemoCall();roomForm.reset();clearRoomResult();setPreset(document.querySelector('[data-preset=text]'));document.querySelectorAll('[data-suspend]').forEach(b=>{b.setAttribute('aria-pressed','false');b.textContent='이용 정지';});$('copy-code').textContent='예시 코드 복사';activateStep(0);$('demo-tabs').querySelector('[data-step]').focus();announce('체험을 처음 상태로 되돌렸습니다.');});
   document.querySelectorAll('[data-suspend]').forEach(button=>button.addEventListener('click',()=>{const paused=button.getAttribute('aria-pressed')!=='true';button.setAttribute('aria-pressed',String(paused));button.textContent=paused?'복구하기':'이용 정지';announce(paused?'예시 회원을 이용 정지 상태로 표시했습니다.':'예시 회원을 복구했습니다.');}));
   const routes={api:'계정·방·채팅과 SDP·ICE 연결 정보는 Java HTTPS 서버를 거칩니다. 브라우저는 응답 처리 후 약 1.8초마다 새 상태를 조회합니다.',video:'화면 영상은 공유자에서 시청자마다 WebRTC로 직접 전달합니다. 외부 STUN/TURN은 사용하지 않으며, 교실 PC 사이의 직접 통신이 필요합니다.'};
   document.querySelectorAll('[data-route-button]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-route-button]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));$('route-description').textContent=routes[button.dataset.routeButton];$('architecture-visual').dataset.route=button.dataset.routeButton;$('path-label').textContent=button.dataset.routeButton==='api'?'HTTPS API · 계정 / 채팅 / 연결 정보':'WebRTC P2P · 시청자별 직접 영상 전송';}));

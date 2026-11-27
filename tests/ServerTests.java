@@ -42,6 +42,27 @@ public class ServerTests {
    String epoch=s(map(rpc(db,at,"live_share",add(ar,"p_start",true))).get("epoch"));failure(()->rpc(db,bt,"live_share",add(br,"p_start",true)),"다른 사람");
    Map<String,Object> sig=add(br,"p_target",ca,"p_epoch",epoch,"p_kind","watch","p_payload",m("connectionId",cid(),"data",m()));rpc(db,bt,"live_send_signal",sig);
    check(((List<?>)map(rpc(db,at,"live_room_state",ar)).get("signals")).size()==1,"publisher receives signal");check(((List<?>)map(rpc(db,bt,"live_room_state",br)).get("signals")).isEmpty(),"recipient isolation");failure(()->rpc(db,bt,"live_send_signal",add(sig,"p_kind","offer")),"허용");rpc(db,at,"live_share",add(ar,"p_start",false));failure(()->rpc(db,bt,"live_send_signal",sig),"종료");
+   String callA=cid(),callB=cid();
+   Map<String,Object> aCall=add(ar,"p_call_id",callA), bCall=add(br,"p_call_id",callB);
+   boolean aFirst=ca.compareTo(cb)<0;
+   String caller=aFirst?at:bt, receiver=aFirst?bt:at;
+   Map<String,Object> callerPoll=aFirst?aCall:bCall, receiverPoll=aFirst?bCall:aCall;
+   String callerId=aFirst?ca:cb, receiverId=aFirst?cb:ca;
+   String callEpoch=aFirst?callA+":"+callB:callB+":"+callA;
+   Map<String,Object> offer=add(callerPoll,"p_target",receiverId,"p_epoch",callEpoch,"p_kind","call-offer","p_payload",m("sdp","fixture"));
+   rpc(db,caller,"live_room_state",callerPoll);
+   failure(()->rpc(db,caller,"live_send_signal",offer),"종료된 화상");
+   rpc(db,receiver,"live_room_state",receiverPoll);
+   rpc(db,at,"live_share",add(ar,"p_start",true));
+   rpc(db,caller,"live_send_signal",offer);
+   List<?> callSignals=(List<?>)map(rpc(db,receiver,"live_room_state",receiverPoll)).get("signals");
+   check(callSignals.size()==1 && map(callSignals.get(0)).get("kind").equals("call-offer"),"call signaling while sharing");
+   check(((List<?>)map(rpc(db,caller,"live_room_state",callerPoll)).get("signals")).isEmpty(),"call recipient isolation");
+   rpc(db,receiver,"live_send_signal",add(receiverPoll,"p_target",callerId,"p_epoch",callEpoch,"p_kind","call-answer","p_payload",m("sdp","fixture")));
+   rpc(db,receiver,"live_room_state",aFirst?br:ar);
+   failure(()->rpc(db,caller,"live_send_signal",offer),"종료된 화상");
+   rpc(db,at,"live_share",add(ar,"p_start",false));
+   System.out.println("PASS opt-in call signaling, privacy, simultaneous screen sharing and call leave");
    System.out.println("PASS account, private RPC, room uniqueness/password/name join, code chat, ownership, nickname, exclusive sharing and private/stale signaling");
    // Capacity is serialized for simultaneous joins: 8 including professor, never 9.
    var pool=Executors.newFixedThreadPool(7);List<Future<Boolean>> results=new ArrayList<>();for(int n=1;n<8;n++){final int i=n;results.add(pool.submit(()->{try{rpc(db,people.get(i).cookie(),"live_join_room",m("p_code",room.get("code"),"p_password","classpass","p_client",cid()));return true;}catch(ClassroomServer.UserError e){check(e.getMessage().contains("최대 8명"),"capacity reason");return false;}}));}int count=0;for(var f:results)if(f.get())count++;pool.shutdown();check(count==6,"exactly six remaining slots");check(((List<?>)map(rpc(db,at,"live_room_state",ar)).get("members")).size()==8,"8 concurrent participants");

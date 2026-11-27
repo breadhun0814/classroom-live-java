@@ -107,7 +107,309 @@
   function updateUnread() { $('new-messages').hidden=!chatUnread; ui('new-messages',`새 메시지 ${chatUnread}개 · 아래로`); updateTabTitle(); }
   function stopTracks() { if (state.stream) for (const track of state.stream.getTracks()) { track.onended = null; track.stop(); } state.stream = null; }
   function clearVideo() { $('screen').srcObject = null; $('screen').style.width=''; $('screen').style.height=''; $('video-card').scrollTop=0; $('video-card').scrollLeft=0; $('screen').onloadeddata=null; $('screen').onplaying=null; showCaptureStats(); $('empty-screen').hidden = false; ui('video-status','공유 대기 중'); ui('quality-stats','실제 전송 품질은 화면 연결 후 표시됩니다.'); ui('fullscreen-stats',''); }
+  const call = { id: null, stream: null, local: null, peers: new Map(), changing: new Map() };
+  function callTile(name, muted) {
+    const tile = document.createElement('figure');
+    const video = document.createElement('video');
+    const label = document.createElement('figcaption');
+    video.autoplay = true;
+    video.playsInline = true;
+    video.muted = muted;
+    label.textContent = name;
+    tile.append(video, label);
+    $('call-videos').append(tile);
+    return { tile, video, label };
+  }
+  function closeCallPeer(id) {
+    const peer = call.peers.get(id);
+    call.peers.delete(id);
+    peer.pc.ontrack = null;
+    peer.pc.onicecandidate = null;
+    peer.pc.onconnectionstatechange = null;
+    peer.pc.close();
+    peer.video.srcObject = null;
+    peer.tile.remove();
+  }
+  function updateCallStatus() {
+    const peers = [...call.peers.values()];
+    const connected = peers.filter(peer => peer.pc.connectionState === 'connected').length;
+    const failed = peers.some(peer => peer.failed || ['failed', 'disconnected'].includes(peer.pc.connectionState)
+      || (peer.pc.connectionState !== 'connected' && Date.now() - peer.started > 25000));
+    $('call-reconnect').hidden = !failed;
+    const status = failed ? '통화 연결이 불안정합니다. 다시 연결해 보세요.'
+      : !peers.length ? '다른 참여자를 기다리는 중' : tr('통화 연결') + ' ' + connected + ' / ' + peers.length;
+    if ($('call-status').dataset.uiText !== status) ui('call-status', status);
+  }
+  function endCall() {
+    call.id = null;
+    call.stream?.getTracks().forEach(track => track.stop());
+    call.stream = null;
+    call.changing.clear();
+    call.local = null;
+    $('call-setup').close();
+    $('call-preview').srcObject = null;
+    $('call-confirm').disabled = false;
+    for (const id of call.peers.keys()) closeCallPeer(id);
+    $('call-videos').replaceChildren();
+    for (const id of ['call-mic','call-camera','call-leave','call-play','call-settings','call-reconnect']) $(id).hidden = true;
+    $('call-join').hidden = false;
+    ui('call-status', '');
+  }
+  function pollCallNow() {
+    if (state.polling) return;
+    clearTimeout(state.timer);
+    void poll(state.generation);
+  }
+  const deviceKinds = { video: 'videoinput', audio: 'audioinput' };
+  function callTrack(kind) {
+    return call.stream?.getTracks().find(track => track.kind === kind && track.readyState === 'live');
+  }
+  async function refreshCallDevices(stream) {
+    let devices;
+    try { devices = await navigator.mediaDevices?.enumerateDevices(); } catch { return; }
+    if (!devices || call.stream !== stream || !$('call-setup').open) return;
+    for (const [kind, deviceKind] of Object.entries(deviceKinds)) {
+      const select = $('call-' + kind + '-device');
+      const current = callTrack(kind)?.getSettings().deviceId || select.value;
+      const options = devices.filter(device => device.kind === deviceKind && device.deviceId);
+      select.replaceChildren(new Option(tr('기본 기기'), ''), ...options.map((device, index) =>
+        new Option(device.label || tr(kind === 'video' ? '카메라' : '마이크') + ' ' + (index + 1), device.deviceId)));
+      if (options.some(device => device.deviceId === current)) select.value = current;
+    }
+  }
+  function openCallSetup() {
+    if (!window.RTCPeerConnection || !window.MediaStream) throw new Error('교실 HTTPS 주소를 Chrome 또는 Edge에서 열어 주세요.');
+    call.stream ??= new MediaStream();
+    $('call-preview').srcObject = call.stream;
+    $('call-setup').showModal();
+    ui('call-setup-title', call.id ? '기기 설정' : '통화 입장 설정');
+    ui('call-cancel', call.id ? '닫기' : '취소');
+    ui('call-setup-status', call.id ? '' : '카메라와 마이크는 꺼져 있습니다. 원하는 기기만 켜고 입장하세요.');
+    updateCallControls();
+    void refreshCallDevices(call.stream);
+  }
+  function closeCallSetup() {
+    if (!call.id) endCall();
+    else {
+      $('call-setup').close();
+      $('call-preview').srcObject = null;
+    }
+  }
+  function confirmCall() {
+    if (call.id) {
+      closeCallSetup();
+      return;
+    }
+    call.id = crypto.randomUUID();
+    call.local = callTile(displayName() + tr(' (나)'), true).video;
+    call.local.srcObject = call.stream;
+    closeCallSetup();
+    $('call-join').hidden = true;
+    for (const id of ['call-mic','call-camera','call-leave','call-settings']) $(id).hidden = false;
+    $('call-mic').focus();
+    updateCallControls();
+    updateCallStatus();
+    pollCallNow();
+  }
+  function reconnectCall() {
+    for (const id of call.peers.keys()) closeCallPeer(id);
+    call.id = crypto.randomUUID();
+    $('call-play').hidden = true;
+    updateCallStatus();
+    pollCallNow();
+  }
+  function updateCallControls() {
+    for (const [kind, id, on, off] of [
+      ['audio','call-mic','마이크 끄기','마이크 켜기'],
+      ['video','call-camera','카메라 끄기','카메라 켜기']
+    ]) {
+      const active = Boolean(callTrack(kind));
+      for (const button of [$(id), $('call-preview-' + kind)]) {
+        button.setAttribute('aria-pressed', String(active));
+        ui(button.id, active ? on : off);
+      }
+    }
+    const camera = Boolean(callTrack('video'));
+    $('call-preview').hidden = !camera;
+    if (call.local) call.local.hidden = !camera;
+    ui('call-confirm', call.id ? '완료' : camera || callTrack('audio') ? '통화 참여' : '듣기만 참여');
+  }
+  async function changeCallTrack(kind, enable) {
+    const stream = call.stream;
+    if (!stream || call.changing.has(kind)) return;
+    if (enable && !navigator.mediaDevices?.getUserMedia) {
+      reportCallDevice('교실 HTTPS 주소를 Chrome 또는 Edge에서 열어 주세요.');
+      return;
+    }
+    const select = $('call-' + kind + '-device');
+    const previous = callTrack(kind);
+    const operation = Symbol(kind);
+    call.changing.set(kind, operation);
+    $('call-confirm').disabled = true;
+    let next;
+    try {
+      if (enable) {
+        const constraints = kind === 'video'
+          ? { width: { ideal: 320 }, height: { ideal: 240 }, frameRate: { ideal: 15, max: 15 } }
+          : { echoCancellation: true, noiseSuppression: true };
+        if (select.value) constraints.deviceId = { exact: select.value };
+        const media = await navigator.mediaDevices.getUserMedia({ [kind]: constraints });
+        [next] = media.getTracks();
+        if (call.stream !== stream) { media.getTracks().forEach(track => track.stop()); return; }
+      }
+      if (previous) stream.removeTrack(previous);
+      if (next) {
+        stream.addTrack(next);
+        next.addEventListener('ended', () => {
+          if (call.stream !== stream || !stream.getTracks().includes(next)) return;
+          stream.removeTrack(next);
+          for (const peer of call.peers.values()) {
+            peer.senders[kind]?.replaceTrack(null).catch(() => { peer.failed = true; updateCallStatus(); });
+          }
+          updateCallControls();
+          if (call.id) pollCallNow();
+          reportCallDevice(kind === 'video' ? '카메라 연결이 끊겼습니다.' : '마이크 연결이 끊겼습니다.');
+        }, { once: true });
+      }
+      if (!next) previous?.stop();
+      await Promise.all([...call.peers.values()].map(async peer => {
+        try { await peer.senders[kind]?.replaceTrack(next || null); }
+        catch { if (call.peers.get(peer.id) === peer) peer.failed = true; }
+      }));
+      previous?.stop();
+      if (call.stream !== stream) return;
+      updateCallControls();
+      if (call.id) { updateCallStatus(); pollCallNow(); }
+      if ($('call-setup').open) ui('call-setup-status', '');
+      if (next) await refreshCallDevices(stream);
+    } catch {
+      if (call.stream !== stream) return;
+      if (previous) select.value = previous.getSettings().deviceId || '';
+      reportCallDevice(kind === 'video'
+        ? '카메라를 열 수 없습니다. 브라우저 권한이나 연결을 확인해 주세요.'
+        : '마이크를 열 수 없습니다. 브라우저 권한이나 연결을 확인해 주세요.');
+    } finally {
+      if (call.changing.get(kind) === operation) {
+        call.changing.delete(kind);
+        $('call-confirm').disabled = call.changing.size > 0;
+      }
+    }
+  }
+  function reportCallDevice(message) {
+    if ($('call-setup').open) ui('call-setup-status', message);
+    else notice(message, true);
+  }
+  function sendCall(peer, kind, data) {
+    if (call.peers.get(peer.id) !== peer || !state.room) return;
+    return rpc('live_send_signal', { ...args(), p_target: peer.id, p_epoch: peer.epoch,
+      p_kind: 'call-' + kind, p_payload: data });
+  }
+  async function describeCall(peer, kind) {
+    const pc = peer.pc;
+    const description = kind === 'offer' ? await pc.createOffer() : await pc.createAnswer();
+    if (call.peers.get(peer.id) !== peer) return;
+    await pc.setLocalDescription(description);
+    await sendCall(peer, kind, { type: pc.localDescription.type, sdp: pc.localDescription.sdp });
+  }
+  function createCallPeer(member, epoch) {
+    const id = member.client_id;
+    const pc = new RTCPeerConnection({ iceServers: [] });
+    const peer = { id, pc, epoch, pendingIce: [], started: Date.now(), ...callTile(member.name, false) };
+    call.peers.set(id, peer);
+    peer.senders = {};
+    peer.video.hidden = !member.call_camera;
+    const remote = new MediaStream();
+    peer.video.srcObject = remote;
+    const mute = document.createElement('button');
+    mute.type = 'button';
+    peer.label.id = 'call-peer-' + id;
+    mute.setAttribute('aria-describedby', peer.label.id);
+    mute.setAttribute('aria-pressed', 'false');
+    setUiElement(mute, '소리 끄기');
+    mute.addEventListener('click', () => {
+      peer.video.muted = !peer.video.muted;
+      mute.setAttribute('aria-pressed', String(peer.video.muted));
+      setUiElement(mute, peer.video.muted ? '소리 켜기' : '소리 끄기');
+    });
+    peer.tile.append(mute);
+    if (state.client < id) {
+      for (const kind of Object.keys(deviceKinds)) {
+        const track = callTrack(kind);
+        peer.senders[kind] = pc.addTransceiver(track || kind, { direction: 'sendrecv' }).sender;
+      }
+    }
+    pc.onicecandidate = ({ candidate }) => {
+      if (candidate) sendCall(peer, 'ice', candidate.toJSON())?.catch(() => {});
+    };
+    pc.ontrack = ({ track }) => {
+      if (call.peers.get(id) !== peer) return;
+      remote.addTrack(track);
+      peer.video.play().catch(() => {
+        if (call.peers.get(id) === peer) $('call-play').hidden = false;
+      });
+    };
+    pc.onconnectionstatechange = updateCallStatus;
+    return peer;
+  }
+  async function applyCall(data, pollCallId) {
+    if (!call.id || call.id !== pollCallId) return;
+    const members = new Map(data.members.filter(m => m.call_id).map(m => [m.client_id, m]));
+    if (members.get(state.client)?.call_id !== call.id) return;
+    members.delete(state.client);
+    const epochFor = member => state.client < member.client_id
+      ? call.id + ':' + member.call_id : member.call_id + ':' + call.id;
+    for (const [id, peer] of call.peers) {
+      const member = members.get(id);
+      if (!member || epochFor(member) !== peer.epoch) closeCallPeer(id);
+    }
+    for (const member of members.values()) {
+      if (call.id !== pollCallId) return;
+      let peer = call.peers.get(member.client_id);
+      if (peer) {
+        peer.label.textContent = member.name;
+        peer.video.hidden = !member.call_camera;
+      } else {
+        peer = createCallPeer(member, epochFor(member));
+        if (state.client < peer.id) {
+          try { await describeCall(peer, 'offer'); }
+          catch { peer.failed = true; }
+        }
+      }
+    }
+    for (const signal of data.signals) {
+      if (call.id !== pollCallId) return;
+      const peer = call.peers.get(signal.sender);
+      if (!signal.kind.startsWith('call-') || peer?.epoch !== signal.epoch) continue;
+      const pc = peer.pc;
+      try {
+        if (signal.kind === 'call-ice') {
+          if (pc.remoteDescription) await pc.addIceCandidate(signal.payload);
+          else if (peer.pendingIce.length < 128) peer.pendingIce.push(signal.payload);
+          continue;
+        }
+        if (pc.remoteDescription) continue;
+        const type = signal.kind === 'call-offer' ? 'offer' : 'answer';
+        await pc.setRemoteDescription({ type, sdp: signal.payload.sdp });
+        for (const candidate of peer.pendingIce.splice(0)) {
+          await pc.addIceCandidate(candidate).catch(() => {});
+        }
+        if (type === 'offer') {
+          for (const transceiver of pc.getTransceivers()) {
+            const kind = transceiver.receiver.track.kind;
+            transceiver.direction = 'sendrecv';
+            peer.senders[kind] = transceiver.sender;
+            await transceiver.sender.replaceTrack(callTrack(kind) || null);
+          }
+          await describeCall(peer, 'answer');
+        }
+      } catch {
+        peer.failed = true;
+      }
+    }
+    if (call.id === pollCallId) updateCallStatus();
+  }
   function cleanup() {
+    endCall();
     saveDraft(); cachedMessages.clear(); chatUnread=0; tabUnread=0; updateUnread();
     clearTimeout(state.timer); state.timer = null; state.generation++; state.polling = false; state.shareBusy = false;
     stopTracks(); for (const id of [...state.peers.keys()]) closePeer(id); state.pending.clear();
@@ -158,7 +460,7 @@
     $('stop').hidden = !ours; $('watch').hidden = !state.publisher || ours;
     $('resolution').disabled = ours; $('fps').disabled = ours; $('share-mode').disabled = ours; for(const id of ['quality-level','video-codec','preset-text','preset-motion'])$(id).disabled=ours;
   }
-  async function applyState(data, generation) {
+  async function applyState(data, generation, pollCallId) {
     if (generation !== state.generation || !state.room || state.shareBusy) return;
     ui('connection-status','접속 중'); $('connection-status').classList.remove('offline');
     const changed = data.room.share_epoch !== state.epoch;
@@ -182,9 +484,10 @@
       el.textContent = m.name + (m.client_id === state.client ? tr(' (나)') : '') + (m.client_id === state.publisher ? tr(' · 공유 중') : ''); $('members').append(el);
     }
     renderMessages(data.messages); refreshControls();
+    await applyCall(data, pollCallId);
     for (const signal of data.signals) {
       if (generation !== state.generation) return;
-      if (signal.epoch === state.epoch) {
+      if (!signal.kind.startsWith('call-') && signal.epoch === state.epoch) {
         try { await receiveSignal(signal); } catch (error) { console.warn('화면 연결 재시도 필요:', error.message); state.watchAt = 0; }
       }
       state.signal = Math.max(state.signal, Number(signal.id));
@@ -205,12 +508,13 @@
     if (generation !== state.generation || !state.room || state.polling) return;
     state.polling = true;
     const epochAtRequest = state.epoch;
+    const pollCallId = call.id;
     try {
-      const data = await rpc('live_room_state', { ...args(), p_after_message: state.message, p_after_signal: state.signal });
+      const data = await rpc('live_room_state', { ...args(), p_after_message: state.message, p_after_signal: state.signal, p_call_id: pollCallId, p_call_camera: Boolean(callTrack("video")) });
       if (generation !== state.generation) return;
       if (state.pollFailures) notice('연결이 복구되었습니다.'); state.pollFailures = 0;
       // A share start/stop may have completed while this older request was in flight.
-      if (epochAtRequest === state.epoch) await applyState(data, generation);
+      if (epochAtRequest === state.epoch) await applyState(data, generation, pollCallId);
     } catch (error) {
       if (generation !== state.generation) return;
       ui('connection-status','재연결 중'); $('connection-status').classList.add('offline');
@@ -684,9 +988,29 @@
     } finally { sendingChat = false; button.disabled = false; }
   });
   window.addEventListener('offline', () => { ui('connection-status','오프라인');$('connection-status').classList.add('offline');notice('교실 네트워크 연결이 끊겼습니다. 연결되면 자동으로 다시 시도합니다.', true); });
+  bind('call-join', 'click', openCallSetup);
+  bind('call-settings', 'click', openCallSetup);
+  bind('call-cancel', 'click', closeCallSetup);
+  $('call-setup').addEventListener('cancel', event => { event.preventDefault(); closeCallSetup(); });
+  bind('call-confirm', 'click', confirmCall);
+  bind('call-reconnect', 'click', reconnectCall);
+  bind('call-leave', 'click', () => { endCall(); pollCallNow(); $('call-join').focus(); });
+  for (const [kind, id] of [['audio','call-mic'],['video','call-camera']]) {
+    for (const button of [id, 'call-preview-' + kind]) {
+      bind(button, 'click', () => changeCallTrack(kind, !callTrack(kind)));
+    }
+    bind('call-' + kind + '-device', 'change', () => {
+      if (callTrack(kind)) return changeCallTrack(kind, true);
+    });
+  }
+  bind('call-play', 'click', async () => {
+    const results = await Promise.allSettled([...call.peers.values()]
+      .filter(peer => peer.video.srcObject).map(peer => peer.video.play()));
+    $('call-play').hidden = results.every(result => result.status === 'fulfilled');
+  });
   window.addEventListener('online',()=>{notice('교실 네트워크 연결이 돌아왔습니다. 다시 연결하고 있어요.');if(state.room&&!state.polling){clearTimeout(state.timer);poll(state.generation);}});
   window.addEventListener('beforeunload',event=>{saveDraft();if(state.stream||$('chat-text').value.trim()){event.preventDefault();event.returnValue='';}});
-  window.addEventListener('pagehide', () => { stopTracks(); for (const id of [...state.peers.keys()]) closePeer(id); });
+  window.addEventListener('pagehide', () => { endCall(); stopTracks(); for (const id of [...state.peers.keys()]) closePeer(id); });
   async function init() {
     if (!window.isSecureContext) { screen('setup'); notice('화면 공유를 위해 HTTPS와 교실 인증서 등록이 필요합니다. 접속 도움말을 확인하세요.',true); return; }
     state.db = window.CLASSROOM_LOCAL;
