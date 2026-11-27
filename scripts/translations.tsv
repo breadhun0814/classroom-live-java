@@ -310,3 +310,12 @@ Cancel reply|返信を取り消す|取消回复|Hủy trả lời
 Reply to an earlier message|以前のメッセージへの返信|回复较早的消息|Trả lời tin nhắn trước đó
 Load older messages or clear search to see the original.|元の発言を見るには以前の会話を読み込むか検索を解除してください。|请加载较早的对话或清除搜索以查看原消息。|Tải tin nhắn cũ hoặc xóa tìm kiếm để xem tin gốc.
 The original message is unavailable. Cancel the reply and send again.|元のメッセージが見つかりません。返信を取り消して送信し直してください。|原消息不可用。请取消回复后重发。|Không tìm thấy tin nhắn gốc. Hãy hủy trả lời và gửi lại.
+Low bandwidth|低帯域幅|低带宽|Băng thông thấp
+For slower connections|低速回線向け|适用于较慢的连接|Cho kết nối chậm
+Set 720p, 15 fps and a maximum of 2 Mbps per viewer for slower connections.|低速回線向けに720p、15fps、視聴者1人あたり最大2Mbpsに設定しました。|已为较慢的连接设置为 720p、15 帧/秒，每位观看者最高 2 Mbps。|Đã đặt 720p, 15 fps và tối đa 2 Mbps mỗi người xem cho kết nối chậm.
+Chat send key|送信キー|聊天发送按键|Phím gửi tin nhắn
+Send with Enter|Enterで送信|按 Enter 发送|Gửi bằng Enter
+Send with Ctrl+Enter|Ctrl+Enterで送信|按 Ctrl+Enter 发送|Gửi bằng Ctrl+Enter
+Enter a message or code|メッセージかコードを入力|输入消息或代码|Nhập tin nhắn hoặc mã
+Enter to send · Shift+Enter for a new line|Enterで送信 · Shift+Enterで改行|Enter 发送 · Shift+Enter 换行|Enter để gửi · Shift+Enter để xuống dòng
+Ctrl+Enter or ⌘+Enter to send · Enter for a new line|Ctrl+Enterまたは⌘+Enterで送信 · Enterで改行|Ctrl+Enter 或 ⌘+Enter 发送 · Enter 换行|Ctrl+Enter hoặc ⌘+Enter để gửi · Enter để xuống dòng

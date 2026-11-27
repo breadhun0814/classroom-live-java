@@ -1,6 +1,15 @@
 (() => {
   'use strict';
   const words = {
+    "저대역폭":"Low bandwidth",
+    "느린 연결용":"For slower connections",
+    "느린 연결용으로 설정했습니다. 목표 720p · 15fps · 시청자당 최대 2 Mbps입니다.":"Set 720p, 15 fps and a maximum of 2 Mbps per viewer for slower connections.",
+    "대화 전송 키":"Chat send key",
+    "Enter로 보내기":"Send with Enter",
+    "Ctrl+Enter로 보내기":"Send with Ctrl+Enter",
+    "메시지나 코드 입력":"Enter a message or code",
+    "Enter: 전송 · Shift+Enter: 줄바꿈":"Enter to send · Shift+Enter for a new line",
+    "Ctrl+Enter 또는 ⌘+Enter: 전송 · Enter: 줄바꿈":"Ctrl+Enter or ⌘+Enter to send · Enter for a new line",
     "답장":"Reply",
     "답장 취소":"Cancel reply",
     "이전 메시지에 대한 답장":"Reply to an earlier message",
