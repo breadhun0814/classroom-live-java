@@ -101,6 +101,11 @@ public class ClassroomServer {
         void removeMembers(Predicate<Map<String,Object>> filter){List<Map<String,Object>> gone=members.values().stream().filter(filter).toList();for(Map<String,Object> m:gone){String rid=str(m.get("room_id")),cid=str(m.get("client_id"));Map<String,Object> s=shares.get(rid);if(s!=null&&Objects.equals(s.get("client"),cid))shares.remove(rid);signals.removeIf(g->Objects.equals(g.get("room_id"),rid)&&(Objects.equals(g.get("sender"),cid)||Objects.equals(g.get("recipient"),cid)));members.remove(memberKey(rid,cid));}}
         void deleteRoom(String rid){list("rooms").removeIf(r->Objects.equals(r.get("id"),rid));list("messages").removeIf(r->Objects.equals(r.get("room_id"),rid));removeMembers(m->Objects.equals(m.get("room_id"),rid));shares.remove(rid);signals.removeIf(s->Objects.equals(s.get("room_id"),rid));}
         Map<String,Object> message(Map<String,Object> m){return obj("id",m.get("id"),"display_name",m.get("display_name"),"body",m.get("body"),"is_code",m.get("is_code"),"reply_to",m.get("reply_to"),"created_at",iso(m.get("created")));}
+        Map<String,Object> roomMessage(String roomId,long messageId) {
+            if(messageId==0)return null;
+            return list("messages").stream().filter(message->Objects.equals(message.get("room_id"),roomId)
+                &&num(message.get("id"))==messageId).findFirst().orElse(null);
+        }
         synchronized Object rpc(String token,String name,Map<String,Object> a)throws IOException{
             Map<String,Object> u=user(token);String userId=str(u.get("id"));long t=now();
             switch(name){
@@ -154,7 +159,7 @@ public class ClassroomServer {
                 else{Map<String,Object> p=find("users","id",target);if(p==null)throw new UserError("회원을 찾을 수 없습니다.");if(yes(p.get("admin")))throw new UserError("관리자 계정은 정지하거나 퇴장시킬 수 없습니다.");if(name.equals("live_admin_set_suspension")){if(!(a.get("p_suspended") instanceof Boolean))throw new UserError("이용 상태를 확인하세요.");boolean suspend=yes(a.get("p_suspended"));p.put("suspended",suspend);if(suspend)removeMembers(m->Objects.equals(m.get("user_id"),target));action=suspend?"suspend":"unsuspend";}else{removeMembers(m->Objects.equals(m.get("room_id"),rid)&&Objects.equals(m.get("user_id"),target));action="kick";}}
                 audit(userId,action,target,rid);save();return null;
             }
-            if(!Set.of("live_room_state","live_chat_history","live_share","live_send_signal","live_send_message","live_leave_room").contains(name))throw new UserError("지원하지 않는 요청입니다.");
+            if(!Set.of("live_room_state","live_chat_history","live_pin_message","live_share","live_send_signal","live_send_message","live_leave_room").contains(name))throw new UserError("지원하지 않는 요청입니다.");
             String rid=str(a.get("p_room")),cid=client(a.get("p_client"));Map<String,Object> member=requireMember(u,rid,cid),room=find("rooms","id",rid),share=shares.get(rid);
             switch(name){
                 case "live_leave_room":removeMembers(m->Objects.equals(m.get("room_id"),rid)&&Objects.equals(m.get("client_id"),cid));return null;
@@ -166,10 +171,21 @@ public class ClassroomServer {
                     member.put("hand_raised",yes(a.get("p_hand")));
                     members.values().removeIf(m->num(m.get("seen"))<t-86400000);signals.removeIf(s->num(s.get("created"))<t-600000);
                     if(share!=null){Map<String,Object> source=members.get(memberKey(rid,str(share.get("client"))));if(source==null||num(source.get("seen"))<t-45000){shares.remove(rid);share=null;}}
-                    Map<String,Object> rs=obj("id",rid,"code",room.get("code"),"title",room.get("title"),"owner_id",room.get("owner_id"),"share_client",share==null?null:share.get("client"),"share_epoch",share==null?null:share.get("epoch"));
+                    Map<String,Object> pinned=roomMessage(rid,num(room.get("pinned_message")));
+                    Map<String,Object> rs=obj("pinned_message",pinned==null?null:message(pinned),"id",rid,"code",room.get("code"),"title",room.get("title"),"owner_id",room.get("owner_id"),"share_client",share==null?null:share.get("client"),"share_epoch",share==null?null:share.get("epoch"));
                     List<Object> ms=new ArrayList<>();for(Map<String,Object> m:members.values())if(Objects.equals(m.get("room_id"),rid)&&num(m.get("seen"))>t-45000)ms.add(obj("client_id",m.get("client_id"),"user_id",m.get("user_id"),"name",m.get("name"),"call_id",m.get("call_id"),"call_camera",yes(m.get("call_camera")),"hand_raised",yes(m.get("hand_raised"))));
                     long after=Math.max(0,num(a.get("p_after_message"))),afterSignal=Math.max(0,num(a.get("p_after_signal")));List<Map<String,Object>> msgs=list("messages").stream().filter(m->Objects.equals(m.get("room_id"),rid)&&num(m.get("id"))>after).toList();if(after==0)msgs=msgs.subList(Math.max(0,msgs.size()-100),msgs.size());else msgs=msgs.subList(0,Math.min(100,msgs.size()));List<Object> ss=new ArrayList<>();String epoch=share==null?null:str(share.get("epoch"));for(Map<String,Object> s:signals)if(Objects.equals(s.get("room_id"),rid)&&Objects.equals(s.get("recipient"),cid)&&num(s.get("id"))>afterSignal&&(str(s.get("kind")).startsWith("call-")||Objects.equals(s.get("epoch"),epoch))&&ss.size()<200)ss.add(obj("id",s.get("id"),"sender",s.get("sender"),"epoch",s.get("epoch"),"kind",s.get("kind"),"payload",s.get("payload")));
                     return obj("room",rs,"members",ms,"messages",msgs.stream().map(this::message).toList(),"signals",ss);
+                }
+                case "live_pin_message":{
+                    if(!Objects.equals(room.get("owner_id"),userId))throw new UserError("방을 만든 사람만 메시지를 고정할 수 있습니다.");
+                    long id=num(a.get("p_message"));
+                    if(id!=0&&roomMessage(rid,id)==null)throw new UserError("고정할 메시지를 찾을 수 없습니다.");
+                    if(num(room.get("pinned_message"))!=id){
+                        if(id==0)room.remove("pinned_message");else room.put("pinned_message",id);
+                        save();
+                    }
+                    return null;
                 }
                 case "live_chat_history":{long before=num(a.get("p_before"));List<Map<String,Object>> msgs=list("messages").stream().filter(m->Objects.equals(m.get("room_id"),rid)&&num(m.get("id"))<before).toList();return msgs.subList(Math.max(0,msgs.size()-50),msgs.size()).stream().map(this::message).toList();}
                 case "live_share":{
@@ -177,8 +193,8 @@ public class ClassroomServer {
                 }
                 case "live_send_message":{
                     long reply=num(a.get("p_reply_to"));
-                    if(reply!=0&&list("messages").stream().noneMatch(m->Objects.equals(m.get("room_id"),rid)&&num(m.get("id"))==reply))throw new UserError("답장할 메시지를 찾을 수 없습니다. 답장을 취소한 뒤 다시 보내세요.");
-                    String body=text(a.get("p_body"),1,8000,"메시지",false);if(body.isBlank())throw new UserError("메시지를 입력하세요.");if(list("messages").stream().filter(m->Objects.equals(m.get("room_id"),rid)&&Objects.equals(m.get("user_id"),userId)&&num(m.get("created"))>t-60000).count()>=30)throw new UserError("메시지는 분당 30개까지 보낼 수 있습니다.");long id=num(data.get("messageId"))+1;data.put("messageId",id);list("messages").add(obj("id",id,"room_id",rid,"user_id",userId,"display_name",member.get("name"),"body",body,"is_code",yes(a.get("p_is_code")),"reply_to",reply==0?null:reply,"created",t));List<Map<String,Object>> ms=list("messages").stream().filter(m->Objects.equals(m.get("room_id"),rid)).toList();if(ms.size()>1000){long first=num(ms.get(ms.size()-1000).get("id"));list("messages").removeIf(m->Objects.equals(m.get("room_id"),rid)&&num(m.get("id"))<first);}save();return null;
+                    if(reply!=0&&roomMessage(rid,reply)==null)throw new UserError("답장할 메시지를 찾을 수 없습니다. 답장을 취소한 뒤 다시 보내세요.");
+                    String body=text(a.get("p_body"),1,8000,"메시지",false);if(body.isBlank())throw new UserError("메시지를 입력하세요.");if(list("messages").stream().filter(m->Objects.equals(m.get("room_id"),rid)&&Objects.equals(m.get("user_id"),userId)&&num(m.get("created"))>t-60000).count()>=30)throw new UserError("메시지는 분당 30개까지 보낼 수 있습니다.");long id=num(data.get("messageId"))+1;data.put("messageId",id);list("messages").add(obj("id",id,"room_id",rid,"user_id",userId,"display_name",member.get("name"),"body",body,"is_code",yes(a.get("p_is_code")),"reply_to",reply==0?null:reply,"created",t));List<Map<String,Object>> ms=list("messages").stream().filter(m->Objects.equals(m.get("room_id"),rid)).toList();if(ms.size()>1000){long first=num(ms.get(ms.size()-1000).get("id"));list("messages").removeIf(m->Objects.equals(m.get("room_id"),rid)&&num(m.get("id"))<first);if(num(room.get("pinned_message"))<first)room.remove("pinned_message");}save();return null;
                 }
                 case "live_send_signal":{
                     String target=client(a.get("p_target")),epoch=str(a.get("p_epoch")),kind=str(a.get("p_kind"));

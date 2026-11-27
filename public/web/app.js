@@ -606,6 +606,7 @@
     if ($('chat-export-dialog').open) $('chat-export-dialog').close();
     clearJoinError();
     setChatReply(null);
+    renderPinnedMessage(null);
     state.handRaised = false;
     renderHandButton();
     ui('hands-status', '');
@@ -642,6 +643,25 @@
     if (original) { delete link.dataset.uiText; link.textContent = replyExcerpt(original); }
     else setUiElement(link,'이전 메시지에 대한 답장');
   }
+  function renderPinnedMessage(message) {
+    const pane = $('chat-pin');
+    const id = message ? String(message.id) : '';
+    if ((pane.dataset.messageId || '') !== id) {
+      pane.open = false;
+      pane.dataset.messageId = id;
+      $('chat-pin-author').textContent = message?.display_name || '';
+      $('chat-pin-body').textContent = message?.body || '';
+    }
+    pane.hidden = !message;
+    $('chat-unpin').hidden = !message || state.room?.owner_id !== state.user?.id;
+  }
+  async function changePinnedMessage(messageId) {
+    if (!state.room) return;
+    const generation = state.generation;
+    await rpc('live_pin_message', { ...args(), p_message:messageId });
+    if (generation !== state.generation) return;
+    pollCallNow();
+  }
   function renderMessages(messages, prepend=false) {
     const panel = $('messages');
     const oldHeight=panel.scrollHeight; const oldTop=panel.scrollTop; const initial=!panel.children.length; let added=0;
@@ -655,7 +675,11 @@
       const head=document.createElement('div'); head.className='message-head';
       const copy=actionButton(m.is_code?'코드 복사':'메시지 복사',async()=>{await navigator.clipboard.writeText(m.body);notice('복사했습니다.');});copy.className='message-copy';
       const reply=actionButton('답장',()=>{setChatReply(m);$('chat-text').focus();});reply.className='message-copy';
-      const actions=document.createElement('div');actions.className='message-actions';actions.append(reply,copy);head.append(by,actions);
+      const actions=document.createElement('div');actions.className='message-actions';actions.append(reply,copy);
+      if (state.room?.owner_id === state.user?.id) {
+        const pin=actionButton('고정',()=>changePinnedMessage(Number(m.id)));pin.className='message-copy';actions.append(pin);
+      }
+      head.append(by,actions);
       wrap.append(head);
       if (m.reply_to) {
         const original=actionButton('이전 메시지에 대한 답장',()=>{
@@ -704,6 +728,7 @@
     if (state.publisher === state.client && !state.stream && !state.shareBusy) {
       await rpc('live_share', { ...args(), p_start: false }); state.publisher = null;
     }
+    renderPinnedMessage(data.room.pinned_message);
     rememberRoom(data.room);
     $('room-name').textContent = data.room.title; $('room-code-label').textContent = `ROOM / ${data.room.code}`;
     $('close-room').hidden = data.room.owner_id !== state.user.id;
@@ -1402,6 +1427,7 @@
     event.preventDefault();
     if (!event.repeat && !sendingChat) $('chat-form').requestSubmit();
   });
+  bind('chat-unpin','click',()=>changePinnedMessage(0));
   bind('chat-reply-cancel','click',()=>{setChatReply(null);$('chat-text').focus();});
   bind('chat-form','submit', async () => {
     const draft = $('chat-text').value;

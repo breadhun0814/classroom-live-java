@@ -1,6 +1,11 @@
 (() => {
   'use strict';
   const words = {
+    "고정된 메시지":"Pinned message",
+    "고정":"Pin",
+    "고정 해제":"Unpin",
+    "방을 만든 사람만 메시지를 고정할 수 있습니다.":"Only the room owner can pin messages.",
+    "고정할 메시지를 찾을 수 없습니다.":"The message to pin was not found.",
     "저대역폭":"Low bandwidth",
     "느린 연결용":"For slower connections",
     "느린 연결용으로 설정했습니다. 목표 720p · 15fps · 시청자당 최대 2 Mbps입니다.":"Set 720p, 15 fps and a maximum of 2 Mbps per viewer for slower connections.",

@@ -319,3 +319,8 @@ Send with Ctrl+Enter|Ctrl+Enterで送信|按 Ctrl+Enter 发送|Gửi bằng Ctrl
 Enter a message or code|メッセージかコードを入力|输入消息或代码|Nhập tin nhắn hoặc mã
 Enter to send · Shift+Enter for a new line|Enterで送信 · Shift+Enterで改行|Enter 发送 · Shift+Enter 换行|Enter để gửi · Shift+Enter để xuống dòng
 Ctrl+Enter or ⌘+Enter to send · Enter for a new line|Ctrl+Enterまたは⌘+Enterで送信 · Enterで改行|Ctrl+Enter 或 ⌘+Enter 发送 · Enter 换行|Ctrl+Enter hoặc ⌘+Enter để gửi · Enter để xuống dòng
+Pinned message|固定されたメッセージ|置顶消息|Tin nhắn đã ghim
+Pin|固定|置顶|Ghim
+Unpin|固定を解除|取消置顶|Bỏ ghim
+Only the room owner can pin messages.|部屋の作成者だけがメッセージを固定できます。|只有房主可以置顶消息。|Chỉ chủ phòng mới có thể ghim tin nhắn.
+The message to pin was not found.|固定するメッセージが見つかりません。|找不到要置顶的消息。|Không tìm thấy tin nhắn cần ghim.
