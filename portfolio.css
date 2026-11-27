@@ -31,3 +31,14 @@ body.dialog-open{overflow:hidden}.demo-room-form{margin-top:18px}.room-inputs{di
 }
 @media(max-width:480px){.hero-actions{flex-direction:column}.hero-actions .button{width:100%;white-space:nowrap}.workflow-grid{grid-template-columns:1fr}}
 @media(max-width:360px){.messages{max-height:460px}.site-header .header-inner{gap:10px}.site-header .inline-link{font-size:.875rem}.student-block{padding:24px 17px}.install-panel{padding:26px 18px}.demo-topbar{gap:10px}.demo-logo{font-size:.9rem}}
+
+.demo-call-stage { display: grid; grid-template-columns: minmax(0, 2fr) minmax(8.5rem, 1fr); gap: .75rem; margin: 1rem 0; }
+.demo-call-screen, .demo-call-person { background: #10213b; border: 1px solid #40587c; border-radius: .7rem; padding: .85rem; }
+.demo-call-screen { min-width: 0; }
+.demo-call-screen .demo-code { min-height: 0; margin: .65rem 0 0; padding: .65rem; }
+.demo-call-people { display: grid; gap: .55rem; align-content: start; }
+.demo-call-person { display: grid; grid-template-columns: 2rem 1fr; align-items: center; gap: .15rem .5rem; font-size: .8rem; }
+.demo-call-person > span:last-child { color: #bacbe4; grid-column: 2; }
+.demo-call-avatar { grid-row: span 2; display: grid; place-items: center; width: 2rem; aspect-ratio: 1; background: #263a59; border-radius: 50%; font-weight: 700; }
+.demo-call-camera-on .demo-call-avatar, .demo-call-avatar-teacher { background: #385c9d; }
+@media (max-width: 620px) { .demo-call-stage { grid-template-columns: 1fr; } .demo-call-people { grid-template-columns: repeat(auto-fit, minmax(min(9rem, 100%), 1fr)); } }

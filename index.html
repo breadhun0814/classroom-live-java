@@ -11,9 +11,9 @@
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://breadhun0814.github.io/classroom-live-java/docs/assets/classroom.png">
   <link rel="icon" type="image/svg+xml" href="./portfolio-icon.svg?v=20261127-responsive1">
-  <link rel="stylesheet" href="./portfolio.css?v=20261127-responsive1">
+  <link rel="stylesheet" href="./portfolio.css?v=20261127-video-call2">
   <link rel="canonical" href="https://breadhun0814.github.io/classroom-live-java/">
-  <script defer src="./portfolio.js?v=20261127-video-call1"></script>
+  <script defer src="./portfolio.js?v=20261127-video-call2"></script>
   <title>Classroom Live · 교실 화면 공유 프로젝트</title>
 </head>
 <body>
@@ -126,10 +126,27 @@
               </div>
               <div id="pane-call" class="demo-pane" role="tabpanel" aria-labelledby="tab-call" data-demo-pane="4" tabindex="0" hidden>
                 <h3>화면을 보면서 화상 통화</h3>
-                <p>예시 공유 화면을 보면서 통화에 참여해 보세요. 기기 권한은 요청하지 않습니다.</p>
-                <pre class="demo-code">int sum(int a, int b) {
+                <p>예시 화면에서 통화 입장과 기기 조작을 연습할 수 있습니다. 실제 카메라와 마이크는 사용하지 않습니다.</p>
+                <div class="demo-call-stage">
+                  <div class="demo-call-screen">
+                    <strong>교사 공유 화면</strong>
+                    <pre class="demo-code">int sum(int a, int b) {
     return a + b;
 }</pre>
+                  </div>
+                  <div class="demo-call-people">
+                    <div class="demo-call-person">
+                      <span class="demo-call-avatar" aria-hidden="true">나</span>
+                      <strong>나</strong>
+                      <span id="demo-call-preview">카메라 꺼짐</span>
+                    </div>
+                    <div id="demo-call-teacher" class="demo-call-person" hidden>
+                      <span class="demo-call-avatar demo-call-avatar-teacher" aria-hidden="true">김</span>
+                      <strong>김 선생님</strong>
+                      <span>예시 참여자</span>
+                    </div>
+                  </div>
+                </div>
                 <div class="demo-controls">
                   <button id="demo-call-camera" type="button" aria-pressed="false">카메라 켜기</button>
                   <button id="demo-call-mic" type="button" aria-pressed="false">마이크 켜기</button>

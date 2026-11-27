@@ -48,6 +48,11 @@
       button.setAttribute('aria-pressed', String(demoCall[kind]));
       button.textContent = label + (demoCall[kind] ? ' 끄기' : ' 켜기');
     }
+    $('demo-call-teacher').hidden = !demoCall.joined;
+    $('demo-call-preview').textContent = demoCall.camera
+      ? (demoCall.joined ? '예시 카메라 켜짐' : '예시 카메라 미리보기')
+      : '카메라 꺼짐';
+    $('demo-call-preview').parentElement.classList.toggle('demo-call-camera-on', demoCall.camera);
     $('demo-call-join').hidden = demoCall.joined;
     $('demo-call-join').textContent = demoCall.camera || demoCall.mic ? '통화 참여' : '듣기만 참여';
     $('demo-call-leave').hidden = !demoCall.joined;
