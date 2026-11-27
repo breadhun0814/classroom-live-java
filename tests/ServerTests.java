@@ -58,6 +58,9 @@ public class ServerTests {
    Map<String,Object> other=map(rpc(db,at,"live_create_room",m("p_title","Separate room","p_password","classpass","p_client",ca)));
    failure(()->rpc(db,at,"live_send_message",add(args(other,ca),"p_body","Unrelated","p_reply_to",original)),"찾을 수 없습니다");
    failure(()->rpc(db,at,"live_pin_message",add(args(other,ca),"p_message",original)),"찾을 수 없습니다");
+   var search=map(rpc(db,bt,"live_search_messages",add(br,"p_query","REPLY FIXTURE")));
+   check(ClassroomServer.rows(search.get("messages")).size()==1,"case-insensitive saved message search");
+   check(ClassroomServer.rows(map(rpc(db,at,"live_search_messages",add(args(other,ca),"p_query","REPLY FIXTURE"))).get("messages")).isEmpty(),"search limited to current room");
    rpc(db,at,"live_close_room",m("p_room",other.get("room_id")));
    failure(()->rpc(db,bt,"live_close_room",m("p_room",room.get("room_id"))),"만든 사람");
    rpc(db,bt,"live_set_nickname",m("p_nickname","한글 English"));check(s(map(rpc(db,bt,"live_account_status",m())).get("nickname")).equals("한글 English"),"English nickname");

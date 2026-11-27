@@ -327,3 +327,12 @@ The message to pin was not found.|固定するメッセージが見つかりま�
 Connection report text|コピー用の接続診断|供复制的连接诊断|Nội dung chẩn đoán kết nối
 Copied the screen sharing and call connection report.|画面共有と通話の接続診断をコピーしました。|已复制屏幕共享和通话连接报告。|Đã sao chép báo cáo chia sẻ màn hình và cuộc gọi.
 Report selected. Copy it with Ctrl+C or the browser menu.|診断を選択しました。Ctrl+Cまたはブラウザーのメニューでコピーしてください。|已选中报告。请按 Ctrl+C 或使用浏览器菜单复制。|Đã chọn báo cáo. Nhấn Ctrl+C hoặc dùng menu trình duyệt để sao chép.
+Search visible messages|表示中のメッセージを検索|搜索当前显示的消息|Tìm tin nhắn đang hiển thị
+Search all saved messages|保存済みメッセージを検索|搜索已保存的全部消息|Tìm tất cả tin nhắn đã lưu
+Message or participant name|メッセージまたは参加者名|消息或参与者姓名|Tin nhắn hoặc tên người tham gia
+More search results|検索結果をさらに表示|查看更多搜索结果|Xem thêm kết quả tìm kiếm
+Searching saved messages.|保存済みの会話を検索中です。|正在搜索已保存的对话。|Đang tìm trong tin nhắn đã lưu.
+Showing the newest results first.|新しい検索結果から表示します。|搜索结果按最新顺序显示。|Hiển thị kết quả mới nhất trước.
+There are no more search results.|これ以上検索結果はありません。|没有更多搜索结果。|Không còn kết quả tìm kiếm.
+No messages match your search.|検索語に一致する会話がありません。|没有与搜索词匹配的消息。|Không có tin nhắn khớp với từ khóa.
+Could not search messages.|会話を検索できませんでした。|无法搜索消息。|Không thể tìm kiếm tin nhắn.

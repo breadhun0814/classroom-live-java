@@ -159,7 +159,7 @@ public class ClassroomServer {
                 else{Map<String,Object> p=find("users","id",target);if(p==null)throw new UserError("회원을 찾을 수 없습니다.");if(yes(p.get("admin")))throw new UserError("관리자 계정은 정지하거나 퇴장시킬 수 없습니다.");if(name.equals("live_admin_set_suspension")){if(!(a.get("p_suspended") instanceof Boolean))throw new UserError("이용 상태를 확인하세요.");boolean suspend=yes(a.get("p_suspended"));p.put("suspended",suspend);if(suspend)removeMembers(m->Objects.equals(m.get("user_id"),target));action=suspend?"suspend":"unsuspend";}else{removeMembers(m->Objects.equals(m.get("room_id"),rid)&&Objects.equals(m.get("user_id"),target));action="kick";}}
                 audit(userId,action,target,rid);save();return null;
             }
-            if(!Set.of("live_room_state","live_chat_history","live_pin_message","live_share","live_send_signal","live_send_message","live_leave_room").contains(name))throw new UserError("지원하지 않는 요청입니다.");
+            if(!Set.of("live_room_state","live_chat_history","live_search_messages","live_pin_message","live_share","live_send_signal","live_send_message","live_leave_room").contains(name))throw new UserError("지원하지 않는 요청입니다.");
             String rid=str(a.get("p_room")),cid=client(a.get("p_client"));Map<String,Object> member=requireMember(u,rid,cid),room=find("rooms","id",rid),share=shares.get(rid);
             switch(name){
                 case "live_leave_room":removeMembers(m->Objects.equals(m.get("room_id"),rid)&&Objects.equals(m.get("client_id"),cid));return null;
@@ -186,6 +186,21 @@ public class ClassroomServer {
                         save();
                     }
                     return null;
+                }
+                case "live_search_messages":{
+                    String query=key(text(a.get("p_query"),1,100,"대화 검색어",true));
+                    long before=a.get("p_before")==null?Long.MAX_VALUE:num(a.get("p_before"));
+                    List<Map<String,Object>> hits=new ArrayList<>();
+                    List<Map<String,Object>> messages=list("messages");
+                    for(int i=messages.size()-1;i>=0&&hits.size()<51;i--){
+                        Map<String,Object> candidate=messages.get(i);
+                        if(!Objects.equals(candidate.get("room_id"),rid)||num(candidate.get("id"))>=before)continue;
+                        if(str(candidate.get("body")).toLowerCase(Locale.ROOT).contains(query)||
+                            str(candidate.get("display_name")).toLowerCase(Locale.ROOT).contains(query))hits.add(candidate);
+                    }
+                    boolean hasMore=hits.size()>50;
+                    if(hasMore)hits.remove(50);
+                    return obj("messages",hits.stream().map(this::message).toList(),"has_more",hasMore);
                 }
                 case "live_chat_history":{long before=num(a.get("p_before"));List<Map<String,Object>> msgs=list("messages").stream().filter(m->Objects.equals(m.get("room_id"),rid)&&num(m.get("id"))<before).toList();return msgs.subList(Math.max(0,msgs.size()-50),msgs.size()).stream().map(this::message).toList();}
                 case "live_share":{

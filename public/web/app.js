@@ -606,6 +606,7 @@
     endCall();
     if ($('invite-dialog').open) $('invite-dialog').close();
     if ($('chat-export-dialog').open) $('chat-export-dialog').close();
+    if ($('chat-search-dialog').open) $('chat-search-dialog').close();
     clearJoinError();
     setChatReply(null);
     renderPinnedMessage(null);
@@ -1358,6 +1359,60 @@
     const generation=state.generation;const before=cachedMessages.size?Math.min(...cachedMessages.keys()):Number.MAX_SAFE_INTEGER;
     const data=await rpc('live_chat_history',{...args(),p_before:before});if(generation!==state.generation)return;
     renderMessages(data,true);if(!data.length)notice('더 이전 대화가 없습니다.');
+  });
+  let fullSearchVersion = 0;
+  let fullSearchCursor;
+  let fullSearchTerm;
+  function resetFullSearch() {
+    fullSearchVersion++;
+    fullSearchCursor = null;
+    fullSearchTerm = '';
+    $('chat-search-more').hidden = true;
+    $('chat-search-results').replaceChildren();
+    ui('chat-search-status','');
+  }
+  async function searchSavedMessages(append=false) {
+    const query = append ? fullSearchTerm : $('chat-query').value.trim();
+    if (!state.room || !query || (append && fullSearchCursor==null)) return;
+    if (!append) resetFullSearch();
+    fullSearchTerm = query;
+    const ticket = ++fullSearchVersion;
+    const generation = state.generation;
+    const isCurrent = () => ticket === fullSearchVersion &&
+      generation === state.generation && $('chat-search-dialog').open;
+    ui('chat-search-status','보관된 대화를 검색하는 중입니다.');
+    try {
+      const data = await rpc('live_search_messages',{...args(),p_query:query,p_before:append?fullSearchCursor:null});
+      if (!isCurrent()) return;
+      for (const message of data.messages) {
+        const result = document.createElement('article');result.className='chat-search-result';
+        const label = document.createElement('strong');
+        label.textContent = message.display_name + ' · ' + dateLabel(message.created_at);
+        const body = document.createElement('pre');body.textContent=message.body;
+        result.append(label,body);
+        $('chat-search-results').append(result);
+      }
+      fullSearchCursor = data.has_more ? Number(data.messages.at(-1).id) : null;
+      $('chat-search-more').hidden = fullSearchCursor==null;
+      ui('chat-search-status',data.messages.length
+        ? '검색 결과를 최신순으로 표시합니다.'
+        : append ? '추가 검색 결과가 없습니다.' : '검색어와 일치하는 대화가 없습니다.');
+    } catch(error) {
+      if (isCurrent()) ui('chat-search-status',error.message || '대화를 검색하지 못했습니다.');
+    }
+  }
+  bind('search-all-chat','click',()=>{
+    resetFullSearch();
+    $('chat-query').value=$('chat-search').value;
+    $('chat-search-dialog').showModal();
+    $('chat-query').focus();
+    if ($('chat-query').value.trim()) void searchSavedMessages();
+  });
+  bind('chat-search-form','submit',()=>searchSavedMessages());
+  bind('chat-search-more','click',()=>searchSavedMessages(true));
+  bind('chat-search-close','click',()=>$('chat-search-dialog').close());
+  $('chat-search-dialog').addEventListener('close',()=>{
+    if (!$('chat-search-dialog').open) resetFullSearch();
   });
   let chatExportTicket = 0;
   let chatExportUrl;

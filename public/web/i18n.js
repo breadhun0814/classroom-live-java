@@ -1,6 +1,15 @@
 (() => {
   'use strict';
   const words = {
+    "현재 화면에서 검색":"Search visible messages",
+    "전체 대화 검색":"Search all saved messages",
+    "메시지 또는 참여자 이름":"Message or participant name",
+    "검색 결과 더 보기":"More search results",
+    "보관된 대화를 검색하는 중입니다.":"Searching saved messages.",
+    "검색 결과를 최신순으로 표시합니다.":"Showing the newest results first.",
+    "추가 검색 결과가 없습니다.":"There are no more search results.",
+    "검색어와 일치하는 대화가 없습니다.":"No messages match your search.",
+    "대화를 검색하지 못했습니다.":"Could not search messages.",
     "복사용 연결 진단":"Connection report text",
     "화면과 통화 연결 진단을 복사했습니다.":"Copied the screen sharing and call connection report.",
     "진단을 선택했습니다. Ctrl+C 또는 복사 메뉴로 복사하세요.":"Report selected. Copy it with Ctrl+C or the browser menu.",
