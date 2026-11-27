@@ -348,3 +348,6 @@ Sign in with an existing account, then enter the room password.|既存のアカ�
 Reduce load while sharing|共有中の負荷を下げる|在共享中降低负载|Giảm tải trong khi chia sẻ
 Some connections could not reduce load. Restart sharing if interruptions continue.|一部の接続に軽量設定を適用できませんでした。途切れる場合は共有を再開してください。|部分连接无法降低负载。如果仍中断，请重新开始共享。|Một số kết nối không thể giảm tải. Nếu vẫn gián đoạn, hãy bắt đầu chia sẻ lại.
 Changed to the low bandwidth preset without stopping screen sharing.|共有を続けたまま低速回線向け設定に変更しました。|已在保持屏幕共享的同时切换到低带宽设置。|Đã chuyển sang băng thông thấp mà không dừng chia sẻ màn hình.
+Copy message manually|メッセージを手動でコピー|手动复制消息|Sao chép tin nhắn thủ công
+Message to copy|コピーするメッセージ|要复制的消息|Tin nhắn để sao chép
+Your browser blocked automatic copying. Copy the selected text with Ctrl+C or the browser menu.|自動コピーがブロックされました。選択したテキストをCtrl+Cまたはブラウザーのメニューでコピーしてください。|浏览器阻止了自动复制。请按 Ctrl+C 或使用浏览器菜单复制选中文字。|Trình duyệt đã chặn sao chép tự động. Nhấn Ctrl+C hoặc dùng menu trình duyệt để sao chép phần đã chọn.

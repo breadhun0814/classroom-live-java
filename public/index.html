@@ -79,6 +79,12 @@
     </div>
     <p id="invite-status" class="footnote" role="status"></p>
   </dialog>
+  <dialog id="message-copy-dialog" class="card call-setup" aria-labelledby="message-copy-title">
+    <h2 id="message-copy-title">메시지 직접 복사</h2>
+    <p class="muted">브라우저가 자동 복사를 허용하지 않았습니다. 선택된 내용을 Ctrl+C 또는 복사 메뉴로 복사하세요.</p>
+    <label>복사할 메시지<textarea id="message-copy-text" rows="8" readonly></textarea></label>
+    <button id="message-copy-close" type="button">닫기</button>
+  </dialog>
   <dialog id="chat-search-dialog" class="card call-setup" aria-labelledby="chat-search-title">
     <h2 id="chat-search-title">전체 대화 검색</h2>
     <form id="chat-search-form"><label>메시지 또는 참여자 이름<input type="search" id="chat-query" maxlength="100" required></label><button type="submit">검색</button></form>

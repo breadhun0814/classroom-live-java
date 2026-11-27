@@ -607,6 +607,8 @@
     if ($('invite-dialog').open) $('invite-dialog').close();
     if ($('chat-export-dialog').open) $('chat-export-dialog').close();
     if ($('chat-search-dialog').open) $('chat-search-dialog').close();
+    if ($('message-copy-dialog').open) $('message-copy-dialog').close();
+    $('message-copy-text').value = '';
     clearJoinError();
     setChatReply(null);
     renderPinnedMessage(null);
@@ -619,7 +621,8 @@
     state.room = null; state.epoch = null; state.publisher = null; state.message = 0; state.signal = 0; state.pollFailures = 0; state.watchAttempts = 0; state.watchPaused = false;
     sessionStorage.removeItem('live-room'); $('messages').replaceChildren(); $('members').replaceChildren(); clearVideo();
     $('chat-text').value=''; $('chat-search').value=''; $('as-code').checked=false; ui('draft-status',''); ui('chat-count','0 / 8000'); ui('chat-search-count',''); $('older-chat').disabled=false; updateTabTitle();
-    $('share').hidden = false; $('stop').hidden = true; $('share-reduce').hidden = true; $('watch').hidden = true; $('resolution').disabled = false; $('fps').disabled = false; $('share-mode').disabled = false; for(const id of ['quality-level','video-codec','preset-text','preset-motion','preset-low'])$(id).disabled=false; showCaptureStats();
+    $('share').hidden = false; restoreSharePreferences();
+    $('stop').hidden = true; $('share-reduce').hidden = true; $('watch').hidden = true; $('resolution').disabled = false; $('fps').disabled = false; $('share-mode').disabled = false; for(const id of ['quality-level','video-codec','preset-text','preset-motion','preset-low'])$(id).disabled=false; showCaptureStats();
   }
   async function enter(room) {
     consumeInvite();
@@ -665,6 +668,24 @@
     if (generation !== state.generation) return;
     pollCallNow();
   }
+  async function copyMessageText(text, statusId) {
+    const generation = state.generation;
+    const fromSearch = statusId==='chat-search-status';
+    const canUpdate = () => generation===state.generation && (!fromSearch || $('chat-search-dialog').open);
+    try {
+      await navigator.clipboard.writeText(text);
+      if (!canUpdate()) return;
+      if (statusId) ui(statusId,'복사했습니다.');
+      else notice('복사했습니다.');
+    } catch {
+      if (!canUpdate()) return;
+      const dialog = $('message-copy-dialog');
+      const field = $('message-copy-text');
+      field.value = text;
+      if (!dialog.open) dialog.showModal();
+      field.focus(); field.select();
+    }
+  }
   function renderMessages(messages, prepend=false) {
     const panel = $('messages');
     const oldHeight=panel.scrollHeight; const oldTop=panel.scrollTop; const initial=!panel.children.length; let added=0;
@@ -676,7 +697,7 @@
       const by = document.createElement('div'); by.className = 'by'; by.textContent = `${m.display_name} · ${new Date(m.created_at).toLocaleTimeString(window.CL_I18N?.language()||'ko', {hour:'2-digit',minute:'2-digit'})}`;
       const body = document.createElement(m.is_code ? 'pre' : 'div'); body.className = 'content'; body.textContent = m.body;
       const head=document.createElement('div'); head.className='message-head';
-      const copy=actionButton(m.is_code?'코드 복사':'메시지 복사',async()=>{await navigator.clipboard.writeText(m.body);notice('복사했습니다.');});copy.className='message-copy';
+      const copy=actionButton(m.is_code?'코드 복사':'메시지 복사',()=>copyMessageText(m.body));copy.className='message-copy';
       const reply=actionButton('답장',()=>{setChatReply(m);$('chat-text').focus();});reply.className='message-copy';
       const actions=document.createElement('div');actions.className='message-actions';actions.append(reply,copy);
       if (state.room?.owner_id === state.user?.id) {
@@ -811,6 +832,22 @@
     if (!connectionId) throw new Error('화면 연결 식별자가 없습니다. 다시 연결하세요.');
     await rpc('live_send_signal', { ...args(), p_target: target, p_epoch: epoch, p_kind: kind, p_payload: { connectionId, data: payload } });
   }
+  const sharePreferenceIds = ['resolution','fps','share-mode','quality-level','video-codec'];
+  const defaultSharePreferences = Object.fromEntries(sharePreferenceIds.map(id=>[id,$(id).value]));
+  function saveSharePreferences() {
+    const preferences = Object.fromEntries(sharePreferenceIds.map(id=>[id,$(id).value]));
+    try { localStorage.setItem('classroom-share-preferences',JSON.stringify(preferences)); } catch {}
+  }
+  function restoreSharePreferences() {
+    let saved;
+    try { saved=JSON.parse(localStorage.getItem('classroom-share-preferences')||'{}'); } catch {}
+    for (const id of sharePreferenceIds) {
+      const select=$(id), value=saved?.[id];
+      select.value=[...select.options].some(option=>option.value===value) ? value : defaultSharePreferences[id];
+    }
+  }
+  restoreSharePreferences();
+  sharePreferenceIds.forEach(id=>$(id).addEventListener('change',saveSharePreferences));
   function mediaProfile() {
     const source=state.stream?.getVideoTracks()[0]?.getSettings() || {};
     const native=$('resolution').value==='native';
@@ -1058,7 +1095,7 @@
   async function stopSharing() {
     stopTracks(); for (const id of [...state.peers.keys()]) closePeer(id); clearVideo();
     try { if (state.room) await rpc('live_share', { ...args(), p_start: false }); }
-    finally { state.publisher = null; state.epoch = null; refreshControls(); }
+    finally { state.publisher = null; state.epoch = null; restoreSharePreferences(); refreshControls(); }
   }
   async function leave() {
     if (!state.room) return;
@@ -1306,14 +1343,14 @@
     }
   });
   window.addEventListener('resize',sizeVideo);
-  bind('preset-text','click',async()=>{$('resolution').value='native';$('fps').value='30';$('share-mode').value='text';$('quality-level').value='high';$('video-codec').value='auto';notice('원본 해상도 · 글자 선명도 · 고화질 · 30fps로 설정했습니다.');});
-  bind('preset-motion','click',async()=>{$('resolution').value='1080';$('fps').value='60';$('share-mode').value='motion';$('quality-level').value='high';$('video-codec').value='h264';notice('1080p · 움직임 우선 · 고화질 · 60fps로 설정했습니다. 실제 성능에 따라 달라집니다.');});
+  bind('preset-text','click',async()=>{$('resolution').value='native';$('fps').value='30';$('share-mode').value='text';$('quality-level').value='high';$('video-codec').value='auto';saveSharePreferences();notice('원본 해상도 · 글자 선명도 · 고화질 · 30fps로 설정했습니다.');});
+  bind('preset-motion','click',async()=>{$('resolution').value='1080';$('fps').value='60';$('share-mode').value='motion';$('quality-level').value='high';$('video-codec').value='h264';saveSharePreferences();notice('1080p · 움직임 우선 · 고화질 · 60fps로 설정했습니다. 실제 성능에 따라 달라집니다.');});
   function setLowShareProfile() {
     $('resolution').value='720'; $('fps').value='15'; $('share-mode').value='text';
     $('quality-level').value='low';
   }
   bind('preset-low','click', () => {
-    setLowShareProfile(); $('video-codec').value='auto';
+    setLowShareProfile(); $('video-codec').value='auto'; saveSharePreferences();
     notice('느린 연결용으로 설정했습니다. 목표 720p · 15fps · 시청자당 최대 2 Mbps입니다.');
   });
   bind('share-reduce','click',async()=>{
@@ -1447,7 +1484,8 @@
         const label = document.createElement('strong');
         label.textContent = message.display_name + ' · ' + dateLabel(message.created_at);
         const body = document.createElement('pre');body.textContent=message.body;
-        result.append(label,body);
+        const copy=actionButton(message.is_code?'코드 복사':'메시지 복사',()=>copyMessageText(message.body,'chat-search-status'));
+        result.append(label,body,copy);
         $('chat-search-results').append(result);
       }
       fullSearchCursor = data.has_more ? Number(data.messages.at(-1).id) : null;
@@ -1469,6 +1507,10 @@
   bind('chat-search-form','submit',()=>searchSavedMessages());
   bind('chat-search-more','click',()=>searchSavedMessages(true));
   bind('chat-search-close','click',()=>$('chat-search-dialog').close());
+  bind('message-copy-close','click',()=>$('message-copy-dialog').close());
+  $('message-copy-dialog').addEventListener('close',()=>{
+    if (!$('message-copy-dialog').open) $('message-copy-text').value='';
+  });
   $('chat-search-dialog').addEventListener('close',()=>{
     if (!$('chat-search-dialog').open) resetFullSearch();
   });

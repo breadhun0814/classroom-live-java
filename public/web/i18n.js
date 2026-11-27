@@ -1,6 +1,9 @@
 (() => {
   'use strict';
   const words = {
+    "메시지 직접 복사":"Copy message manually",
+    "복사할 메시지":"Message to copy",
+    "브라우저가 자동 복사를 허용하지 않았습니다. 선택된 내용을 Ctrl+C 또는 복사 메뉴로 복사하세요.":"Your browser blocked automatic copying. Copy the selected text with Ctrl+C or the browser menu.",
     "공유 중 부하 줄이기":"Reduce load while sharing",
     "일부 연결에 부하 줄이기 설정을 적용하지 못했습니다. 계속 끊기면 공유를 다시 시작하세요.":"Some connections could not reduce load. Restart sharing if interruptions continue.",
     "화면 공유를 유지하면서 느린 연결용 설정으로 변경했습니다.":"Changed to the low bandwidth preset without stopping screen sharing.",
