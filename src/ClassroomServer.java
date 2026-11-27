@@ -217,9 +217,10 @@ public class ClassroomServer {
     static Map<String,Object> config(Path dir)throws IOException{Map<String,Object> c=map(readJson(dir.resolve("server.json")));String ip=str(c.get("server_ip"));if(!privateIP(ipv4(ip)))throw new UserError("서버의 실제 교실 IPv4를 입력하세요.");long port=num(c.get("port"));if(port<1024||port>65535)throw new UserError("포트는 1024~65535여야 합니다.");List<?> cidrs=(List<?>)c.get("allowed_cidrs");if(cidrs==null||cidrs.isEmpty())throw new UserError("허용 대역이 필요합니다.");boolean own=false;for(Object n:cidrs)own|=new Network(str(n)).has(ip);if(!own)throw new UserError("서버 IP가 허용 대역 안에 있어야 합니다.");return c;}
     static SSLContext tls(Path dir)throws Exception{char[] pw=Files.readString(dir.resolve("tls/store-password.txt"),StandardCharsets.UTF_8).strip().toCharArray();KeyStore ks=KeyStore.getInstance("PKCS12");try(InputStream in=Files.newInputStream(dir.resolve("tls/server.p12"))){ks.load(in,pw);}KeyManagerFactory km=KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());km.init(ks,pw);SSLContext ctx=SSLContext.getInstance("TLS");ctx.init(km.getKeyManagers(),null,null);Arrays.fill(pw,'\0');return ctx;}
     static class Service implements AutoCloseable {
-        HttpsServer server;ExecutorService pool;Map<String,Object> cfg;Store store;Path dir;List<Network> nets=new ArrayList<>();int port;
+        HttpsServer server;ExecutorService pool;Map<String,Object> cfg;Store store;Path dir;List<Network> nets=new ArrayList<>();int port;final byte[] startupScript;
         Service(Map<String,Object> cfg,Store store,Path dir,int port)throws Exception{
             this.cfg=cfg;this.store=store;this.dir=dir;for(Object n:(List<?>)cfg.get("allowed_cidrs"))nets.add(new Network(str(n)));
+            startupScript=loadStartupScript();
             server=HttpsServer.create(new InetSocketAddress("0.0.0.0",port),32);this.port=server.getAddress().getPort();SSLContext ssl=tls(dir);
             server.setHttpsConfigurator(new HttpsConfigurator(ssl){public void configure(HttpsParameters p){SSLParameters params=getSSLContext().getDefaultSSLParameters();params.setProtocols(new String[]{"TLSv1.3","TLSv1.2"});p.setSSLParameters(params);}});
             pool=new ThreadPoolExecutor(8,32,60,TimeUnit.SECONDS,new ArrayBlockingQueue<>(128),new ThreadPoolExecutor.AbortPolicy());server.setExecutor(pool);server.createContext("/",this::handle);
@@ -230,12 +231,24 @@ public class ClassroomServer {
         void output(HttpExchange e,int code,byte[] body,String type,String cookie)throws IOException{Headers h=e.getResponseHeaders();h.set("Content-Type",type);h.set("Cache-Control","no-store");h.set("X-Content-Type-Options","nosniff");h.set("X-Frame-Options","DENY");h.set("Referrer-Policy","same-origin");h.set("Permissions-Policy","display-capture=(self), camera=(self), microphone=(self)");h.set("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; media-src 'self' blob:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'");if(cookie!=null)h.add("Set-Cookie",COOKIE+"="+cookie+"; Path=/; Secure; HttpOnly; SameSite=Strict; Max-Age="+(cookie.isEmpty()?0:604800));if(code>=400)h.set("Connection","close");e.sendResponseHeaders(code,body.length);try(OutputStream out=e.getResponseBody()){out.write(body);}}
         void json(HttpExchange e,int code,Object body,String cookie)throws IOException{output(e,code,Json.encode(body).getBytes(StandardCharsets.UTF_8),"application/json; charset=utf-8",cookie);}
         byte[] asset(String name)throws IOException{try(InputStream in=ClassroomServer.class.getResourceAsStream("/public/"+name)){if(in!=null)return in.readAllBytes();}Path file=base.resolve("public").resolve(name);return Files.isRegularFile(file)?Files.readAllBytes(file):null;}
+        byte[] loadStartupScript() throws IOException {
+            var script=new ByteArrayOutputStream();
+            byte[] separator=";\n".getBytes(StandardCharsets.UTF_8);
+            for(String filename:List.of("local-api.js","config.js","languages.js","i18n.js","app.js")){
+                byte[] source=asset("web/"+filename);
+                if(source==null)throw new FileNotFoundException(filename);
+                script.writeBytes(source);
+                script.writeBytes(separator);
+            }
+            return script.toByteArray();
+        }
         void handle(HttpExchange e){try{
             if(!allowed(e.getRemoteAddress().getAddress())){json(e,403,obj("error","교실 허용 대역에서만 접속할 수 있습니다."),null);return;}
             String host=e.getRequestHeaders().getFirst("Host");Set<String> hosts=new HashSet<>();for(String h:List.of(str(cfg.get("server_ip")),"127.0.0.1","localhost")){hosts.add(h+":"+port);if(port==443)hosts.add(h);}if(host==null||!hosts.contains(host)){json(e,403,obj("error","허용되지 않은 서버 주소입니다."),null);return;}
             String path=e.getRequestURI().getPath(),method=e.getRequestMethod();
             if(method.equals("GET")){
                 if(path.equals("/api/session")){Store.Auth result=store.auth("session",obj(),token(e),e.getRemoteAddress().getAddress().getHostAddress(),yes(cfg.get("signup_enabled")));json(e,200,result.data(),result.cookie());return;}
+                if(path.equals("/web/startup.js")){output(e,200,startupScript,"text/javascript; charset=utf-8",null);return;}
                 if(path.equals("/api/health")){json(e,200,obj("ok",true,"version","java-lan3","cloud",false),null);return;}
                 String file=null,type="text/html; charset=utf-8";switch(path){case "/":case "/index.html":file="index.html";break;case "/help":file="help.html";break;case "/classroom-ca.crt":output(e,200,Files.readAllBytes(dir.resolve("tls/classroom-ca.crt")),"application/x-x509-ca-cert",null);return;default:if(Set.of("/web/app.js","/web/i18n.js","/web/config.js","/web/local-api.js","/web/style.css","/web/languages.js","/guide.js","/guide.css").contains(path)){file=path.substring(1);type=path.endsWith(".css")?"text/css; charset=utf-8":"text/javascript; charset=utf-8";}}
                 byte[] bytes=file==null?null:asset(file);if(bytes==null)json(e,404,obj("error","파일을 찾을 수 없습니다."),null);else output(e,200,bytes,type,null);return;
