@@ -1,5 +1,9 @@
 # Developer validation
 
+Latest portfolio refresh: [2026-11-27 validation record](docs/VERIFICATION_2026-11-27.md). That record separates checks rerun on Windows from the historical deliverable notes below.
+
+Static portfolio and browser demo checks: [portfolio site validation](docs/PORTFOLIO_SITE_KO.md). The five-language guide test now reads `START_HERE.html`; root `index.html` is the separate portfolio. `scripts/sync-guides.cjs` preserves that separation.
+
 Runtime requirements: Java 17+ with jdk.httpserver; keytool for initial setup and certificate renewal. No Python, Maven, Gradle, Spring runtime or third-party Java libraries. The prebuilt JAR contains the UI and Java 17 bytecode.
 
 Rebuild and run Java tests with a JDK:
@@ -11,11 +15,25 @@ java --add-modules jdk.httpserver -cp build/classes:build/test-classes ServerTes
 
 On Windows the classpath separator is `;` instead of `:`. The source launcher uses the JDK compiler API, so a separate javac executable on PATH is not required.
 
+`java Build.java test` builds the JARs and compiles tests; it does not execute them. Also run the process-management suite:
+
+```powershell
+java --add-modules jdk.httpserver -cp "build/classes;build/test-classes" ManagedServerTests
+```
+
+On Windows this suite may require explicit UTF-8 child-process output for its Unicode path assertion. See the latest validation record for a scoped `JAVA_TOOL_OPTIONS` example that restores the previous value.
+
 UI integration tests (developer-only Node 24/jsdom):
 
 ```bash
 npm install --ignore-scripts
 npm test
+```
+
+Validate the five-language installation guides separately:
+
+```bash
+node tests/guides.test.cjs
 ```
 
 UI tests start the real Java HTTPS backend and use jsdom with simulated capture and RTCPeerConnection. This verifies authentication, room/chat/UI flows and signaling; it is not a physical video quality, codec, throughput or nine-hour endurance test. Test certificates/accounts/databases use temporary directories and are excluded from the deliverable.

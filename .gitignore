@@ -1,0 +1,17 @@
+# Local classroom data, certificates, credentials and backups
+data/
+java-path.txt
+*.p12
+*.pfx
+*.jks
+*.key
+STUDENT_SETUP.zip
+
+# Generated development files
+build/
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+
+# Shipped ClassroomLive.jar and ServerControl.jar are intentionally tracked.
