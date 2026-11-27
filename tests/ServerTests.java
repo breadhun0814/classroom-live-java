@@ -40,6 +40,12 @@ public class ServerTests {
    check(((List<?>)map(rpc(db,at,"live_list_rooms",m("p_owned",true,"p_offset",50))).get("rooms")).size()==1,"room search clamps last page");
    Map<String,Object> ar=args(room,ca),br=args(room,cb);
    rpc(db,bt,"live_join_room_by_name",m("p_room_name","class a","p_password","classpass","p_client",cb));failure(()->rpc(db,people.get(1).cookie(),"live_room_state",br),"만료");
+   failure(()->rpc(db,bt,"live_lock_room",add(br,"p_locked",true)),"만든 사람");
+   rpc(db,at,"live_lock_room",add(ar,"p_locked",true));
+   check(Boolean.TRUE.equals(map(map(rpc(db,bt,"live_room_state",br)).get("room")).get("join_locked")),"room lock visible and existing membership stays active");
+   failure(()->rpc(db,people.get(1).cookie(),"live_join_room",m("p_code",room.get("code"),"p_password","classpass","p_client",cid())),"잠겨");
+   rpc(db,bt,"live_join_room",m("p_code",room.get("code"),"p_password","classpass","p_client",cb));
+   rpc(db,at,"live_lock_room",add(ar,"p_locked",false));
    rpc(db,bt,"live_room_state",add(br,"p_hand",true));
    List<Map<String,Object>> raised=ClassroomServer.rows(map(rpc(db,at,"live_room_state",ar)).get("members"));
    check(raised.stream().anyMatch(member->cb.equals(member.get("client_id"))&&Boolean.TRUE.equals(member.get("hand_raised"))),"hand state visible to room peers");

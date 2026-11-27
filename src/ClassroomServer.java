@@ -162,7 +162,7 @@ public class ClassroomServer {
                     int requested=(int)Math.max(0,Math.min(num(a.get("p_offset")),10000));
                     int lastPage=Math.max(0,all.size()-1)/50*50;
                     int off=Math.min(requested,lastPage);
-                    List<Object> result=new ArrayList<>();for(Map<String,Object> r:all.subList(Math.min(off,all.size()),Math.min(off+50,all.size()))){long n=members.values().stream().filter(m->Objects.equals(m.get("room_id"),r.get("id"))&&num(m.get("seen"))>t-45000).count();result.add(obj("id",r.get("id"),"code",r.get("code"),"title",r.get("title"),"created_at",iso(r.get("created")),"is_owner",Objects.equals(r.get("owner_id"),userId),"member_count",n));}return obj("rooms",result,"total",all.size(),"offset",off,"has_more",off+50<all.size());
+                    List<Object> result=new ArrayList<>();for(Map<String,Object> r:all.subList(Math.min(off,all.size()),Math.min(off+50,all.size()))){long n=members.values().stream().filter(m->Objects.equals(m.get("room_id"),r.get("id"))&&num(m.get("seen"))>t-45000).count();result.add(obj("id",r.get("id"),"code",r.get("code"),"title",r.get("title"),"created_at",iso(r.get("created")),"is_owner",Objects.equals(r.get("owner_id"),userId),"member_count",n,"join_locked",yes(r.get("join_locked"))));}return obj("rooms",result,"total",all.size(),"offset",off,"has_more",off+50<all.size());
                 }
                 case "live_create_room":{
                     String title=text(a.get("p_title"),1,60,"방 이름",true),pw=text(a.get("p_password"),6,64,"방 비밀번호",false),cid=client(a.get("p_client"));
@@ -175,6 +175,10 @@ public class ClassroomServer {
                     Map<String,Object> r=name.equals("live_join_room")?find("rooms","code",str(a.get("p_code")).strip().toUpperCase(Locale.ROOT)):find("rooms","title_key",key(str(a.get("p_room_name"))));
                     String pw=str(a.get("p_password"));if(r==null||pw.length()>64||!matches(pw,str(r.get("password")))){save();return obj("error","방 이름·코드 또는 방 비밀번호가 올바르지 않습니다.");}
                     String rid=str(r.get("id"));Map<String,Object> old=members.get(memberKey(rid,cid));if(old!=null&&!Objects.equals(old.get("user_id"),userId))throw new UserError("다른 접속에서 사용 중인 ID입니다. 새로고침하세요.");
+                    if(yes(r.get("join_locked"))&&!Objects.equals(r.get("owner_id"),userId)&&(old==null||num(old.get("seen"))<t-90000)){
+                        map(data.get("limits")).remove("join:"+userId);
+                        throw new UserError("이 방은 새 입장이 잠겨 있습니다. 방장에게 문의하세요.");
+                    }
                     long count=members.values().stream().filter(m->Objects.equals(m.get("room_id"),rid)&&!Objects.equals(m.get("client_id"),cid)&&num(m.get("seen"))>t-45000).count();if(count>=8)throw new UserError("방이 가득 찼습니다. 최대 8명까지 입장할 수 있습니다.");
                     map(data.get("limits")).remove("join:"+userId);save();members.put(memberKey(rid,cid),obj("room_id",rid,"client_id",cid,"user_id",userId,"name",u.get("nickname"),"seen",t));return obj("room_id",rid,"code",r.get("code"));
                 }
@@ -201,7 +205,7 @@ public class ClassroomServer {
                 else{Map<String,Object> p=find("users","id",target);if(p==null)throw new UserError("회원을 찾을 수 없습니다.");if(yes(p.get("admin")))throw new UserError("관리자 계정은 정지하거나 퇴장시킬 수 없습니다.");if(name.equals("live_admin_set_suspension")){if(!(a.get("p_suspended") instanceof Boolean))throw new UserError("이용 상태를 확인하세요.");boolean suspend=yes(a.get("p_suspended"));p.put("suspended",suspend);if(suspend)removeMembers(m->Objects.equals(m.get("user_id"),target));action=suspend?"suspend":"unsuspend";}else{removeMembers(m->Objects.equals(m.get("room_id"),rid)&&Objects.equals(m.get("user_id"),target));action="kick";}}
                 audit(userId,action,target,rid);save();return null;
             }
-            if(!Set.of("live_room_state","live_chat_history","live_search_messages","live_pin_message","live_share","live_send_signal","live_send_message","live_leave_room").contains(name))throw new UserError("지원하지 않는 요청입니다.");
+            if(!Set.of("live_room_state","live_chat_history","live_search_messages","live_pin_message","live_lock_room","live_share","live_send_signal","live_send_message","live_leave_room").contains(name))throw new UserError("지원하지 않는 요청입니다.");
             String rid=str(a.get("p_room")),cid=client(a.get("p_client"));Map<String,Object> member=requireMember(u,rid,cid),room=find("rooms","id",rid),share=shares.get(rid);
             switch(name){
                 case "live_leave_room":removeMembers(m->Objects.equals(m.get("room_id"),rid)&&Objects.equals(m.get("client_id"),cid));return null;
@@ -214,10 +218,22 @@ public class ClassroomServer {
                     members.values().removeIf(m->num(m.get("seen"))<t-86400000);signals.removeIf(s->num(s.get("created"))<t-600000);
                     if(share!=null){Map<String,Object> source=members.get(memberKey(rid,str(share.get("client"))));if(source==null||num(source.get("seen"))<t-45000){shares.remove(rid);share=null;}}
                     Map<String,Object> pinned=roomMessage(rid,num(room.get("pinned_message")));
-                    Map<String,Object> rs=obj("pinned_message",pinned==null?null:message(pinned),"id",rid,"code",room.get("code"),"title",room.get("title"),"owner_id",room.get("owner_id"),"share_client",share==null?null:share.get("client"),"share_epoch",share==null?null:share.get("epoch"));
+                    Map<String,Object> rs=obj("pinned_message",pinned==null?null:message(pinned),"id",rid,"code",room.get("code"),"title",room.get("title"),"owner_id",room.get("owner_id"),"join_locked",yes(room.get("join_locked")),"share_client",share==null?null:share.get("client"),"share_epoch",share==null?null:share.get("epoch"));
                     List<Object> ms=new ArrayList<>();for(Map<String,Object> m:members.values())if(Objects.equals(m.get("room_id"),rid)&&num(m.get("seen"))>t-45000)ms.add(obj("client_id",m.get("client_id"),"user_id",m.get("user_id"),"name",m.get("name"),"call_id",m.get("call_id"),"call_camera",yes(m.get("call_camera")),"hand_raised",yes(m.get("hand_raised"))));
                     long after=Math.max(0,num(a.get("p_after_message"))),afterSignal=Math.max(0,num(a.get("p_after_signal")));List<Map<String,Object>> msgs=list("messages").stream().filter(m->Objects.equals(m.get("room_id"),rid)&&num(m.get("id"))>after).toList();if(after==0)msgs=msgs.subList(Math.max(0,msgs.size()-100),msgs.size());else msgs=msgs.subList(0,Math.min(100,msgs.size()));List<Object> ss=new ArrayList<>();String epoch=share==null?null:str(share.get("epoch"));for(Map<String,Object> s:signals)if(Objects.equals(s.get("room_id"),rid)&&Objects.equals(s.get("recipient"),cid)&&num(s.get("id"))>afterSignal&&(str(s.get("kind")).startsWith("call-")||Objects.equals(s.get("epoch"),epoch))&&ss.size()<200)ss.add(obj("id",s.get("id"),"sender",s.get("sender"),"epoch",s.get("epoch"),"kind",s.get("kind"),"payload",s.get("payload")));
                     return obj("room",rs,"members",ms,"messages",msgs.stream().map(this::message).toList(),"signals",ss);
+                }
+                case "live_lock_room":{
+                    if(!Objects.equals(room.get("owner_id"),userId))throw new UserError("방을 만든 사람만 입장을 잠글 수 있습니다.");
+                    if(!(a.get("p_locked") instanceof Boolean))throw new UserError("방 입장 상태를 확인하세요.");
+                    boolean locked=yes(a.get("p_locked"));
+                    if(locked!=yes(room.get("join_locked"))){
+                        Object previous=room.get("join_locked");
+                        if(locked)room.put("join_locked",true);else room.remove("join_locked");
+                        try{save();}
+                        catch(IOException error){if(previous==null)room.remove("join_locked");else room.put("join_locked",previous);throw error;}
+                    }
+                    return obj("join_locked",locked);
                 }
                 case "live_pin_message":{
                     if(!Objects.equals(room.get("owner_id"),userId))throw new UserError("방을 만든 사람만 메시지를 고정할 수 있습니다.");

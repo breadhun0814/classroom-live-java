@@ -1,6 +1,12 @@
 (() => {
   'use strict';
   const words = {
+    "새 입장 잠김":"New entries locked",
+    "새 입장 잠그기":"Lock new entries",
+    "새 입장 잠금 풀기":"Unlock new entries",
+    "이 방은 새 입장이 잠겨 있습니다. 방장에게 문의하세요.":"This room is locked for new entries. Contact the room owner.",
+    "방을 만든 사람만 입장을 잠글 수 있습니다.":"Only the room owner can lock entry.",
+    "방 입장 상태를 확인하세요.":"Check the room entry setting.",
     "이 브라우저에 기기 선택 기억":"Remember devices in this browser",
     "관리자 조작 기록":"Administrator activity",
     "기록 새로고침":"Refresh activity",

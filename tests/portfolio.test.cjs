@@ -15,6 +15,8 @@ const {JSDOM}=require('jsdom');const root=path.join(__dirname,'..');
  w.document.querySelector('[data-demo-room="20261127ABCE"]').click();assert.equal($('demo-room-code').value,'20261127ABCE');assert.equal($('demo-room-password').value,'');
  click('tab-call');assert(!$('pane-call').hidden);assert.equal($('demo-call-join').textContent,'듣기만 참여');
  assert($('demo-call-teacher').hidden);click('demo-call-camera');assert.match($('demo-call-preview').textContent,/미리보기/);click('demo-call-camera');
+ click('demo-call-hand');assert(!$('demo-call-hand-status').hidden);
+ click('demo-call-hand');assert($('demo-call-hand-status').hidden);
  click('demo-call-float');assert(!$('demo-call-float-status').hidden);
  click('demo-call-join');assert(!$('demo-call-teacher').hidden);assert.match($('demo-call-status').textContent,/연결됨/);
  click('demo-call-mic');assert.match($('demo-call-status').textContent,/마이크 켜짐/);

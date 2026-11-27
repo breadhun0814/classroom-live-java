@@ -41,7 +41,7 @@
     $('preset-description').textContent=button.dataset.preset==='text'?'글자 프리셋 예시: 원본 해상도 · 30fps · 해상도 유지 우선':'움직임 프리셋 예시: 1080p · 60fps · H.264 우선';
   }
   document.querySelectorAll('[data-preset]').forEach(button=>button.addEventListener('click',()=>setPreset(button)));
-  const demoCall = { joined: false, camera: false, mic: false, sharing: true, floating: false };
+  const demoCall = { joined: false, camera: false, mic: false, sharing: true, floating: false, hand: false };
   function renderDemoCall() {
     for (const [kind, label] of [['camera', '카메라'], ['mic', '마이크']]) {
       const button = $('demo-call-' + kind);
@@ -57,6 +57,9 @@
     $('demo-call-share').setAttribute('aria-pressed', String(demoCall.sharing));
     $('demo-call-share').textContent = demoCall.sharing ? '예시 화면 공유 중지' : '예시 화면 공유 시작';
     $('demo-call-share-status').textContent = demoCall.sharing ? '발표자 화면 공유 중' : '예시 화면 공유 중지됨';
+    $('demo-call-hand').setAttribute('aria-pressed',String(demoCall.hand));
+    $('demo-call-hand').textContent=demoCall.hand?'손 내리기':'손들기';
+    $('demo-call-hand-status').hidden=!demoCall.hand;
     $('demo-call-teacher').hidden = !demoCall.joined;
     $('demo-call-preview').textContent = demoCall.camera
       ? (demoCall.joined ? '예시 카메라 켜짐' : '예시 카메라 미리보기')
@@ -75,6 +78,10 @@
   $('demo-call-share').addEventListener('click', () => {
     demoCall.sharing = !demoCall.sharing;
     if (!demoCall.sharing) demoCall.floating = false;
+    renderDemoCall();
+  });
+  $('demo-call-hand').addEventListener('click', () => {
+    demoCall.hand = !demoCall.hand;
     renderDemoCall();
   });
   $('demo-call-float').addEventListener('click', () => {

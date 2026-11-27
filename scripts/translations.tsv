@@ -360,3 +360,9 @@ Administrator deleted a room|管理者が部屋を削除|管理员删除了房�
 Administrator action|管理者の操作|管理员操作|Thao tác quản trị
 There is no administrator activity to show.|表示できる管理者操作はありません。|暂无管理员操作记录。|Không có thao tác quản trị để hiển thị.
 Remember devices in this browser|このブラウザーに機器の選択を記憶する|在此浏览器中记住设备选择|Ghi nhớ thiết bị trong trình duyệt này
+New entries locked|新規入室はロック中|已锁定新加入|Đã khóa người vào mới
+Lock new entries|新規入室をロック|锁定新加入|Khóa người vào mới
+Unlock new entries|新規入室のロックを解除|解锁新加入|Mở khóa người vào mới
+This room is locked for new entries. Contact the room owner.|この部屋は新規入室がロックされています。部屋の作成者にお問い合わせください。|该房间已锁定新加入，请联系房主。|Phòng này đã khóa người vào mới. Hãy liên hệ chủ phòng.
+Only the room owner can lock entry.|部屋の作成者だけが入室をロックできます。|只有房主可以锁定加入。|Chỉ chủ phòng mới có thể khóa người vào.
+Check the room entry setting.|部屋の入室設定を確認してください。|请检查房间加入设置。|Hãy kiểm tra cài đặt vào phòng.

@@ -9,11 +9,11 @@
   <meta property="og:title" content="Classroom Live · 같은 화면을 보며 함께 작업하기">
   <meta property="og:description" content="회의, 발표, 스터디를 위한 내부망 화면 공유·화상 통화·코드 채팅 도구">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="https://breadhun0814.github.io/classroom-live-java/docs/assets/collaboration-room.png">
+  <meta property="og:image" content="https://breadhun0814.github.io/classroom-live-java/docs/assets/collaboration-room-latest.png">
   <link rel="icon" type="image/svg+xml" href="./portfolio-icon.svg?v=20261127-responsive1">
   <link rel="stylesheet" href="./portfolio.css?v=usability-portfolio1">
   <link rel="canonical" href="https://breadhun0814.github.io/classroom-live-java/">
-  <script defer src="./portfolio.js?v=usability-portfolio1"></script>
+  <script defer src="./portfolio.js?v=usability-portfolio2"></script>
   <title>Classroom Live · 화면 공유·화상 통화</title>
 </head>
 <body>
@@ -57,7 +57,7 @@
             <p class="micro">로그인 없이 둘러보는 포트폴리오입니다. 실제 기능은 같은 네트워크에서 실행 중인 서버에 접속해 사용합니다.</p>
           </div>
           <figure class="screenshot-card hero-image">
-            <button class="image-button" type="button" data-open-image aria-label="실제 Classroom Live 앱 화면 크게 보기"><img src="./docs/assets/collaboration-room.png" width="1440" height="1260" alt="Classroom Live의 실제 예시 방. 화면 공유 영역, 화상 통화 조작부, 코드 채팅이 표시되어 있습니다." fetchpriority="high"></button>
+            <button class="image-button" type="button" data-open-image aria-label="실제 Classroom Live 앱 화면 크게 보기"><img src="./docs/assets/collaboration-room-latest.png" width="1440" height="1590" alt="Classroom Live의 실제 예시 방. 화면 공유, 화상 통화, 손들기와 고정된 대화 메시지가 표시되어 있습니다." fetchpriority="high"></button>
             <figcaption><span>실제 앱 화면 · 촬영용 예시 데이터</span><button class="text-button" type="button" data-open-image>크게 보기</button></figcaption>
           </figure>
         </div>
@@ -92,7 +92,7 @@
           <p>최신 Windows 버전에서 추가로 다듬은 사용 흐름입니다.</p>
         </div>
         <div class="workflow-grid">
-          <article class="workflow-item"><h3>방을 바로 찾기</h3><p>방을 검색하거나 내가 만든 방만 볼 수 있습니다. 최근 들어간 방은 이 브라우저에만 표시되며 비밀번호는 저장하지 않습니다.</p></article>
+          <article class="workflow-item"><h3>방을 바로 찾기</h3><p>방을 검색하거나 내가 만든 방만 볼 수 있습니다. 방장은 기존 참여자를 내보내지 않고 새 입장만 잠글 수 있습니다. 최근 들어간 방은 이 브라우저에만 표시되며 비밀번호는 저장하지 않습니다.</p></article>
           <article class="workflow-item"><h3>입장 전에 소리 확인</h3><p>마이크 입력 막대와 스피커 테스트로 소리를 확인합니다. 연결 도움말에서 화면과 통화 상태를 확인하고, 통화를 끊지 않고 손을 들어 발언 의사를 표시할 수 있습니다.</p></article>
           <article class="workflow-item"><h3>공유 화면을 작은 창으로</h3><p>지원되는 브라우저에서 공유 화면을 별도 창에 띄우고 채팅이나 화상 통화를 이어갑니다. 재연결해도 참여자별 음소거가 유지됩니다. 연결이 느리면 720p·15fps 프리셋을 선택하거나 공유 중에 바로 부하를 줄일 수 있습니다. 시작 전에 선택한 공유 설정은 이 브라우저에서 다시 열어도 유지됩니다.</p></article>
           <article class="workflow-item"><h3>방의 대화 가져가기</h3><p>메시지에 답장하고, 방장은 공지나 참고 메시지를 대화 위에 고정할 수 있습니다. 전송 키는 Enter 또는 Ctrl+Enter로 설정합니다. 보관된 대화는 이름이나 내용으로 검색합니다. 자동 복사가 차단되면 선택된 메시지를 직접 복사할 수 있고, 보관된 대화 전체는 TXT로 저장할 수 있습니다. 좁은 화면에서는 상단 버튼으로 화면·통화·대화로 바로 이동합니다.</p></article>
@@ -176,10 +176,12 @@
                   <button id="demo-call-camera" type="button" aria-pressed="false">카메라 켜기</button>
                   <button id="demo-call-mic" type="button" aria-pressed="false">마이크 켜기</button>
                   <button id="demo-call-join" type="button">듣기만 참여</button>
+                  <button id="demo-call-hand" type="button" aria-pressed="false">손들기</button>
                   <button id="demo-call-leave" type="button" hidden>통화 나가기</button>
                 </div>
                 <p id="demo-call-float-status" class="demo-notice" hidden>공유 화면을 작게 배치한 예시입니다. 실제 앱은 브라우저의 별도 작은 창에서 재생합니다.</p>
                 <p id="demo-call-share-status" class="demo-notice" role="status">발표자 화면 공유 중</p>
+                <p id="demo-call-hand-status" class="demo-notice" role="status" hidden>내가 손을 들었습니다.</p>
                 <p id="demo-call-status" class="demo-notice" role="status">입장할 때 사용할 기기를 선택하세요.</p>
               </div>
             </div>
@@ -308,7 +310,7 @@
 
   <footer class="site-footer"><div class="container footer-inner"><div><span class="footer-title">Classroom Live</span><br>내부망 협업 도구 · 포트폴리오 프로젝트</div><div class="footer-links"><a href="https://github.com/breadhun0814/classroom-live-java">GitHub</a><a href="https://github.com/breadhun0814/classroom-live-java/blob/main/docs/PORTFOLIO_KO.md">상세 문서</a><a href="https://careflow-breadhun0814-demo.vercel.app/">Careflow 프로젝트</a></div></div></footer>
 
-  <dialog id="image-dialog" class="image-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><span id="dialog-title">Classroom Live 실제 앱 화면</span><button id="close-image" type="button" autofocus>닫기</button></div><img src="./docs/assets/collaboration-room.png" width="1440" height="1260" alt="Classroom Live 실제 앱의 방 화면. 관리자와 예시 참여자가 입장해 일반 메시지와 Java 코드를 주고받습니다." loading="lazy"><p>촬영용 합성 계정과 대화입니다. 영상 영역은 화면 공유 대기 상태입니다.</p></dialog>
+  <dialog id="image-dialog" class="image-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><span id="dialog-title">Classroom Live 실제 앱 화면</span><button id="close-image" type="button" autofocus>닫기</button></div><img src="./docs/assets/collaboration-room-latest.png" width="1440" height="1590" alt="Classroom Live 실제 앱의 방 화면. 관리자와 예시 참여자가 입장해 일반 메시지와 Java 코드를 주고받습니다." loading="lazy"><p>촬영용 합성 계정과 대화입니다. 영상 영역은 화면 공유 대기 상태입니다.</p></dialog>
   <div id="toast" class="toast" role="status" hidden></div>
 </body>
 </html>

@@ -35,7 +35,7 @@ Classroom Live는 같은 교실의 사용자가 비밀번호 방에 모여 화�
 
 ## 실행 화면
 
-![비밀번호 방의 코드 채팅과 화면 공유 설정](docs/assets/collaboration-room.png)
+![비밀번호 방의 코드 채팅과 화면 공유 설정](docs/assets/collaboration-room-latest.png)
 
 *실제 Java HTTPS 서버에 관리자와 예시 학생이 접속한 화면입니다. 촬영용 합성 계정·대화를 사용했으며, 영상 영역은 화면 공유 대기 상태입니다.*
 

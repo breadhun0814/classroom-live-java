@@ -120,7 +120,9 @@
         const row = document.createElement('div'); row.className = 'room-row';
         const info = document.createElement('div'); const title = document.createElement('strong'); title.textContent = room.title;
         const detail = document.createElement('span'); detail.className = 'muted'; setUiElement(detail,`비밀번호 필요 · ${room.member_count}/8명${room.is_owner ? ' · 내가 만든 방' : ''}`);
-        info.append(title,detail); const button = document.createElement('button'); setUiElement(button,'이 방 선택');
+        info.append(title,detail);
+        if (room.join_locked) { const lock=document.createElement('span');setUiElement(lock,'새 입장 잠김');info.append(lock); }
+        const button = document.createElement('button'); setUiElement(button,'이 방 선택');
         button.addEventListener('click', () => {
           // A specific code also disambiguates legacy rooms with duplicate names.
           selectRoomCode(room);
@@ -647,7 +649,7 @@
     saveDraft(); cachedMessages.clear(); chatUnread=0; tabUnread=0; updateUnread();
     clearTimeout(state.timer); state.timer = null; state.generation++; state.polling = false; state.shareBusy = false;
     stopTracks(); for (const id of [...state.peers.keys()]) closePeer(id); state.pending.clear();
-    state.room = null; state.epoch = null; state.publisher = null; state.message = 0; state.signal = 0; state.pollFailures = 0; state.watchAttempts = 0; state.watchPaused = false;
+    state.room = null; renderRoomLock(null); state.epoch = null; state.publisher = null; state.message = 0; state.signal = 0; state.pollFailures = 0; state.watchAttempts = 0; state.watchPaused = false;
     sessionStorage.removeItem('live-room'); $('messages').replaceChildren(); $('members').replaceChildren(); clearVideo();
     $('chat-text').value=''; $('chat-search').value=''; $('as-code').checked=false; ui('draft-status',''); ui('chat-count','0 / 8000'); ui('chat-search-count',''); $('older-chat').disabled=false; updateTabTitle();
     $('share').hidden = false; restoreSharePreferences();
@@ -785,6 +787,7 @@
     rememberRoom(data.room);
     $('room-name').textContent = data.room.title; $('room-code-label').textContent = `ROOM / ${data.room.code}`;
     $('close-room').hidden = data.room.owner_id !== state.user.id;
+    renderRoomLock(data.room);
     ui('member-count',`(${data.members.length}/8)`); $('members').replaceChildren();
     const present = new Set(data.members.map(m => m.client_id));
     for (const id of [...state.peers.keys()]) if (!present.has(id)) closePeer(id);
@@ -1355,6 +1358,24 @@
     }
   });
   bind('leave','click', async()=>{if((state.stream||call.id||$('chat-text').value.trim())&&!ask('화면 공유, 통화 또는 작성 중인 메시지가 있습니다. 방에서 나갈까요?'))return;await leave();}); bind('share','click', share); bind('stop','click', stopSharing); bind('watch','click',async () => { state.watchPaused=false; state.watchAttempts=0; await watch(); });
+  function renderRoomLock(room) {
+    const locked=!!room?.join_locked;
+    const button=$('room-lock');
+    button.hidden=!room || room.owner_id!==state.user?.id;
+    button.setAttribute('aria-pressed',String(locked));
+    $('room-lock-badge').hidden=!locked;
+    const text=locked?'새 입장 잠금 풀기':'새 입장 잠그기';
+    if (button.dataset.uiText!==text) ui('room-lock',text);
+  }
+  bind('room-lock','click',async () => {
+    if (!state.room || state.room.owner_id!==state.user?.id) return;
+    const generation=state.generation;
+    const result=await rpc('live_lock_room',{...args(),p_locked:!state.room.join_locked});
+    if (generation!==state.generation) return;
+    state.room.join_locked=result.join_locked;
+    renderRoomLock(state.room);
+    pollCallNow();
+  });
   bind('close-room','click', async () => { if (!ask('이 방과 대화 기록을 삭제할까요? 모든 참여자가 나가게 됩니다.')) return; await rpc('live_close_room', { p_room: state.room.id }); cleanup(); screen('lobby'); await loadRooms(); notice('방을 삭제했습니다.'); });
   bind('copy-link','click', () => {
     const url = new URL(location.href);
