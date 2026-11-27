@@ -9,7 +9,7 @@
   const ask = text => window.confirm(tr(text));
   const state = { db: null, user: null, room: null, client: sessionStorage.getItem('live-client') || crypto.randomUUID(), generation: 0, epoch: null, publisher: null, stream: null, peers: new Map(), pending: new Map(), message: 0, signal: 0, timer: null, polling: false, signup: false, watchAt: 0, ice: [], iceUntil: 0, pollFailures: 0, shareBusy: false };
   sessionStorage.setItem('live-client', state.client);
-  const notice = (text, error = false) => { if (/Could not find|schema cache/.test(text) && /live_/.test(text)) text='교실 서버를 최신 버전으로 실행해 주세요.'; ui('notice',text); $('notice').classList.toggle('error', error); $('notice').hidden = !text; };
+  const notice = (text, error = false) => { if (/Could not find|schema cache/.test(text) && /live_/.test(text)) text='로컬 서버를 최신 버전으로 실행해 주세요.'; ui('notice',text); $('notice').classList.toggle('error', error); $('notice').hidden = !text; };
   function screen(name) { ['setup','auth','lobby','room','admin','profile'].forEach(id => { $(id).hidden = id !== name; }); }
   async function rpc(name, args = {}) {
     const { data, error } = await state.db.rpc(name, args);
@@ -62,7 +62,7 @@
     } catch (error) {
       if (request !== directoryRequest || state.user?.id !== userId || state.room) return;
       $('room-list').textContent = /live_list_rooms|schema cache|Could not find/i.test(error.message)
-        ? '방 목록을 불러오지 못했습니다. 교실 서버 상태를 확인하세요.' : '방 목록을 불러오지 못했습니다. 목록 새로고침을 눌러 주세요.';
+        ? '방 목록을 불러오지 못했습니다. 로컬 서버 상태를 확인하세요.' : '방 목록을 불러오지 못했습니다. 목록 새로고침을 눌러 주세요.';
     }
   }
   async function updateAccount(user, preserveView=false) {
@@ -178,7 +178,7 @@
     }
   }
   function openCallSetup() {
-    if (!window.RTCPeerConnection || !window.MediaStream) throw new Error('교실 HTTPS 주소를 Chrome 또는 Edge에서 열어 주세요.');
+    if (!window.RTCPeerConnection || !window.MediaStream) throw new Error('로컬 서버의 HTTPS 주소를 Chrome 또는 Edge에서 열어 주세요.');
     call.stream ??= new MediaStream();
     $('call-preview').srcObject = call.stream;
     $('call-setup').showModal();
@@ -238,7 +238,7 @@
     const stream = call.stream;
     if (!stream || call.changing.has(kind)) return;
     if (enable && !navigator.mediaDevices?.getUserMedia) {
-      reportCallDevice('교실 HTTPS 주소를 Chrome 또는 Edge에서 열어 주세요.');
+      reportCallDevice('로컬 서버의 HTTPS 주소를 Chrome 또는 Edge에서 열어 주세요.');
       return;
     }
     const select = $('call-' + kind + '-device');
@@ -499,7 +499,7 @@
       if (!state.watchPaused && (!peer || stuck || ['failed','closed','disconnected'].includes(peer.pc.connectionState)) && Date.now() - state.watchAt > 12000) {
         if ((state.watchAttempts || 0) >= 3) {
           state.watchPaused = true; ui('video-status','영상 연결 실패 · 화면 다시 연결을 눌러 주세요.');
-          notice(cfg.useTurnFunction ? '화면 연결에 실패했습니다. 중계 서버 설정과 학교 네트워크 차단 여부를 확인하세요.' : '교실 PC 간 화면 연결에 실패했습니다. 두 PC의 Chrome을 새로고침하고 학교 담당자에게 PC 간 통신 차단 여부를 확인하세요.', true);
+          notice(cfg.useTurnFunction ? '화면 연결에 실패했습니다. 중계 서버 설정과 학교 네트워크 차단 여부를 확인하세요.' : '참여자 PC 간 화면 연결에 실패했습니다. 두 PC의 Chrome을 새로고침하고 네트워크 담당자에게 PC 간 통신 차단 여부를 확인하세요.', true);
         } else await watch();
       }
     }
@@ -545,7 +545,7 @@
     return {native,width,height,fps,level,bitrate:mbps*1000000,text:$('share-mode').value!=='motion',codec:$('video-codec').value};
   }
   function showCaptureStats() {
-    if(!state.stream){ui('capture-stats','공유자 설정입니다. 글씨 수업은 원본 해상도 · 30fps · 글자 선명도를 권장합니다.');return;}
+    if(!state.stream){ui('capture-stats','공유자 설정입니다. 글자 공유에는 원본 해상도 · 30fps · 글자 선명도를 권장합니다.');return;}
     const source=state.stream.getVideoTracks()[0]?.getSettings()||{},p=mediaProfile();
     const viewers=[...state.peers.values()].filter(peer=>peer.pc.connectionState==='connected').length;
     let text=`원본 캡처 ${source.width||'?'}×${source.height||'?'} · 최대 ${p.fps} fps · 전송 상한 ${p.bitrate/1000000} Mbps/명`;
@@ -920,13 +920,13 @@
   }
   function renderConnectionHelp(){
     const report=connectionReport();const hints=[];
-    if(!report.online)hints.push('교실 네트워크 연결이 끊겨 있습니다. 네트워크를 연결한 뒤 화면 다시 연결을 누르세요.');
+    if(!report.online)hints.push('로컬 네트워크 연결이 끊겨 있습니다. 네트워크를 연결한 뒤 화면 다시 연결을 누르세요.');
     if(report.oldClientDetected)hints.push('참여자 간 코드 버전이 다릅니다. 공유자와 시청자 모두 Ctrl+Shift+R을 누르세요.');
     if(report.connectionIssue==='relay-config')hints.push('중계 설정을 불러오지 못했습니다. 운영자가 Supabase의 ice-config 배포와 Secrets 설정을 확인해야 합니다.');
     if(report.role==='waiting')hints.push('현재 방에서 화면 공유가 시작되지 않았습니다. 공유자가 화면 공유 시작을 눌러 화면을 선택해야 합니다.');
     if(report.role==='presenter'&&!report.connections.length)hints.push('아직 시청 연결 요청이 없습니다. 시청자가 같은 방에 들어와 화면 다시 연결을 눌러 주세요.');
     if(report.connections.some(p=>!p.localSdp||!p.remoteSdp))hints.push('화면 연결 정보 교환이 아직 완료되지 않았습니다. 두 PC를 새로고침한 뒤 공유를 다시 시작해 보세요.');
-    if(report.connections.some(p=>p.localSdp&&p.remoteSdp&&!p.receivedVideo&&['new','checking','failed','disconnected'].includes(p.ice||p.state)))hints.push('연결 정보는 있지만 영상 통신 경로가 아직 연결되지 않았습니다. 학교 담당자에게 브라우저 통신 허용과 PC 간 연결 차단 여부를 확인하세요.');
+    if(report.connections.some(p=>p.localSdp&&p.remoteSdp&&!p.receivedVideo&&['new','checking','failed','disconnected'].includes(p.ice||p.state)))hints.push('연결 정보는 있지만 영상 통신 경로가 아직 연결되지 않았습니다. 네트워크 담당자에게 브라우저 통신 허용과 PC 간 연결 차단 여부를 확인하세요.');
     if(report.role==='viewer'&&report.connections.some(p=>p.state==='connected'&&!p.receivedVideo))hints.push('연결은 됐지만 영상 프레임을 받지 못했습니다. 재생 다시 시도를 누르고, 공유자는 공유할 화면이 정상인지 확인한 뒤 다시 공유하세요.');
     if(report.role==='viewer'&&report.video.paused)hints.push('재생이 일시 정지되어 있습니다. 재생 다시 시도 버튼을 누르세요.');
     if(report.role==='viewer'&&report.connections.some(p=>p.receivedVideo))hints.push('영상 프레임을 받은 기록은 있습니다. 화면이 흐리거나 멈추면 실제 송수신 해상도와 네트워크·PC 성능 제한 표시를 확인하세요.');
@@ -987,7 +987,7 @@
       notice('');
     } finally { sendingChat = false; button.disabled = false; }
   });
-  window.addEventListener('offline', () => { ui('connection-status','오프라인');$('connection-status').classList.add('offline');notice('교실 네트워크 연결이 끊겼습니다. 연결되면 자동으로 다시 시도합니다.', true); });
+  window.addEventListener('offline', () => { ui('connection-status','오프라인');$('connection-status').classList.add('offline');notice('로컬 네트워크 연결이 끊겼습니다. 연결되면 자동으로 다시 시도합니다.', true); });
   bind('call-join', 'click', openCallSetup);
   bind('call-settings', 'click', openCallSetup);
   bind('call-cancel', 'click', closeCallSetup);
@@ -1008,11 +1008,11 @@
       .filter(peer => peer.video.srcObject).map(peer => peer.video.play()));
     $('call-play').hidden = results.every(result => result.status === 'fulfilled');
   });
-  window.addEventListener('online',()=>{notice('교실 네트워크 연결이 돌아왔습니다. 다시 연결하고 있어요.');if(state.room&&!state.polling){clearTimeout(state.timer);poll(state.generation);}});
+  window.addEventListener('online',()=>{notice('로컬 네트워크 연결이 돌아왔습니다. 다시 연결하고 있어요.');if(state.room&&!state.polling){clearTimeout(state.timer);poll(state.generation);}});
   window.addEventListener('beforeunload',event=>{saveDraft();if(state.stream||$('chat-text').value.trim()){event.preventDefault();event.returnValue='';}});
   window.addEventListener('pagehide', () => { endCall(); stopTracks(); for (const id of [...state.peers.keys()]) closePeer(id); });
   async function init() {
-    if (!window.isSecureContext) { screen('setup'); notice('화면 공유를 위해 HTTPS와 교실 인증서 등록이 필요합니다. 접속 도움말을 확인하세요.',true); return; }
+    if (!window.isSecureContext) { screen('setup'); notice('화면 공유를 위해 HTTPS와 서버 인증서 등록이 필요합니다. 접속 도움말을 확인하세요.',true); return; }
     state.db = window.CLASSROOM_LOCAL;
     const { data, error } = await state.db.auth.getSession(); if (error) throw error;
     const saved = sessionStorage.getItem('live-room'); await updateAccount(data.session?.user || null);
