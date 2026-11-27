@@ -56,6 +56,7 @@
   }
   let directoryOffset = 0;
   let directoryRequest = 0;
+  let directoryTimer;
   function updateJoinMethod(clear = true) {
     const byName = $('join-method').value === 'name'; const input = $('room-code');
     ui('join-target-label',byName ? '방 이름' : '초대 코드');
@@ -67,10 +68,12 @@
     if (!state.db || !state.user || state.room) return;
     const request = ++directoryRequest; const userId = state.user.id;
     try {
-      const data = await rpc('live_list_rooms', { p_offset: offset });
+      const search = $('room-search').value.trim();
+      const owned = $('rooms-own').checked;
+      const data = await rpc('live_list_rooms', { p_offset: offset, p_query: search, p_owned: owned });
       if (request !== directoryRequest || state.user?.id !== userId || state.room) return;
       directoryOffset = data.offset; const list = $('room-list'); list.replaceChildren();
-      if (!data.rooms.length) { const empty = document.createElement('p'); empty.className = 'muted'; setUiElement(empty,'아직 만들어진 방이 없습니다. 첫 방을 만들어 보세요.'); list.append(empty); }
+      if (!data.rooms.length) { const empty = document.createElement('p'); empty.className = 'muted'; setUiElement(empty,search || owned ? '조건에 맞는 방이 없습니다. 검색어나 필터를 바꿔 보세요.' : '아직 만들어진 방이 없습니다. 첫 방을 만들어 보세요.'); list.append(empty); }
       for (const room of data.rooms) {
         const row = document.createElement('div'); row.className = 'room-row';
         const info = document.createElement('div'); const title = document.createElement('strong'); title.textContent = room.title;
@@ -103,6 +106,8 @@
     $('admin-button').hidden = !state.isAdmin; $('profile-button').hidden = !user;
     if (!user) {
       state.iceUntil=0;state.ice=[];
+      clearTimeout(directoryTimer);
+      $('room-search').value = ''; $('rooms-own').checked = false;
       directoryRequest++;adminRequest++;adminRoomsRequest++;adminMembersRequest++;
       for(const id of ['room-list','admin-users','admin-rooms','admin-room-members'])$(id).replaceChildren();
       try{for(const key of Object.keys(sessionStorage))if(previousUserId&&key.startsWith(`classroom-draft:${previousUserId}:`))sessionStorage.removeItem(key);}catch{}
@@ -131,8 +136,24 @@
   function updateTabTitle() { document.title=`${tabUnread?'('+tabUnread+') ':''}${state.room?.title?state.room.title+' · ':''}Classroom Live`; }
   function updateUnread() { $('new-messages').hidden=!chatUnread; ui('new-messages',`새 메시지 ${chatUnread}개 · 아래로`); updateTabTitle(); }
   function stopTracks() { if (state.stream) for (const track of state.stream.getTracks()) { track.onended = null; track.stop(); } state.stream = null; }
-  function clearVideo() { $('screen').srcObject = null; $('screen').style.width=''; $('screen').style.height=''; $('video-card').scrollTop=0; $('video-card').scrollLeft=0; $('screen').onloadeddata=null; $('screen').onplaying=null; showCaptureStats(); $('empty-screen').hidden = false; ui('video-status','공유 대기 중'); ui('quality-stats','실제 전송 품질은 화면 연결 후 표시됩니다.'); ui('fullscreen-stats',''); }
-  const call = { id: null, stream: null, local: null, peers: new Map(), changing: new Map() };
+  function closeScreenPip() {
+    if (document.pictureInPictureElement === $('screen')) {
+      return document.exitPictureInPicture().catch(() => {});
+    }
+  }
+  function refreshScreenPip() {
+    const video = $('screen');
+    const open = document.pictureInPictureElement === video;
+    const button = $('screen-pip');
+    button.hidden = !open && !(document.pictureInPictureEnabled && video.requestPictureInPicture &&
+      state.publisher && state.publisher !== state.client && video.srcObject && video.videoWidth > 0);
+    button.disabled = button.hidden;
+    button.setAttribute('aria-pressed', String(open));
+    const label = open ? '작은 창 닫기' : '화면을 작은 창으로 보기';
+    if (button.dataset.uiText !== label) ui('screen-pip', label);
+  }
+  function clearVideo() { void closeScreenPip(); $('screen').srcObject = null; refreshScreenPip(); $('screen').style.width=''; $('screen').style.height=''; $('video-card').scrollTop=0; $('video-card').scrollLeft=0; $('screen').onloadeddata=null; $('screen').onplaying=null; showCaptureStats(); $('empty-screen').hidden = false; ui('video-status','공유 대기 중'); ui('quality-stats','실제 전송 품질은 화면 연결 후 표시됩니다.'); ui('fullscreen-stats',''); }
+  const call = { id: null, stream: null, local: null, peers: new Map(), changing: new Map(), mutedPeers: new Set() };
   function callTile(name, muted) {
     const tile = document.createElement('figure');
     const video = document.createElement('video');
@@ -163,14 +184,19 @@
     $('call-reconnect').hidden = !failed;
     const status = failed ? '통화 연결이 불안정합니다. 다시 연결해 보세요.'
       : !peers.length ? '다른 참여자를 기다리는 중' : tr('통화 연결') + ' ' + connected + ' / ' + peers.length;
-    if ($('call-status').dataset.uiText !== status) ui('call-status', status);
+    if ($('call-status').dataset.uiText !== status) {
+      ui('call-status', status);
+      if ($('connection-help').open) renderConnectionHelp();
+    }
   }
   function endCall() {
     stopMicCheck();
+    stopSpeakerTest();
     call.id = null;
     call.stream?.getTracks().forEach(track => track.stop());
     call.stream = null;
     call.changing.clear();
+    call.mutedPeers.clear();
     call.local = null;
     $('call-setup').close();
     $('call-preview').srcObject = null;
@@ -180,6 +206,7 @@
     for (const id of ['call-mic','call-camera','call-leave','call-play','call-settings','call-reconnect']) $(id).hidden = true;
     $('call-join').hidden = false;
     ui('call-status', '');
+    if ($('connection-help').open) renderConnectionHelp();
   }
   function pollCallNow() {
     if (state.polling) return;
@@ -247,10 +274,49 @@
       context?.close().catch(() => {});
     }
   }
+  let speakerTest;
+  function stopSpeakerTest() {
+    const context = speakerTest;
+    speakerTest = null;
+    context?.close().catch(() => {});
+  }
+  async function playSpeakerTest() {
+    if (!window.AudioContext || !$('call-setup').open) return;
+    stopSpeakerTest();
+    let context;
+    try {
+      context = new AudioContext();
+      speakerTest = context;
+      await context.resume();
+      if (speakerTest !== context) return;
+      const tone = context.createOscillator();
+      const volume = context.createGain();
+      const start = context.currentTime;
+      tone.type = 'sine';
+      tone.frequency.setValueAtTime(523, start);
+      tone.frequency.setValueAtTime(659, start + .24);
+      volume.gain.setValueAtTime(0, start);
+      volume.gain.linearRampToValueAtTime(.085, start + .04);
+      volume.gain.setValueAtTime(.085, start + .39);
+      volume.gain.linearRampToValueAtTime(0, start + .48);
+      tone.connect(volume).connect(context.destination);
+      tone.addEventListener('ended', () => {
+        if (speakerTest === context) stopSpeakerTest();
+      }, { once:true });
+      tone.start(start);
+      tone.stop(start + .5);
+      ui('call-setup-status', '짧은 소리가 들리면 스피커가 작동하고 있습니다. 들리지 않으면 출력 장치와 볼륨을 확인하세요.');
+    } catch {
+      if (context && speakerTest !== context) return;
+      stopSpeakerTest();
+      ui('call-setup-status', '테스트 소리를 재생하지 못했습니다. 브라우저와 출력 장치의 설정을 확인하세요.');
+    }
+  }
   function openCallSetup() {
     if (!window.RTCPeerConnection || !window.MediaStream) throw new Error('로컬 서버의 HTTPS 주소를 Chrome 또는 Edge에서 열어 주세요.');
     call.stream ??= new MediaStream();
     $('call-preview').srcObject = call.stream;
+    $('call-speaker-test').hidden = !window.AudioContext;
     $('call-setup').showModal();
     ui('call-setup-title', call.id ? '기기 설정' : '통화 입장 설정');
     ui('call-cancel', call.id ? '닫기' : '취소');
@@ -260,6 +326,7 @@
   }
   function closeCallSetup() {
     stopMicCheck();
+    stopSpeakerTest();
     if (!call.id) endCall();
     else {
       $('call-setup').close();
@@ -283,6 +350,7 @@
     pollCallNow();
   }
   function reconnectCall() {
+    if (!call.id) return;
     for (const id of call.peers.keys()) closeCallPeer(id);
     call.id = crypto.randomUUID();
     $('call-play').hidden = true;
@@ -393,7 +461,7 @@
   function createCallPeer(member, epoch) {
     const id = member.client_id;
     const pc = new RTCPeerConnection({ iceServers: [] });
-    const peer = { id, pc, epoch, pendingIce: [], started: Date.now(), ...callTile(member.name, false) };
+    const peer = { id, pc, epoch, pendingIce: [], started: Date.now(), ...callTile(member.name, call.mutedPeers.has(id)) };
     call.peers.set(id, peer);
     peer.senders = {};
     peer.video.hidden = !member.call_camera;
@@ -403,10 +471,12 @@
     mute.type = 'button';
     peer.label.id = 'call-peer-' + id;
     mute.setAttribute('aria-describedby', peer.label.id);
-    mute.setAttribute('aria-pressed', 'false');
-    setUiElement(mute, '소리 끄기');
+    mute.setAttribute('aria-pressed', String(peer.video.muted));
+    setUiElement(mute, peer.video.muted ? '소리 켜기' : '소리 끄기');
     mute.addEventListener('click', () => {
       peer.video.muted = !peer.video.muted;
+      if (peer.video.muted) call.mutedPeers.add(id);
+      else call.mutedPeers.delete(id);
       mute.setAttribute('aria-pressed', String(peer.video.muted));
       setUiElement(mute, peer.video.muted ? '소리 켜기' : '소리 끄기');
     });
@@ -488,8 +558,10 @@
     if (call.id === pollCallId) updateCallStatus();
   }
   function cleanup() {
+    $('connection-help').open = false;
     endCall();
     if ($('invite-dialog').open) $('invite-dialog').close();
+    if ($('chat-export-dialog').open) $('chat-export-dialog').close();
     clearJoinError();
     saveDraft(); cachedMessages.clear(); chatUnread=0; tabUnread=0; updateUnread();
     clearTimeout(state.timer); state.timer = null; state.generation++; state.polling = false; state.shareBusy = false;
@@ -540,6 +612,7 @@
     const ours = state.publisher === state.client && !!state.stream;
     $('share').hidden = ours; $('share').disabled = !!state.publisher && !ours;
     $('stop').hidden = !ours; $('watch').hidden = !state.publisher || ours;
+    refreshScreenPip();
     $('resolution').disabled = ours; $('fps').disabled = ours; $('share-mode').disabled = ours; for(const id of ['quality-level','video-codec','preset-text','preset-motion'])$(id).disabled=ours;
   }
   async function applyState(data, generation, pollCallId) {
@@ -972,7 +1045,16 @@
   bind('logout','click', async () => { await leave(); const { error } = await state.db.auth.signOut(); if (error) throw error; state.adminLogin=false; await updateAccount(null); renderAuthMode(); notice('로그아웃했습니다.'); });
   bind('create-form','submit', async () => enter(await rpc('live_create_room', { p_title: $('room-title').value.trim(), p_password: $('create-password').value, p_name: displayName(), p_client: state.client })));
   $('join-method').addEventListener('change', () => updateJoinMethod());
-  bind('refresh-rooms','click', async () => loadRooms());
+  $('room-search').addEventListener('input', () => {
+    directoryRequest++;
+    clearTimeout(directoryTimer);
+    directoryTimer = setTimeout(() => loadRooms(), 220);
+  });
+  $('rooms-own').addEventListener('change', () => {
+    clearTimeout(directoryTimer);
+    void loadRooms();
+  });
+  bind('refresh-rooms','click', async () => { clearTimeout(directoryTimer); await loadRooms(); });
   $('rooms-prev').addEventListener('click', () => loadRooms(Math.max(0,directoryOffset-50)));
   $('rooms-next').addEventListener('click', () => loadRooms(directoryOffset+50));
   $('join-form').addEventListener('input', clearJoinError);
@@ -1022,6 +1104,23 @@
   bind('invite-close','click', () => $('invite-dialog').close());
   bind('native-size','click',async()=>{nativeView=!nativeView;sizeVideo();});
   $('screen').addEventListener('loadedmetadata',sizeVideo);
+  for (const event of ['loadeddata','resize','emptied','enterpictureinpicture','leavepictureinpicture']) {
+    $('screen').addEventListener(event, refreshScreenPip);
+  }
+  bind('screen-pip','click',async () => {
+    const video = $('screen');
+    if (document.pictureInPictureElement === video) { await closeScreenPip(); return; }
+    const stream = video.srcObject;
+    if (!stream || !video.videoWidth || state.publisher === state.client) return;
+    try {
+      await video.requestPictureInPicture();
+      if (video.srcObject !== stream) await closeScreenPip();
+    } catch {
+      notice('작은 창을 열 수 없습니다. 브라우저에서 허용되는지 확인하거나 전체 화면을 사용하세요.', true);
+    } finally {
+      refreshScreenPip();
+    }
+  });
   window.addEventListener('resize',sizeVideo);
   bind('preset-text','click',async()=>{$('resolution').value='native';$('fps').value='30';$('share-mode').value='text';$('quality-level').value='high';$('video-codec').value='auto';notice('원본 해상도 · 글자 선명도 · 고화질 · 30fps로 설정했습니다.');});
   bind('preset-motion','click',async()=>{$('resolution').value='1080';$('fps').value='60';$('share-mode').value='motion';$('quality-level').value='high';$('video-codec').value='h264';notice('1080p · 움직임 우선 · 고화질 · 60fps로 설정했습니다. 실제 성능에 따라 달라집니다.');});
@@ -1038,6 +1137,18 @@
   }
   function renderConnectionHelp(){
     const report=connectionReport();const hints=[];
+    const callHint = document.createElement('p');
+    if (!call.id) {
+      setUiElement(callHint, '통화에 참여하면 연결 상태를 확인할 수 있습니다. 기기 권한 없이도 듣기만 참여할 수 있습니다.');
+    } else if (!report.online) {
+      setUiElement(callHint, '네트워크에 다시 연결한 뒤 통화 다시 연결을 누르세요.');
+    } else if ([...call.peers.values()].some(peer => peer.pc.connectionState === 'connected')) {
+      setUiElement(callHint, '통화 연결이 확인되었습니다. 소리가 안 들리면 상대의 마이크와 내 스피커 설정을 확인하세요.');
+    } else {
+      setUiElement(callHint, '아직 연결된 통화 상대가 없습니다. 상대가 같은 방에서 통화에 참여했는지 확인하세요.');
+    }
+    $('call-help-status').replaceChildren(callHint);
+    $('help-call-reconnect').hidden = !call.id;
     if(!report.online)hints.push('로컬 네트워크 연결이 끊겨 있습니다. 네트워크를 연결한 뒤 화면 다시 연결을 누르세요.');
     if(report.oldClientDetected)hints.push('참여자 간 코드 버전이 다릅니다. 공유자와 시청자 모두 Ctrl+Shift+R을 누르세요.');
     if(report.connectionIssue==='relay-config')hints.push('중계 설정을 불러오지 못했습니다. 운영자가 Supabase의 ice-config 배포와 Secrets 설정을 확인해야 합니다.');
@@ -1056,7 +1167,15 @@
     const report=connectionReport();
     await navigator.clipboard.writeText(JSON.stringify(report,null,2));notice('연결 진단을 복사했습니다. 공유하는 PC와 안 보이는 PC에서 각각 복사해 알려 주세요. 이메일·비밀번호·키·IP 주소는 포함하지 않습니다.');
   });
-  bind('show-connection-help','click',async()=>{$('connection-help').open=true;renderConnectionHelp();});
+  function showConnectionHelp() {
+    $('connection-help').open = true;
+    renderConnectionHelp();
+    $('connection-help-title').focus();
+    $('connection-help-title').scrollIntoView({ block:'nearest' });
+  }
+  bind('show-connection-help', 'click', showConnectionHelp);
+  bind('call-help', 'click', showConnectionHelp);
+  bind('help-call-reconnect', 'click', () => { reconnectCall(); renderConnectionHelp(); });
   $('connection-help').addEventListener('toggle',()=>{if($('connection-help').open)renderConnectionHelp();});
   bind('help-recheck','click',async()=>renderConnectionHelp());
   bind('help-play','click',async()=>{await $('screen').play();notice('재생을 다시 요청했습니다. 계속 보이지 않으면 화면 다시 연결을 눌러 주세요.');});
@@ -1072,9 +1191,81 @@
     const data=await rpc('live_chat_history',{...args(),p_before:before});if(generation!==state.generation)return;
     renderMessages(data,true);if(!data.length)notice('더 이전 대화가 없습니다.');
   });
+  let chatExportTicket = 0;
+  let chatExportUrl;
+  let chatExportText = '';
+  function resetChatExport() {
+    chatExportTicket++;
+    $('chat-export-file').hidden = true;
+    $('chat-export-copy').hidden = true;
+    $('chat-export-manual').hidden = true;
+    $('chat-export-text').value = '';
+    chatExportText = '';
+    $('chat-export-file').removeAttribute('href');
+    if (chatExportUrl) {
+      const url = chatExportUrl;
+      chatExportUrl = null;
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+  }
+  $('chat-export-dialog').addEventListener('close', () => {
+    if (!$('chat-export-dialog').open) resetChatExport();
+  });
+  bind('close-chat-export', 'click', () => $('chat-export-dialog').close());
+  bind('chat-export-copy', 'click', async () => {
+    if (!chatExportText) return;
+    const ticket = chatExportTicket;
+    try {
+      await navigator.clipboard.writeText(chatExportText);
+      if (ticket === chatExportTicket && $('chat-export-dialog').open) {
+        ui('chat-export-status', '대화를 복사했습니다.');
+      }
+    } catch {
+      if (ticket !== chatExportTicket || !$('chat-export-dialog').open) return;
+      $('chat-export-manual').hidden = false;
+      const area = $('chat-export-text');
+      area.value = chatExportText;
+      area.focus(); area.select();
+      ui('chat-export-status', '대화를 선택했습니다. Ctrl+C 또는 복사 메뉴로 복사하세요.');
+    }
+  });
   bind('export-chat','click',async()=>{
-    const text=[state.room.title,'Classroom Live',...Array.from(cachedMessages.values()).sort((a,b)=>Number(a.id)-Number(b.id)).map(m=>`[${dateLabel(m.created_at)}] ${m.display_name}\n${m.body}\n`)].join('\n');
-    const url=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=`classroom-${state.room.code}.txt`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);notice('불러온 대화를 TXT 파일로 저장했습니다.');
+    const generation = state.generation;
+    const room = state.room;
+    if (!room) return;
+    resetChatExport();
+    const ticket = chatExportTicket;
+    const roomArgs = args();
+    const pages = [];
+    let before = Number.MAX_SAFE_INTEGER;
+    const isCurrent = () => ticket === chatExportTicket &&
+      generation === state.generation && $('chat-export-dialog').open;
+    $('chat-export-dialog').showModal();
+    ui('chat-export-status', '서버에 보관된 대화를 불러오는 중입니다.');
+    try {
+      // The server keeps at most 1,000 messages and returns 50 per page.
+      for (let page = 0; page < 20; page++) {
+        const messages = await rpc('live_chat_history', { ...roomArgs, p_before: before });
+        if (!isCurrent()) return;
+        if (!messages.length) break;
+        pages.unshift(messages);
+        if (messages.length < 50) break;
+        before = Number(messages[0].id);
+      }
+      if (!pages.length) { ui('chat-export-status', '저장할 대화가 없습니다.'); return; }
+      const lines = [room.title, 'Classroom Live', ...pages.flat().map(message =>
+        '[' + dateLabel(message.created_at) + '] ' + message.display_name + '\n' + message.body + '\n')];
+      chatExportText = lines.join('\n');
+      chatExportUrl = URL.createObjectURL(new Blob(['\uFEFF', chatExportText], { type:'text/plain;charset=utf-8' }));
+      const link = $('chat-export-file');
+      link.href = chatExportUrl;
+      link.download = 'classroom-' + room.code + '.txt';
+      link.hidden = false;
+      $('chat-export-copy').hidden = false;
+      ui('chat-export-status', '대화가 준비됐습니다. TXT 파일로 내려받거나 복사할 수 있습니다.');
+    } catch {
+      if (isCurrent()) ui('chat-export-status', '대화를 불러오지 못했습니다. 닫은 뒤 다시 시도해 주세요.');
+    }
   });
   bind('shortcuts','click',async()=>{$('shortcuts-dialog').showModal();});bind('close-shortcuts','click',async()=>{$('shortcuts-dialog').close();});
   document.addEventListener('keydown',event=>{if(!state.room||$('room').hidden)return;if(event.ctrlKey&&event.key.toLowerCase()==='k'){event.preventDefault();$('chat-search').focus();}else if(event.altKey&&event.key.toLowerCase()==='m'){event.preventDefault();$('chat-text').focus();}else if(event.key==='Escape'&&document.activeElement===$('chat-search')){$('chat-search').value='';filterChat();}});
@@ -1108,6 +1299,7 @@
   window.addEventListener('offline', () => { ui('connection-status','오프라인');$('connection-status').classList.add('offline');notice('로컬 네트워크 연결이 끊겼습니다. 연결되면 자동으로 다시 시도합니다.', true); });
   bind('call-join', 'click', openCallSetup);
   bind('call-settings', 'click', openCallSetup);
+  bind('call-speaker-test', 'click', playSpeakerTest);
   bind('call-cancel', 'click', closeCallSetup);
   $('call-setup').addEventListener('cancel', event => { event.preventDefault(); closeCallSetup(); });
   bind('call-confirm', 'click', confirmCall);
@@ -1128,7 +1320,7 @@
   });
   window.addEventListener('online',()=>{notice('로컬 네트워크 연결이 돌아왔습니다. 다시 연결하고 있어요.');if(state.room&&!state.polling){clearTimeout(state.timer);poll(state.generation);}});
   window.addEventListener('beforeunload',event=>{saveDraft();if(state.stream||$('chat-text').value.trim()){event.preventDefault();event.returnValue='';}});
-  window.addEventListener('pagehide', () => { endCall(); stopTracks(); for (const id of [...state.peers.keys()]) closePeer(id); });
+  window.addEventListener('pagehide', () => { void closeScreenPip(); endCall(); stopTracks(); for (const id of [...state.peers.keys()]) closePeer(id); });
   async function init() {
     if (!window.isSecureContext) { screen('setup'); notice('화면 공유를 위해 HTTPS와 서버 인증서 등록이 필요합니다. 접속 도움말을 확인하세요.',true); return; }
     state.db = window.CLASSROOM_LOCAL;

@@ -107,7 +107,16 @@ public class ClassroomServer {
                 case "live_account_status":return obj("is_admin",u.get("admin"),"nickname",u.get("nickname"));
                 case "live_set_nickname":{String n=nickname(a.get("p_nickname"));u.put("nickname",n);members.values().stream().filter(m->Objects.equals(m.get("user_id"),userId)).forEach(m->m.put("name",n));save();return obj("nickname",n);}
                 case "live_list_rooms":{
-                    int off=(int)Math.max(0,Math.min(num(a.get("p_offset")),10000));List<Map<String,Object>> all=list("rooms").stream().sorted(Comparator.comparingLong((Map<String,Object> r)->num(r.get("created"))).reversed()).toList();
+                    String query=a.get("p_query")==null?"":key(text(a.get("p_query"),0,60,"방 검색어",true));
+                    boolean owned=yes(a.get("p_owned"));
+                    List<Map<String,Object>> all=list("rooms").stream()
+                        .filter(r->!owned||Objects.equals(r.get("owner_id"),userId))
+                        .filter(r->query.isEmpty()||key(str(r.get("title"))).contains(query))
+                        .sorted(Comparator.comparingLong((Map<String,Object> r)->num(r.get("created"))).reversed())
+                        .toList();
+                    int requested=(int)Math.max(0,Math.min(num(a.get("p_offset")),10000));
+                    int lastPage=Math.max(0,all.size()-1)/50*50;
+                    int off=Math.min(requested,lastPage);
                     List<Object> result=new ArrayList<>();for(Map<String,Object> r:all.subList(Math.min(off,all.size()),Math.min(off+50,all.size()))){long n=members.values().stream().filter(m->Objects.equals(m.get("room_id"),r.get("id"))&&num(m.get("seen"))>t-45000).count();result.add(obj("id",r.get("id"),"code",r.get("code"),"title",r.get("title"),"created_at",iso(r.get("created")),"is_owner",Objects.equals(r.get("owner_id"),userId),"member_count",n));}return obj("rooms",result,"total",all.size(),"offset",off,"has_more",off+50<all.size());
                 }
                 case "live_create_room":{

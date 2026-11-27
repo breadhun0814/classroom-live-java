@@ -268,3 +268,32 @@ Connect a device or join to listen.|機器を接続するか、聞くだけで�
 Close any other app using the device and try again.|機器を使用中のアプリを閉じ、もう一度お試しください。|关闭正在使用设备的其他应用，然后重试。|Đóng các ứng dụng khác đang dùng thiết bị rồi thử lại.
 Choose another device from the list.|リストから別の機器を選んでください。|请从列表中选择其他设备。|Hãy chọn thiết bị khác trong danh sách.
 This link opens only on this PC. To invite others, reopen the app using the HTTPS address shown in the server manager.|このリンクはこのPCでのみ開きます。ほかの人を招待するには、サーバー管理画面のHTTPSアドレスで開き直してください。|此链接只能在当前电脑打开。要邀请其他人，请使用服务器管理窗口中显示的 HTTPS 地址重新打开应用。|Liên kết này chỉ mở trên máy này. Để mời người khác, hãy mở lại ứng dụng bằng địa chỉ HTTPS trong cửa sổ quản lý máy chủ.
+Search room names|部屋名を検索|搜索房间名称|Tìm tên phòng
+Enter part of a room name|部屋名の一部を入力|输入部分房间名称|Nhập một phần tên phòng
+Only rooms I created|自分が作成した部屋のみ|仅显示我创建的房间|Chỉ hiện phòng tôi đã tạo
+No matching rooms. Try another search or filter.|該当する部屋がありません。検索語やフィルターを変更してください。|没有匹配的房间。请更改搜索词或筛选条件。|Không có phòng phù hợp. Hãy đổi từ khóa hoặc bộ lọc.
+Call help|通話ヘルプ|通话帮助|Trợ giúp cuộc gọi
+Screen sharing and call connection help|画面共有と通話の接続ヘルプ|屏幕共享与通话连接帮助|Trợ giúp kết nối chia sẻ màn hình và cuộc gọi
+Join the call to check the connection. You can listen without device permissions.|通話に参加すると接続を確認できます。機器の権限がなくても聞くだけで参加できます。|加入通话后可查看连接，无需设备权限也可仅收听。|Tham gia cuộc gọi để kiểm tra kết nối. Có thể chỉ nghe mà không cấp quyền thiết bị.
+Reconnect to the network, then reconnect the call.|ネットワークに接続し直してから通話を再接続してください。|重新连接网络后，再重新连接通话。|Kết nối lại mạng rồi kết nối lại cuộc gọi.
+The call is connected. If you cannot hear audio, check the other microphone and your speakers.|通話に接続済みです。音が聞こえない場合は相手のマイクと自分のスピーカーを確認してください。|通话已连接。如果听不到声音，请检查对方的麦克风和自己的扬声器。|Cuộc gọi đã kết nối. Nếu không nghe thấy, hãy kiểm tra micrô bên kia và loa của bạn.
+No connected callers yet. Check whether the other person joined the call in this room.|接続済みの相手がいません。同じ部屋の通話に参加したか確認してください。|还没有已连接的通话参与者。请确认对方已加入此房间的通话。|Chưa có người gọi kết nối. Hãy kiểm tra người kia đã tham gia cuộc gọi trong phòng này chưa.
+Watch screen in a floating window|画面を小窓で見る|在小窗中观看共享画面|Xem màn hình trong cửa sổ nổi
+Close floating window|小窓を閉じる|关闭小窗|Đóng cửa sổ nổi
+Could not open the floating window. Check browser permissions or use full screen.|小窓を開けません。ブラウザーの許可を確認するか全画面を使ってください。|无法打开小窗。请查看浏览器权限或使用全屏。|Không mở được cửa sổ nổi. Hãy kiểm tra quyền trình duyệt hoặc dùng toàn màn hình.
+Loading saved room messages.|保存されたメッセージを取得中です。|正在加载已保存的房间消息。|Đang tải tin nhắn đã lưu của phòng.
+There are no messages to save.|保存できるメッセージはありません。|没有可保存的消息。|Không có tin nhắn để lưu.
+Test speakers|スピーカーをテスト|测试扬声器|Kiểm tra loa
+If you hear the tone, your speakers are working. Otherwise, check the output device and volume.|音が聞こえればスピーカーは動作しています。聞こえない場合は出力先と音量を確認してください。|如果听到提示音，扬声器工作正常。否则请检查输出设备和音量。|Nếu nghe thấy âm báo, loa đang hoạt động. Nếu không, hãy kiểm tra thiết bị đầu ra và âm lượng.
+Could not play the test tone. Check your browser and audio output settings.|テスト音を再生できませんでした。ブラウザーと音声出力の設定を確認してください。|无法播放测试音。请检查浏览器和音频输出设置。|Không phát được âm thử. Hãy kiểm tra cài đặt trình duyệt và đầu ra âm thanh.
+Connecting to the server.|サーバーに接続中です。|正在连接服务器。|Đang kết nối với máy chủ.
+If sign-in does not appear, reload and check that this is the HTTPS server address.|ログイン画面が出ない場合は再読み込みし、サーバーのHTTPSアドレスを確認してください。|如果登录页未出现，请刷新并确认这是服务器的 HTTPS 地址。|Nếu màn hình đăng nhập chưa hiện, hãy tải lại và kiểm tra địa chỉ HTTPS của máy chủ.
+View connection help|接続ヘルプを見る|查看连接帮助|Xem trợ giúp kết nối
+Enable JavaScript to sign in and use media features.|ログインとメディア機能にはJavaScriptを有効にしてください。|请启用 JavaScript 以登录并使用媒体功能。|Bật JavaScript để đăng nhập và dùng tính năng đa phương tiện.
+Could not load messages. Close this window and try again.|メッセージを取得できませんでした。閉じてからもう一度お試しください。|无法加载消息。请关闭后重试。|Không thể tải tin nhắn. Hãy đóng cửa sổ rồi thử lại.
+Download TXT|TXTをダウンロード|下载 TXT|Tải TXT
+Copy conversation|会話をコピー|复制对话|Sao chép cuộc trò chuyện
+Conversation text|コピー用の会話|供复制的对话文本|Nội dung cuộc trò chuyện
+Conversation copied.|会話をコピーしました。|已复制对话。|Đã sao chép cuộc trò chuyện.
+Conversation selected. Copy it using Ctrl+C or your browser menu.|会話を選択しました。Ctrl+Cまたはブラウザーのメニューでコピーしてください。|已选中对话。请按 Ctrl+C 或使用浏览器菜单复制。|Đã chọn cuộc trò chuyện. Nhấn Ctrl+C hoặc dùng menu trình duyệt để sao chép.
+Your messages are ready. Download as TXT or copy them.|メッセージの準備ができました。TXTでダウンロードするかコピーできます。|消息已准备好。可以下载 TXT 或进行复制。|Tin nhắn đã sẵn sàng. Có thể tải TXT hoặc sao chép.
