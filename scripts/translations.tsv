@@ -250,3 +250,21 @@ Could not load rooms. Check the classroom server.|部屋を取得できません
  · The captured source is smaller than the selected resolution.| · 元のキャプチャが選択した解像度より小さいです。| · 捕获源小于所选分辨率。| · Nguồn chụp nhỏ hơn độ phân giải đã chọn.
  · Actual sending resolution is below the target.| · 実際の送信解像度が目標より低くなっています。| · 实际发送分辨率低于目标。| · Độ phân giải gửi thực tế thấp hơn mục tiêu.
  · Video is delayed. Reconnect it or lower the sharing frame rate.| · 映像が遅延しています。再接続または共有FPSを下げてください。| · 视频存在延迟，请重新连接或降低共享帧率。| · Video bị trễ. Kết nối lại hoặc giảm FPS chia sẻ.
+Invite|招待|邀请|Mời
+Invite to room|部屋に招待|邀请加入房间|Mời vào phòng
+Invite link|招待リンク|邀请链接|Liên kết mời
+Copy link|リンクをコピー|复制链接|Sao chép liên kết
+Invite link copied.|招待リンクをコピーしました。|已复制邀请链接。|Đã sao chép liên kết mời.
+Link selected. Copy it with Ctrl+C or your browser menu.|リンクを選択しました。Ctrl+C またはブラウザーのメニューでコピーしてください。|已选中链接。请按 Ctrl+C 或使用浏览器菜单复制。|Đã chọn liên kết. Nhấn Ctrl+C hoặc dùng menu trình duyệt để sao chép.
+Sign in or create an account, then enter the room password.|ログインまたはアカウント作成後、部屋のパスワードを入力してください。|登录或创建账号后，输入房间密码。|Đăng nhập hoặc tạo tài khoản, sau đó nhập mật khẩu phòng.
+The invite code is filled in. Enter the room password.|招待コードは入力済みです。部屋のパスワードを入力してください。|已填写邀请码。请输入房间密码。|Mã mời đã được điền. Hãy nhập mật khẩu phòng.
+Send the link to people on the same network and share the room password separately.|同じネットワークの参加者にリンクを送り、部屋のパスワードは別に伝えてください。|请将链接发给同一网络中的参与者，并另行告知房间密码。|Gửi liên kết cho người cùng mạng và chia sẻ riêng mật khẩu phòng.
+Could not join the room. Try again.|部屋に入れませんでした。もう一度お試しください。|无法加入房间。请重试。|Không thể vào phòng. Hãy thử lại.
+Microphone input check|マイク入力の確認|检查麦克风输入|Kiểm tra đầu vào micrô
+Speak and check that the level moves.|話して入力レベルが動くか確認してください。|说话并查看音量条是否变化。|Hãy nói và kiểm tra xem thanh mức có thay đổi không.
+Screen sharing, a call, or a message draft is active. Leave the room?|画面共有、通話、またはメッセージの下書きがあります。部屋を退出しますか？|当前正在共享屏幕、通话或有消息草稿。要离开房间吗？|Đang chia sẻ màn hình, gọi hoặc có bản nháp tin nhắn. Rời phòng?
+Open the site settings in the address bar and allow camera or microphone access.|アドレスバーのサイト設定でカメラまたはマイクへのアクセスを許可してください。|请在地址栏的网站设置中允许使用摄像头或麦克风。|Mở cài đặt trang web trong thanh địa chỉ và cho phép truy cập camera hoặc micrô.
+Connect a device or join to listen.|機器を接続するか、聞くだけで参加してください。|请连接设备，或以仅收听方式加入。|Hãy kết nối thiết bị hoặc tham gia chỉ để nghe.
+Close any other app using the device and try again.|機器を使用中のアプリを閉じ、もう一度お試しください。|关闭正在使用设备的其他应用，然后重试。|Đóng các ứng dụng khác đang dùng thiết bị rồi thử lại.
+Choose another device from the list.|リストから別の機器を選んでください。|请从列表中选择其他设备。|Hãy chọn thiết bị khác trong danh sách.
+This link opens only on this PC. To invite others, reopen the app using the HTTPS address shown in the server manager.|このリンクはこのPCでのみ開きます。ほかの人を招待するには、サーバー管理画面のHTTPSアドレスで開き直してください。|此链接只能在当前电脑打开。要邀请其他人，请使用服务器管理窗口中显示的 HTTPS 地址重新打开应用。|Liên kết này chỉ mở trên máy này. Để mời người khác, hãy mở lại ứng dụng bằng địa chỉ HTTPS trong cửa sổ quản lý máy chủ.

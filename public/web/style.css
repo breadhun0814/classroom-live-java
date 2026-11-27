@@ -27,3 +27,11 @@
 .call-devices select { width: 100%; }
 .call-videos figure button { margin-top: .35rem; }
 .call-videos video[hidden], .call-setup video[hidden] { display: none; }
+
+.entry-hint,.entry-error { border-radius:.6rem; padding:.7rem .85rem; margin-bottom:.85rem; font-size:.875rem; }
+.entry-hint { background:#243451; color:#ecf3ff; }
+.entry-error { background:#45262e; color:#ffd1d1; }
+.call-mic-check { margin-top:.85rem; }
+.call-mic-check label { margin:0; }
+.call-mic-check meter { width:100%; }
+.call-mic-check p { margin:0; }
