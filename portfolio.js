@@ -22,17 +22,17 @@
   $('close-image').addEventListener('click',()=>dialog.close());
   dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
   const steps = [
-    {title:'비밀번호 방',description:'이름이나 초대 코드와 비밀번호로 수업 공간에 입장합니다. 실제 서비스는 방마다 공유자를 포함해 최대 8개 접속을 허용합니다.'},
+    {title:'비밀번호 방',description:'이름이나 초대 코드와 비밀번호로 협업 공간에 입장합니다. 실제 서비스는 방마다 공유자를 포함해 최대 8개 접속을 허용합니다.'},
     {title:'코드 채팅',description:'코드의 줄바꿈을 유지해 보내고 대화를 검색·복사·저장할 수 있습니다. 대화창에 예시 메시지를 직접 입력해 보세요.'},
     {title:'화면 공유',description:'실제 앱은 브라우저 화면을 WebRTC로 직접 전달합니다. 아래 프리셋은 설정의 차이를 설명하는 예시이며 화면을 캡처하지 않습니다.'},
     {title:'관리자 운영',description:'관리자는 회원의 이용 정지·복구, 방 참여자 퇴장과 방 삭제를 할 수 있습니다. 예시 버튼은 이 페이지의 표시 상태만 바꿉니다.'},
-    {title:'화상 통화',description:'실제 수업방에서는 카메라 미리보기와 기기 선택, 듣기만 참여, 참여자별 음소거, 재연결을 사용할 수 있습니다.'}
+    {title:'화상 통화',description:'실제 방에서는 카메라 미리보기와 기기 선택, 듣기만 참여, 참여자별 음소거, 재연결을 사용할 수 있습니다.'}
   ];
   function activateStep(index, focus=false) {
     document.querySelectorAll('[data-step]').forEach((button,i)=>{button.setAttribute('aria-selected',String(i===index));button.tabIndex=i===index?0:-1;if(i===index&&focus)button.focus();});
     document.querySelectorAll('[data-demo-pane]').forEach((pane,i)=>pane.hidden=i!==index);
     $('demo-title').textContent=steps[index].title;$('demo-description').textContent=steps[index].description;
-    $('demo-room-label').textContent=index===3?'회원 및 방 관리':'Java 수업 · 코드 함께 읽기';
+    $('demo-room-label').textContent=index===3?'회원 및 방 관리':'코드 리뷰 · 예시 방';
   }
   const tabs=[...document.querySelectorAll('[data-step]')];
   tabs.forEach((button,i)=>{button.addEventListener('click',()=>activateStep(i));button.addEventListener('keydown',e=>{let next;if(e.key==='ArrowRight')next=(i+1)%tabs.length;else if(e.key==='ArrowLeft')next=(i+tabs.length-1)%tabs.length;else if(e.key==='Home')next=0;else if(e.key==='End')next=tabs.length-1;if(next!==undefined){e.preventDefault();activateStep(next,true);}});});
@@ -51,7 +51,7 @@
     $('demo-call-shared-code').hidden = !demoCall.sharing;
     $('demo-call-share').setAttribute('aria-pressed', String(demoCall.sharing));
     $('demo-call-share').textContent = demoCall.sharing ? '예시 화면 공유 중지' : '예시 화면 공유 시작';
-    $('demo-call-share-status').textContent = demoCall.sharing ? '교사 화면 공유 중' : '예시 화면 공유 중지됨';
+    $('demo-call-share-status').textContent = demoCall.sharing ? '발표자 화면 공유 중' : '예시 화면 공유 중지됨';
     $('demo-call-teacher').hidden = !demoCall.joined;
     $('demo-call-preview').textContent = demoCall.camera
       ? (demoCall.joined ? '예시 카메라 켜짐' : '예시 카메라 미리보기')
@@ -100,7 +100,7 @@
   });
   $('reset-demo').addEventListener('click',()=>{messages.replaceChildren(...initialMessages.map(message=>message.cloneNode(true)));messages.scrollTop=0;$('demo-message').value='';composing=false;resetDemoCall();roomForm.reset();clearRoomResult();setPreset(document.querySelector('[data-preset=text]'));document.querySelectorAll('[data-suspend]').forEach(b=>{b.setAttribute('aria-pressed','false');b.textContent='이용 정지';});$('copy-code').textContent='예시 코드 복사';activateStep(0);$('demo-tabs').querySelector('[data-step]').focus();announce('체험을 처음 상태로 되돌렸습니다.');});
   document.querySelectorAll('[data-suspend]').forEach(button=>button.addEventListener('click',()=>{const paused=button.getAttribute('aria-pressed')!=='true';button.setAttribute('aria-pressed',String(paused));button.textContent=paused?'복구하기':'이용 정지';announce(paused?'예시 회원을 이용 정지 상태로 표시했습니다.':'예시 회원을 복구했습니다.');}));
-  const routes={api:'계정·방·채팅과 SDP·ICE 연결 정보는 Java HTTPS 서버를 거칩니다. 브라우저는 응답 처리 후 약 1.8초마다 새 상태를 조회합니다.',video:'공유 화면은 발표자에서 시청자로, 통화 영상과 음성은 참여자 사이로 각각 직접 전달합니다. 외부 STUN/TURN은 사용하지 않으며, 교실 PC 사이의 직접 통신이 필요합니다.'};
+  const routes={api:'계정·방·채팅과 SDP·ICE 연결 정보는 Java HTTPS 서버를 거칩니다. 브라우저는 응답 처리 후 약 1.8초마다 새 상태를 조회합니다.',video:'공유 화면은 발표자에서 시청자로, 통화 영상과 음성은 참여자 사이로 각각 직접 전달합니다. 외부 STUN/TURN은 사용하지 않으며, 참여자 PC 사이의 직접 통신이 필요합니다.'};
   document.querySelectorAll('[data-route-button]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-route-button]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));$('route-description').textContent=routes[button.dataset.routeButton];$('architecture-visual').dataset.route=button.dataset.routeButton;$('path-label').textContent=button.dataset.routeButton==='api'?'HTTPS API · 계정 / 채팅 / 연결 정보':'WebRTC P2P · 화면 공유 및 참여자 간 통화';}));
   let toastTimer;function announce(text){$('toast').textContent=text;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,3500);}
   $('copy-code').addEventListener('click',async()=>{const code=$('pane-code').querySelector('pre'),text=code.textContent;try{await navigator.clipboard.writeText(text);announce('예시 코드를 복사했습니다.');}catch{const range=document.createRange();range.selectNodeContents(code);const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);announce('복사 권한이 없어 코드를 선택했습니다. Ctrl+C 또는 길게 눌러 복사하세요.');}});
