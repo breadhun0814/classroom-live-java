@@ -1,5 +1,9 @@
 # Developer validation
 
+Latest site audit and Windows quick-start changes: [audit and installation validation](docs/AUDIT_INSTALL_2026-11-27.md). Build the JARs, then run `node scripts/package-windows.cjs` before `powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/InstallTests.ps1`. Add `-DownloadJava` to exercise the real official download and first setup using folder-local Java. Tests use isolated fixtures; they do not approve UAC or import a CA into the host Windows certificate store.
+
+Portfolio regressions: `node tests/portfolio.test.cjs`. Guide regressions: `node tests/guides.test.cjs`.
+
 Latest portfolio refresh: [2026-11-27 validation record](docs/VERIFICATION_2026-11-27.md). That record separates checks rerun on Windows from the historical deliverable notes below.
 
 Static portfolio and browser demo checks: [portfolio site validation](docs/PORTFOLIO_SITE_KO.md). The five-language guide test now reads `START_HERE.html`; root `index.html` is the separate portfolio. `scripts/sync-guides.cjs` preserves that separation.

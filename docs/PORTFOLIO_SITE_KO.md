@@ -2,6 +2,8 @@
 
 공개 주소: [Classroom Live 포트폴리오](https://breadhun0814.github.io/classroom-live-java/)
 
+후속 개선: [사이트 전체 점검·Windows 빠른 시작](AUDIT_INSTALL_2026-11-27.md). 설치 안내는 `install.html`, 다국어 수동 안내는 `START_HERE.html`로 나눴습니다.
+
 ## 구성
 
 - `index.html`: 프로젝트 소개, 실제 앱 화면, 사용 흐름, 브라우저 예시 체험, 기술 설계, 검증, 설치 링크.

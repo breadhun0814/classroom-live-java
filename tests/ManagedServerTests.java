@@ -37,9 +37,14 @@ public class ManagedServerTests {
             ManagedServer duplicate=new ManagedServer();duplicate.start(home,logs::add,exits::add);check(duplicate.awaitStop(10,TimeUnit.SECONDS),"duplicate exits");check(exits.poll(10,TimeUnit.SECONDS)==1,"duplicate error code");check(managed.isRunning(),"original survives duplicate");
             managed.requestStop();check(managed.awaitStop(10,TimeUnit.SECONDS),"graceful STOP");check(exits.poll(10,TimeUnit.SECONDS)==0,"STOP exits successfully");
             managed.start(home,logs::add,exits::add);ready(managed,client,origin);managed.closePipe();check(managed.awaitStop(10,TimeUnit.SECONDS),"parent pipe EOF stops child");check(exits.poll(10,TimeUnit.SECONDS)==0,"EOF exit code");
+            // Exercise the same Swing startup path as --start, with its window hidden for test isolation.
+            java.util.concurrent.atomic.AtomicReference<ServerControl> control=new java.util.concurrent.atomic.AtomicReference<>();
+            javax.swing.SwingUtilities.invokeAndWait(()->{try{control.set(ServerControl.open(home,true,false));}catch(Exception e){throw new RuntimeException(e);}});
+            try{ready(control.get().server,client,origin);check(control.get().server.isRunning(),"desktop app auto-starts server");control.get().server.requestStop();check(control.get().server.awaitStop(10,TimeUnit.SECONDS),"desktop app server stops");}
+            finally{control.get().worker.shutdownNow();javax.swing.SwingUtilities.invokeAndWait(()->control.get().frame.dispose());}
             for(var item:before.entrySet())check(Arrays.equals(item.getValue(),Files.readAllBytes(item.getKey())),"existing file untouched: "+item.getKey());
             check(logs.stream().anyMatch(s->s.contains("https://192.168.22.50:")),"configured address logged");
-            System.out.println("PASS real JAR in Unicode/spaced path; trusted HTTPS; duplicate protection; graceful stop/restart; parent EOF; unchanged accounts/config/CA/student pack");
+            System.out.println("PASS real JAR in Unicode/spaced path; trusted HTTPS; duplicate protection; graceful stop/restart; parent EOF; hidden Swing auto-start; unchanged accounts/config/CA/student pack");
         }finally{managed.closePipe();managed.awaitStop(10,TimeUnit.SECONDS);try(var paths=Files.walk(home)){for(Path p:paths.sorted(Comparator.reverseOrder()).toList())Files.deleteIfExists(p);}}
     }
 }

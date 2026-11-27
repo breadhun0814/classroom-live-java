@@ -1,0 +1,22 @@
+Classroom Live - Windows 빠른 시작
+
+서버 PC
+1. ZIP의 압축을 모두 풉니다. ZIP 안에서 바로 실행하지 마세요.
+2. Start-Classroom.cmd를 더블 클릭합니다.
+3. 기존 Java 17+ JDK를 자동으로 찾습니다. 없으면 1을 선택해 공식 Eclipse Temurin 21 JDK를 프로그램 폴더에 준비할 수 있습니다.
+4. 처음 한 번 교실 IP, 허용 대역, 포트, 관리자 계정과 비밀번호를 설정합니다. 감지한 IP/대역이 실제 교실 네트워크인지 확인하세요.
+5. 학생 접속을 위한 방화벽 요청에서 1을 선택하고 Windows의 관리자 권한 요청을 직접 승인합니다. 건너뛰었다면 학생 접속 전에 03-Firewall.cmd를 관리자 권한으로 실행하세요.
+6. 서버 관리 앱이 열리며 서버가 자동 시작됩니다.
+7. 생성된 data/STUDENT_SETUP.zip만 학생에게 전달합니다. 서버 PC에서 브라우저를 쓰는 사용자도 이 설치팩으로 교실 CA를 등록합니다.
+
+다음 실행은 바탕화면 [Classroom Live 서버]를 더블 클릭합니다. CMD 창 없이 서버가 자동 시작되고 관리 창만 열립니다. 설정된 data 폴더는 다시 만들지 않습니다.
+
+학생 PC
+교수님이 보낸 STUDENT_SETUP.zip 압축 해제 → Setup.cmd 실행 → 제공자와 인증서를 확인하고 YES 입력 → 등록 승인 → Chrome/Edge 완전 종료 후 바탕화면의 Classroom Live LAN으로 접속합니다.
+학생 PC에는 Java 설치가 필요 없습니다. 서버용 ZIP 대신 교수님이 생성한 학생 설치팩을 받으세요.
+
+기존 서버 업데이트
+서버를 종료하고 원본 폴더를 백업한 뒤 새 파일을 복사하세요. data, .runtime, java-path.txt는 유지하세요. 이후 Start-Classroom.cmd로 실행합니다.
+
+Java 다운로드는 인터넷이 필요합니다. 이미 준비한 Java는 계속 재사용합니다. PATH/JAVA_HOME이나 Windows의 시스템 Java 설정을 변경하지 않습니다.
+학교에서 다운로드나 관리자 권한을 제한한 경우 담당자에게 Java JDK와 접속 허용을 요청하세요. install.html에 간단한 안내가 있으며 START_HERE.html에는 5개 언어 수동 설치 안내가 있습니다.

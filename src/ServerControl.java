@@ -28,6 +28,7 @@ public final class ServerControl {
         try(InputStream in=Files.newInputStream(home.resolve("data/tls/classroom-ca.crt"))){trust.setCertificateEntry("classroom",CertificateFactory.getInstance("X.509").generateCertificate(in));}
         TrustManagerFactory tm=TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());tm.init(trust);ssl=SSLContext.getInstance("TLS");ssl.init(null,tm.getTrustManagers(),null);
         frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);frame.setMinimumSize(new Dimension(780,510));frame.setSize(900,610);frame.setLocationRelativeTo(null);
+        if(Files.isRegularFile(home.resolve("ClassroomLive.png")))frame.setIconImage(new ImageIcon(home.resolve("ClassroomLive.png").toString()).getImage());
         JPanel content=new JPanel(new BorderLayout(12,12));content.setBorder(new EmptyBorder(20,20,20,20));frame.setContentPane(content);
         JPanel top=new JPanel();top.setLayout(new BoxLayout(top,BoxLayout.Y_AXIS));
         JLabel title=new JLabel("Classroom Live 서버");title.setFont(title.getFont().deriveFont(Font.BOLD,25f));top.add(title);top.add(Box.createVerticalStrut(12));status.setFont(status.getFont().deriveFont(Font.BOLD,17f));top.add(status);
@@ -78,14 +79,19 @@ public final class ServerControl {
         Path location=Path.of(ServerControl.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         return Files.isRegularFile(location)&&location.getFileName().toString().endsWith(".jar")?location.getParent():Path.of("").toAbsolutePath();
     }
+    static ServerControl open(Path home,boolean autoStart,boolean visible)throws Exception{
+        ServerControl control=new ServerControl(home);control.frame.setVisible(visible);if(autoStart)control.start();return control;
+    }
     public static void main(String[] args)throws Exception{
-        Path home=resolveHome(args);
-        if(args.length==1&&args[0].equals("--check")){
+        boolean autoStart=java.util.Arrays.asList(args).contains("--start");
+        String[] locationArgs=java.util.Arrays.stream(args).filter(a->!a.equals("--start")).toArray(String[]::new);
+        Path home=resolveHome(locationArgs);
+        if(locationArgs.length==1&&locationArgs[0].equals("--check")){
             Map<String,Object> cfg=ClassroomServer.config(home.resolve("data"));
             if(!Files.isRegularFile(home.resolve("data/tls/classroom-ca.crt")))throw new IOException("교실 CA 인증서가 없습니다.");
             System.out.println("Server app home: "+home+" / https://"+cfg.get("server_ip")+":"+cfg.get("port")+"/");return;
         }
-        SwingUtilities.invokeLater(()->{try{UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());new ServerControl(home).frame.setVisible(true);}
+        SwingUtilities.invokeLater(()->{try{UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());open(home,autoStart,true);}
             catch(Exception e){JOptionPane.showMessageDialog(null,"기존 서버 폴더에 파일을 넣었는지 확인하세요.\nClassroomLive.jar와 data 폴더 옆에서 실행해야 합니다.\n\n"+e.getMessage(),"서버 관리 앱 시작 실패",JOptionPane.ERROR_MESSAGE);System.exit(1);}});
     }
 }

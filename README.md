@@ -12,6 +12,8 @@
 
 **[포트폴리오 사이트 열기](https://breadhun0814.github.io/classroom-live-java/)** — 실제 앱 화면, 브라우저 예시 체험, 기술 설계와 검증 결과를 볼 수 있습니다.
 
+[Windows 실행용 ZIP](downloads/ClassroomLive-Windows.zip) · [서버·학생 빠른 설치 안내](install.html) · [사이트 점검·설치 개선 기록](docs/AUDIT_INSTALL_2026-11-27.md)
+
 </div>
 
 ## 프로젝트 소개
@@ -88,14 +90,15 @@ flowchart LR
 
 ### Windows
 
-1. 저장소를 내려받아 전체 압축을 풉니다.
-2. 서버 PC에 `keytool`이 포함된 Java 17+를 준비합니다.
-3. `00-Java-Check.cmd` → `01-Setup.cmd` 순서로 실행합니다.
-4. 실제 교실 IP·허용 대역·포트(기본 8443)·관리자 계정을 설정합니다.
-5. 서버 PC에서 `03-Firewall.cmd`를 관리자 권한으로 실행하고, `02-Start.cmd`로 서버를 시작합니다.
-6. 학생에게 생성된 **`data/STUDENT_SETUP.zip`만** 전달합니다. 학생은 안내에 따라 교실 CA를 등록하고 브라우저를 완전히 재시작한 뒤 생성된 HTTPS 주소로 접속합니다.
+1. [Windows 실행용 ZIP](downloads/ClassroomLive-Windows.zip)을 내려받아 사용할 폴더에 전체 압축을 풉니다.
+2. **`Start-Classroom.cmd`를 더블 클릭**합니다. 기존 Java 17+ JDK를 자동으로 찾고, 없으면 공식 Eclipse Temurin 21을 `.runtime/java`에 다운로드·SHA-256 확인 후 준비할 수 있습니다. PATH·JAVA_HOME은 변경하지 않습니다.
+3. 처음 한 번 감지된 교실 IP·허용 대역을 확인하고 포트·관리자 계정을 설정합니다. 방화벽 요청을 선택했다면 Windows의 관리자 권한 창을 직접 승인합니다.
+4. 관리 앱이 열리며 서버가 자동 시작됩니다. 다음부터는 바탕화면 **Classroom Live 서버**를 더블 클릭하면 CMD 창 없이 켜집니다. 관리 창에서 서버 종료·재시작을 할 수 있습니다.
+5. 학생에게 생성된 **`data/STUDENT_SETUP.zip`만** 전달합니다. 학생과 서버에서 브라우저를 쓰는 사용자는 이 설치팩으로 교실 CA를 등록하고 브라우저를 완전히 재시작한 뒤 접속합니다. 학생 PC에는 Java가 필요 없습니다.
 
-상세 절차: [한국어 설치 안내](docs/guide-ko.md). 콘솔 없이 운영하려면 [Windows 서버 관리 앱 안내](SERVER_APP_KO.md)를 확인하세요.
+Java 최초 다운로드에는 인터넷이 필요합니다. 방화벽 단계를 건너뛰었다면 학생 접속 전에 `03-Firewall.cmd`를 관리자 권한으로 실행하세요. 기존 수동 설치 파일도 유지했습니다.
+
+간단한 절차: [서버·학생 설치 안내](install.html). 수동·다국어 절차: [한국어 설치 안내](docs/guide-ko.md). 콘솔 없이 운영하려면 [Windows 서버 관리 앱 안내](SERVER_APP_KO.md)를 확인하세요. 기존 서버 업데이트 시 `data`, `.runtime`, `java-path.txt`를 유지합니다.
 
 ### 소스 빌드와 개발 검증
 

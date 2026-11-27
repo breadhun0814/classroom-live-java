@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#143d3c">
   <meta name="description" content="Java HTTPS 서버와 WebRTC로 만든 교실 내부망 화면 공유·코드 채팅 프로젝트. 실제 화면, 예시 체험, 기술 설계와 검증 결과를 소개합니다.">
-  <meta name="portfolio-version" content="2026-11-27">
+  <meta name="portfolio-version" content="2026-11-27-audit1">
   <meta property="og:title" content="Classroom Live · 같은 화면에서, 함께 이해하는 수업">
   <meta property="og:description" content="Java 서버 한 대와 브라우저로 연결하는 교실. 화면 공유·코드 채팅 프로젝트 포트폴리오">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://breadhun0814.github.io/classroom-live-java/docs/assets/classroom.png">
   <link rel="icon" type="image/svg+xml" href="./portfolio-icon.svg">
-  <link rel="stylesheet" href="./portfolio.css">
+  <link rel="stylesheet" href="./portfolio.css?v=20261127-audit1">
   <link rel="canonical" href="https://breadhun0814.github.io/classroom-live-java/">
-  <script defer src="./portfolio.js"></script>
+  <script defer src="./portfolio.js?v=20261127-audit1"></script>
   <title>Classroom Live · 교실 화면 공유 프로젝트</title>
 </head>
 <body>
@@ -35,7 +35,7 @@
     <div class="container header-inner">
       <a class="brand" href="#main" aria-label="Classroom Live 처음으로"><svg aria-hidden="true"><use href="#i-screen"/></svg><span>Classroom<em>Live</em></span></a>
       <nav id="main-nav" aria-label="주요 메뉴">
-        <a href="#workflow">사용 흐름</a><a href="#architecture">기술 설계</a><a href="#validation">검증</a><a href="./START_HERE.html">설치 안내</a>
+        <a href="#workflow">사용 흐름</a><a href="#architecture">기술 설계</a><a href="#validation">검증</a><a href="./install.html">설치 안내</a>
       </nav>
       <a class="button header-cta" href="#demo">체험하기</a>
       <button id="menu-toggle" class="menu-toggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="main-nav"><svg aria-hidden="true"><use href="#i-menu"/></svg></button>
@@ -49,7 +49,7 @@
           <div>
             <p class="eyebrow">교실 내부망 화면 공유 · 코드 채팅</p>
             <h1 id="hero-title">같은 화면에서,<br>함께 이해하는 수업.</h1>
-            <p class="hero-copy">코드 한 줄을 함께 보고, 질문은 대화로 이어갑니다.<br>Classroom Live는 Java 서버 한 대와 브라우저로<br class="desktop-break"> 화면 공유부터 수업 공간 관리까지 연결합니다.</p>
+            <p class="hero-copy">코드 한 줄을 함께 보고, 질문은 대화로 이어갑니다. Classroom Live는 Java 서버 한 대와 브라우저로 화면 공유부터 수업 공간 관리까지 연결합니다.</p>
             <div class="hero-actions">
               <a class="button" href="#demo">예시 화면 체험하기</a>
               <a class="button secondary" href="https://github.com/breadhun0814/classroom-live-java"><svg aria-hidden="true"><use href="#i-github"/></svg>GitHub 소스 보기</a>
@@ -104,8 +104,8 @@
               <div class="demo-stage-top"><span id="demo-room-label">Java 수업 · 코드 함께 읽기</span><span>로컬 예시</span></div>
               <div id="pane-room" class="demo-pane" role="tabpanel" aria-labelledby="tab-room" data-demo-pane="0" tabindex="0">
                 <svg aria-hidden="true" style="color:#8ad2bd;width:30px;height:30px;margin-bottom:18px"><use href="#i-lock"/></svg>
-                <h3>우리 교실의 수업 공간</h3><p>초대 코드와 비밀번호로 입장한 방에서<br>화면과 대화를 함께 봅니다.</p>
-                <div class="admin-list"><div class="admin-row"><span>참여자 예시</span><span>공유자 · 학생 A · 학생 B</span></div><div class="admin-row"><span>입장 방식</span><span>방 이름 또는 초대 코드</span></div></div>
+                <h3>우리 교실의 수업 공간</h3><p>예시 코드 <strong>20261127ABCD</strong> · 비밀번호 <strong>demo123</strong></p>
+                <form id="demo-room-form" class="demo-room-form"><div class="room-inputs"><label>예시 초대 코드<input id="demo-room-code" type="text" maxlength="12" required autocomplete="off" placeholder="20261127ABCD"></label><label>예시 비밀번호<input id="demo-room-password" type="text" maxlength="30" required autocomplete="off" placeholder="demo123"></label></div><div class="demo-controls"><button id="fill-room-example" type="button">예시 값 채우기</button><button type="submit">입장 확인</button><button id="room-next" type="button" hidden>코드 채팅 살펴보기</button></div></form><p id="room-result" class="demo-notice" role="status">예시 값으로 입장을 확인해 보세요.</p>
               </div>
               <div id="pane-code" class="demo-pane" role="tabpanel" aria-labelledby="tab-code" data-demo-pane="1" tabindex="0" hidden>
                 <h3>코드의 모양 그대로</h3><p>줄바꿈과 들여쓰기를 유지해 읽고 복사합니다.</p>
@@ -179,15 +179,16 @@
             <div class="check-row">UI 통합 · 미디어 모의 객체 사용<span>통과</span></div>
             <div class="check-row">서버 관리 · UTF-8 출력 조건<span>통과</span></div>
             <div class="check-row">5개 언어 설치 안내<span>통과</span></div>
+            <div class="check-row">Windows 빠른 시작·폴더 전용 Java<span>통과</span></div>
           </div>
-          <div class="validation-note"><h3>실제 교실에서 더 확인할 것</h3><p>여러 PC의 영상 품질, 8대 PC 동시 영상, 장시간 수업은 이번 검증에 포함하지 않았습니다. 학교의 PC 간 통신 정책과 공유자 PC의 성능에 따라 연결·화질이 달라집니다.</p><p>이 사이트의 예시 체험은 서버 로그인이나 실제 영상 전송을 수행하지 않습니다.</p><a class="inline-link" href="https://github.com/breadhun0814/classroom-live-java/blob/main/docs/VERIFICATION_2026-11-27.md">테스트 명령과 전체 검증 기록</a></div>
+          <div class="validation-note"><h3>실제 교실에서 더 확인할 것</h3><p>여러 PC의 영상 품질, 8대 PC 동시 영상, 장시간 수업은 이번 검증에 포함하지 않았습니다. 학교의 PC 간 통신 정책과 공유자 PC의 성능에 따라 연결·화질이 달라집니다.</p><p>이 사이트의 예시 체험은 서버 로그인이나 실제 영상 전송을 수행하지 않습니다.</p><a class="inline-link" href="https://github.com/breadhun0814/classroom-live-java/blob/main/docs/AUDIT_INSTALL_2026-11-27.md">사이트 점검·설치 검증 기록</a></div>
         </div>
       </div>
     </section>
 
     <section id="install" class="section" aria-labelledby="install-title">
       <div class="container">
-        <div class="install-panel"><div><p class="eyebrow">교실에서 실행하려면</p><h2 id="install-title">소개를 넘어,<br>직접 실행해 볼 수 있도록.</h2><p>전체 Java 소스와 서버 JAR, Windows 운영 도구를 저장소에 담았습니다. Java 17+와 keytool이 있는 서버 PC를 준비하고 설치 안내에 따라 시작하세요.</p></div><div class="install-actions"><a class="button" href="./START_HERE.html">설치·사용 안내 보기</a><a class="button secondary" href="https://github.com/breadhun0814/classroom-live-java/archive/refs/heads/main.zip">전체 소스 ZIP 받기</a></div></div>
+        <div class="install-panel"><div><p class="eyebrow">교실에서 실행하려면</p><h2 id="install-title">압축을 풀고,<br>시작 파일 하나로.</h2><p>Windows 실행용 ZIP에는 수업 운영에 필요한 파일만 담았습니다. <strong>Start-Classroom.cmd</strong>가 Java 확인, 최초 설정, 관리 앱 실행을 이어 줍니다. Java가 없으면 폴더 안에 준비할 수 있습니다.</p></div><div class="install-actions"><a class="button" href="./downloads/ClassroomLive-Windows.zip" download>Windows 실행용 ZIP 받기</a><a class="button secondary" href="./install.html">서버·학생 설치 안내</a><a class="text-button" href="https://github.com/breadhun0814/classroom-live-java/archive/refs/heads/main.zip">개발용 전체 소스 ZIP</a></div></div>
         <div class="install-note"><svg aria-hidden="true"><use href="#i-info"/></svg><p>이 포트폴리오는 GitHub Pages에서 제공하는 정적 사이트입니다. 실제 화면 공유·회원가입·수업 채팅은 실행 중인 교실 Java 서버의 HTTPS 주소에서 사용합니다.</p></div>
       </div>
     </section>

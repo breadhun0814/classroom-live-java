@@ -1,5 +1,6 @@
 # Local classroom data, certificates, credentials and backups
 data/
+.runtime/
 java-path.txt
 *.p12
 *.pfx

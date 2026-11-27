@@ -4,7 +4,9 @@
 
 One classroom PC runs the included ClassroomLive.jar using Java 17+ and keytool. Students use desktop Chrome; they do not need Java, Eclipse, Python or Maven. No external services, APIs, cloud STUN/TURN, CDN or email are used. The executable JAR and full Java source are included.
 
-Windows: extract → 00-Java-Check.cmd → 01-Setup.cmd → run 03-Firewall.cmd as administrator → 02-Start.cmd. If Java is not on PATH, copy the actual JDK home from Spring Tools / Window / Preferences / Java / Installed JREs into java-path.txt (one line).
+Windows quick start: extract the runtime ZIP and double-click **Start-Classroom.cmd**. It detects a suitable JDK, optionally downloads and checksum-verifies official Eclipse Temurin 21 into `.runtime/java`, runs first-time configuration, offers the scoped firewall setup, creates a desktop app shortcut and starts the server automatically in its control window. The desktop shortcut directly runs javaw, so normal startup has no CMD window. It does not change PATH or JAVA_HOME. Keep `data`, `.runtime` and `java-path.txt` during upgrades. See [server/student installation guide](install.html).
+
+Manual fallback: extract → 00-Java-Check.cmd → 01-Setup.cmd → run 03-Firewall.cmd as administrator → 02-Start.cmd. If Java is not found automatically, specify the actual JDK home in java-path.txt (one line).
 
 Setup asks for the actual LAN IP, allowed subnet, port (default 8443), and the sole administrator account. It creates a classroom CA, HTTPS server certificate and data/STUDENT_SETUP.zip. Give students only that generated ZIP, never the complete server folder or private data. Each Windows user extracts it, runs Setup.cmd, types YES and approves the classroom CA, then completely restarts Chrome and opens the generated HTTPS address. Install only the original package supplied by your classroom administrator.
 

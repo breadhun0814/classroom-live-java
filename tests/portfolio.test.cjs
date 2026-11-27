@@ -1,0 +1,19 @@
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const {JSDOM}=require('jsdom');const root=path.join(__dirname,'..');
+(async()=>{
+ const dom=new JSDOM(fs.readFileSync(path.join(root,'index.html'),'utf8'),{url:'https://example.github.io/classroom/',runScripts:'outside-only'}),w=dom.window;
+ w.matchMedia=()=>({addEventListener(){}});let copied='';w.navigator.clipboard={writeText:async text=>{copied=text;}};
+ w.eval(fs.readFileSync(path.join(root,'portfolio.js'),'utf8'));const $=id=>w.document.getElementById(id),click=id=>$(id).click();
+ const submit=id=>$(id).dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
+ click('tab-room');$('demo-room-code').value='BAD';$('demo-room-password').value='BAD';submit('demo-room-form');assert.equal($('demo-room-code').getAttribute('aria-invalid'),'true');assert($('room-next').hidden);
+ click('fill-room-example');submit('demo-room-form');assert.equal($('demo-room-code').getAttribute('aria-invalid'),'false');assert(!$('room-next').hidden);click('room-next');assert(!$('pane-code').hidden);
+ click('copy-code');await Promise.resolve();assert(copied.includes('return a + b;'));
+ w.navigator.clipboard.writeText=async()=>{throw Error('denied');};click('copy-code');await new Promise(setImmediate);assert(w.getSelection().toString().includes('return a + b;'));
+ for(let i=0;i<30;i++){$('demo-message').value='message '+i;submit('demo-chat-form');}assert.equal($('demo-messages').children.length,25);
+ click('tab-share');w.document.querySelector('[data-preset=motion]').click();click('tab-admin');w.document.querySelector('[data-suspend]').click();click('reset-demo');
+ assert.equal($('demo-messages').children.length,3);assert.equal($('demo-messages').querySelectorAll('.mine').length,0);assert.equal(w.document.querySelector('[data-preset=text]').getAttribute('aria-pressed'),'true');assert.equal($('demo-room-code').value,'');assert($('room-next').hidden);assert.equal(w.document.querySelector('[data-suspend]').getAttribute('aria-pressed'),'false');
+ $('demo-message').dispatchEvent(new w.CompositionEvent('compositionstart'));$('demo-message').value='조합 중';submit('demo-chat-form');assert.equal($('demo-messages').children.length,3);$('demo-message').dispatchEvent(new w.CompositionEvent('compositionend'));submit('demo-chat-form');assert.equal($('demo-messages').children.length,4);
+ $('demo-message').value='<img src=x onerror=alert(1)>';submit('demo-chat-form');assert.equal($('demo-messages').querySelectorAll('img').length,0);
+ for(const file of ['index.html','install.html']){const doc=new JSDOM(fs.readFileSync(path.join(root,file),'utf8')).window.document;for(const element of doc.querySelectorAll('[src],a[href],link[href]')){const url=element.getAttribute('src')||element.getAttribute('href');if(url.startsWith('#'))assert(doc.getElementById(url.slice(1)),url);else if(url.startsWith('./'))assert(fs.existsSync(path.join(root,url.split('?')[0])),file+': '+url);}}
+ dom.window.close();console.log('PASS portfolio room success/error flow, code copy/denied fallback, full reset after message limit, IME composition, literal text safety, installation links and package asset.');
+})().catch(e=>{console.error(e);process.exitCode=1;});
