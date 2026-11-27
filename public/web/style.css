@@ -70,7 +70,7 @@
 #chat-pin-author { margin-left:.4rem; color:var(--accent); }
 #chat-pin-body { white-space:pre-wrap; overflow-wrap:anywhere; max-height:7rem; overflow:auto; font:inherit; }
 
-#chat-search-form { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:.6rem; align-items:end; }
+#chat-search-form { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.7fr) auto; gap:.6rem; align-items:end; }
 #chat-search-form label { margin:0; }
 #chat-search-results { display:grid; gap:.5rem; margin-bottom:.6rem; }
 .chat-search-result { padding:.65rem; border:1px solid var(--line); border-radius:.5rem; }
@@ -95,3 +95,5 @@
 .chat-shortcut-details { margin:.65rem 0; }
 .chat-shortcut-details summary { cursor:pointer; }
 .chat-shortcut-details p { margin:.45rem 0 0; }
+
+@media(max-width:520px) { #chat-search-form { grid-template-columns:minmax(0,1fr); } }

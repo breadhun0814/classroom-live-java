@@ -93,7 +93,7 @@
   </dialog>
   <dialog id="chat-search-dialog" class="card call-setup" aria-labelledby="chat-search-title">
     <h2 id="chat-search-title">전체 대화 검색</h2>
-    <form id="chat-search-form"><label>메시지 또는 참여자 이름<input type="search" id="chat-query" maxlength="100" required></label><button type="submit">검색</button></form>
+    <form id="chat-search-form"><label>메시지 또는 참여자 이름<input type="search" id="chat-query" maxlength="100" required></label><label>메시지 종류<select id="chat-search-kind"><option value="all">모든 메시지</option><option value="text">일반 메시지만</option><option value="code">코드만</option></select></label><button type="submit">검색</button></form>
     <p id="chat-search-status" class="muted footnote" role="status"></p>
     <div id="chat-search-results"></div>
     <div class="actions">

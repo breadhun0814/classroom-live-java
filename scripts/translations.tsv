@@ -369,3 +369,8 @@ Check the room entry setting.|部屋の入室設定を確認してください�
 In call|通話に参加中|通话中|Đang tham gia cuộc gọi
 Room owner|部屋の作成者|房主|Chủ phòng
 Chat settings|チャット設定|聊天设置|Cài đặt trò chuyện
+Message type|メッセージの種類|消息类型|Loại tin nhắn
+All messages|すべてのメッセージ|所有消息|Tất cả tin nhắn
+Regular messages only|通常のメッセージのみ|仅普通消息|Chỉ tin nhắn thường
+Code messages only|コードメッセージのみ|仅代码消息|Chỉ tin nhắn mã
+Check the message type filter.|検索するメッセージの種類を確認してください。|请检查消息类型筛选条件。|Hãy kiểm tra loại tin nhắn cần tìm.

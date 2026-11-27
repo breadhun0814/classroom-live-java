@@ -247,12 +247,15 @@ public class ClassroomServer {
                 }
                 case "live_search_messages":{
                     String query=key(text(a.get("p_query"),1,100,"대화 검색어",true));
+                    String kind=a.get("p_kind")==null?"all":str(a.get("p_kind"));
+                    if(!Set.of("all","text","code").contains(kind))throw new UserError("검색할 메시지 종류를 확인하세요.");
                     long before=a.get("p_before")==null?Long.MAX_VALUE:num(a.get("p_before"));
                     List<Map<String,Object>> hits=new ArrayList<>();
                     List<Map<String,Object>> messages=list("messages");
                     for(int i=messages.size()-1;i>=0&&hits.size()<51;i--){
                         Map<String,Object> candidate=messages.get(i);
                         if(!Objects.equals(candidate.get("room_id"),rid)||num(candidate.get("id"))>=before)continue;
+                        if(!kind.equals("all")&&kind.equals("code")!=yes(candidate.get("is_code")))continue;
                         if(str(candidate.get("body")).toLowerCase(Locale.ROOT).contains(query)||
                             str(candidate.get("display_name")).toLowerCase(Locale.ROOT).contains(query))hits.add(candidate);
                     }

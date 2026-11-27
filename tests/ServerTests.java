@@ -66,6 +66,8 @@ public class ServerTests {
    failure(()->rpc(db,at,"live_pin_message",add(args(other,ca),"p_message",original)),"찾을 수 없습니다");
    var search=map(rpc(db,bt,"live_search_messages",add(br,"p_query","REPLY FIXTURE")));
    check(ClassroomServer.rows(search.get("messages")).size()==1,"case-insensitive saved message search");
+   check(ClassroomServer.rows(map(rpc(db,bt,"live_search_messages",add(br,"p_query","int a","p_kind","code"))).get("messages")).size()==1,"code filter finds code");
+   check(ClassroomServer.rows(map(rpc(db,bt,"live_search_messages",add(br,"p_query","int a","p_kind","text"))).get("messages")).isEmpty(),"normal filter excludes code");
    check(ClassroomServer.rows(map(rpc(db,at,"live_search_messages",add(args(other,ca),"p_query","REPLY FIXTURE"))).get("messages")).isEmpty(),"search limited to current room");
    rpc(db,at,"live_close_room",m("p_room",other.get("room_id")));
    failure(()->rpc(db,bt,"live_admin_signup_policy",m("p_paused",true)),"관리자만");

@@ -1540,10 +1540,12 @@
   let fullSearchVersion = 0;
   let fullSearchCursor;
   let fullSearchTerm;
+  let fullSearchKind;
   function resetFullSearch() {
     fullSearchVersion++;
     fullSearchCursor = null;
     fullSearchTerm = '';
+    fullSearchKind = 'all';
     $('chat-search-more').hidden = true;
     $('chat-search-results').replaceChildren();
     ui('chat-search-status','');
@@ -1553,13 +1555,14 @@
     if (!state.room || !query || (append && fullSearchCursor==null)) return;
     if (!append) resetFullSearch();
     fullSearchTerm = query;
+    if (!append) fullSearchKind=$('chat-search-kind').value;
     const ticket = ++fullSearchVersion;
     const generation = state.generation;
     const isCurrent = () => ticket === fullSearchVersion &&
       generation === state.generation && $('chat-search-dialog').open;
     ui('chat-search-status','보관된 대화를 검색하는 중입니다.');
     try {
-      const data = await rpc('live_search_messages',{...args(),p_query:query,p_before:append?fullSearchCursor:null});
+      const data = await rpc('live_search_messages',{...args(),p_query:query,p_kind:fullSearchKind,p_before:append?fullSearchCursor:null});
       if (!isCurrent()) return;
       for (const message of data.messages) {
         const result = document.createElement('article');result.className='chat-search-result';
@@ -1582,6 +1585,7 @@
   bind('search-all-chat','click',()=>{
     resetFullSearch();
     $('chat-query').value=$('chat-search').value;
+    $('chat-search-kind').value='all';
     $('chat-search-dialog').showModal();
     $('chat-query').focus();
     if ($('chat-query').value.trim()) void searchSavedMessages();

@@ -1,6 +1,11 @@
 (() => {
   'use strict';
   const words = {
+    "메시지 종류":"Message type",
+    "모든 메시지":"All messages",
+    "일반 메시지만":"Regular messages only",
+    "코드만":"Code messages only",
+    "검색할 메시지 종류를 확인하세요.":"Check the message type filter.",
     "대화 설정":"Chat settings",
     "방장":"Room owner",
     "통화 참여 중":"In call",
