@@ -7,7 +7,7 @@
   const setUiElement = (element,text) => { if(window.CL_I18N)window.CL_I18N.set(element,text);else element.textContent=String(text); };
   const ui = (id,text) => setUiElement($(id),text);
   const ask = text => window.confirm(tr(text));
-  const state = { db: null, user: null, room: null, client: sessionStorage.getItem('live-client') || crypto.randomUUID(), generation: 0, epoch: null, publisher: null, stream: null, peers: new Map(), pending: new Map(), message: 0, signal: 0, timer: null, polling: false, signup: false, watchAt: 0, ice: [], iceUntil: 0, pollFailures: 0, shareBusy: false };
+  const state = { db: null, user: null, room: null, client: sessionStorage.getItem('live-client') || crypto.randomUUID(), generation: 0, epoch: null, publisher: null, stream: null, peers: new Map(), pending: new Map(), message: 0, signal: 0, timer: null, polling: false, signup: false, watchAt: 0, ice: [], iceUntil: 0, pollFailures: 0, shareBusy: false, handRaised: false };
   sessionStorage.setItem('live-client', state.client);
   const notice = (text, error = false) => { if (/Could not find|schema cache/.test(text) && /live_/.test(text)) text='로컬 서버를 최신 버전으로 실행해 주세요.'; ui('notice',text); $('notice').classList.toggle('error', error); $('notice').hidden = !text; };
   function screen(name) { ['setup','auth','lobby','room','admin','profile'].forEach(id => { $(id).hidden = id !== name; }); }
@@ -64,8 +64,50 @@
     if (byName) input.removeAttribute('pattern'); else input.pattern = '[A-Fa-f0-9]{12}';
     if (clear) { input.value = ''; $('join-password').value = ''; clearJoinError(); $('join-invite').hidden = true; }
   }
+  function recentRoomKey() {
+    return state.user ? 'classroom-recent:' + state.user.id : null;
+  }
+  function readRecentRooms() {
+    try {
+      const key = recentRoomKey();
+      const value = key ? JSON.parse(localStorage.getItem(key) || '[]') : [];
+      return Array.isArray(value) ? value.filter(room => room && /^[A-F0-9]{12}$/.test(room.code)
+        && typeof room.title === 'string').slice(0, 4) : [];
+    } catch { return []; }
+  }
+  function rememberRoom(room) {
+    const key = recentRoomKey();
+    if (!key || !/^[A-F0-9]{12}$/.test(room.code) || typeof room.title !== 'string') return;
+    const recent = readRecentRooms();
+    if (recent[0]?.code === room.code && recent[0].title === room.title) return;
+    try {
+      localStorage.setItem(key, JSON.stringify([{ code:room.code, title:room.title },
+        ...recent.filter(item => item.code !== room.code)].slice(0, 4)));
+    } catch {}
+  }
+  function selectRoomCode(room) {
+    $('join-method').value = 'code';
+    updateJoinMethod();
+    $('room-code').value = room.code;
+    $('join-password').focus();
+    notice(`「${room.title}」 방을 선택했습니다. 방 비밀번호를 입력해 주세요.`);
+  }
+  function renderRecentRooms() {
+    const list = $('recent-room-list');
+    list.replaceChildren();
+    const recent = readRecentRooms();
+    $('recent-rooms').hidden = !recent.length;
+    for (const room of recent) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = room.title;
+      button.addEventListener('click', () => selectRoomCode(room));
+      list.append(button);
+    }
+  }
   async function loadRooms(offset = 0) {
     if (!state.db || !state.user || state.room) return;
+    renderRecentRooms();
     const request = ++directoryRequest; const userId = state.user.id;
     try {
       const search = $('room-search').value.trim();
@@ -81,8 +123,7 @@
         info.append(title,detail); const button = document.createElement('button'); setUiElement(button,'이 방 선택');
         button.addEventListener('click', () => {
           // A specific code also disambiguates legacy rooms with duplicate names.
-          $('join-method').value = 'code'; updateJoinMethod(); $('room-code').value = room.code;
-          $('join-password').focus(); notice(`「${room.title}」 방을 선택했습니다. 방 비밀번호를 입력해 주세요.`);
+          selectRoomCode(room);
         });
         row.append(info,button); list.append(row);
       }
@@ -122,6 +163,7 @@
   }
   function closePeer(id) { const p = state.peers.get(id); if (p) { p.pc.onconnectionstatechange = null; p.pc.close(); } state.peers.delete(id); state.pending.delete(id); }
   const cachedMessages = new Map();
+  let chatReply;
   let chatUnread = 0; let tabUnread = 0;
   const draftKey = () => state.user && state.room ? `classroom-draft:${state.user.id}:${state.room.id}` : null;
   function saveDraft() {
@@ -563,6 +605,10 @@
     if ($('invite-dialog').open) $('invite-dialog').close();
     if ($('chat-export-dialog').open) $('chat-export-dialog').close();
     clearJoinError();
+    setChatReply(null);
+    state.handRaised = false;
+    renderHandButton();
+    ui('hands-status', '');
     saveDraft(); cachedMessages.clear(); chatUnread=0; tabUnread=0; updateUnread();
     clearTimeout(state.timer); state.timer = null; state.generation++; state.polling = false; state.shareBusy = false;
     stopTracks(); for (const id of [...state.peers.keys()]) closePeer(id); state.pending.clear();
@@ -583,6 +629,19 @@
     for (const row of $('messages').children) { const m=cachedMessages.get(Number(row.dataset.id)); const match=!term||`${m?.display_name||''}\n${m?.body||''}`.toLocaleLowerCase().includes(term); row.hidden=!match; if(match)count++; }
     ui('chat-search-count',term?`검색 결과 ${count}개`:'');
   }
+  function replyExcerpt(message) {
+    return message.display_name + ' · ' + message.body.trim().replace(/\s+/g,' ').slice(0,140);
+  }
+  function setChatReply(message) {
+    chatReply = message ? Number(message.id) : null;
+    $('chat-reply-preview').hidden = !message;
+    $('chat-reply-text').textContent = message ? replyExcerpt(message) : '';
+  }
+  function refreshReplyLink(link) {
+    const original = cachedMessages.get(Number(link.dataset.replyId));
+    if (original) { delete link.dataset.uiText; link.textContent = replyExcerpt(original); }
+    else setUiElement(link,'이전 메시지에 대한 답장');
+  }
   function renderMessages(messages, prepend=false) {
     const panel = $('messages');
     const oldHeight=panel.scrollHeight; const oldTop=panel.scrollTop; const initial=!panel.children.length; let added=0;
@@ -594,12 +653,28 @@
       const by = document.createElement('div'); by.className = 'by'; by.textContent = `${m.display_name} · ${new Date(m.created_at).toLocaleTimeString(window.CL_I18N?.language()||'ko', {hour:'2-digit',minute:'2-digit'})}`;
       const body = document.createElement(m.is_code ? 'pre' : 'div'); body.className = 'content'; body.textContent = m.body;
       const head=document.createElement('div'); head.className='message-head';
-      const copy=actionButton(m.is_code?'코드 복사':'메시지 복사',async()=>{await navigator.clipboard.writeText(m.body);notice('복사했습니다.');});copy.className='message-copy';head.append(by,copy);
-      wrap.append(head, body);
+      const copy=actionButton(m.is_code?'코드 복사':'메시지 복사',async()=>{await navigator.clipboard.writeText(m.body);notice('복사했습니다.');});copy.className='message-copy';
+      const reply=actionButton('답장',()=>{setChatReply(m);$('chat-text').focus();});reply.className='message-copy';
+      const actions=document.createElement('div');actions.className='message-actions';actions.append(reply,copy);head.append(by,actions);
+      wrap.append(head);
+      if (m.reply_to) {
+        const original=actionButton('이전 메시지에 대한 답장',()=>{
+          const target=panel.querySelector('[data-id="'+Number(m.reply_to)+'"]');
+          if (!target || target.hidden) {
+            notice('원본을 보려면 이전 대화를 불러오거나 검색을 지워 주세요.');
+            return;
+          }
+          target.tabIndex=-1;target.focus({preventScroll:true});target.scrollIntoView({block:'nearest'});
+        });
+        original.className='reply-original';original.dataset.replyId=m.reply_to;
+        refreshReplyLink(original);wrap.append(original);
+      }
+      wrap.append(body);
       if(prepend) { const after=[...panel.children].find(row=>Number(row.dataset.id)>Number(m.id)); panel.insertBefore(wrap,after||null); } else panel.append(wrap);
       state.message = Math.max(state.message,Number(m.id));
     }
     while (panel.children.length > 1000) { const old=panel.firstChild; cachedMessages.delete(Number(old.dataset.id));old.remove(); }
+    if (added) panel.querySelectorAll('[data-reply-id]').forEach(refreshReplyLink);
     filterChat();
     // Do not pull someone away from an older message they are reading.
     if (added && prepend) panel.scrollTop=oldTop+panel.scrollHeight-oldHeight;
@@ -629,14 +704,18 @@
     if (state.publisher === state.client && !state.stream && !state.shareBusy) {
       await rpc('live_share', { ...args(), p_start: false }); state.publisher = null;
     }
+    rememberRoom(data.room);
     $('room-name').textContent = data.room.title; $('room-code-label').textContent = `ROOM / ${data.room.code}`;
     $('close-room').hidden = data.room.owner_id !== state.user.id;
     ui('member-count',`(${data.members.length}/8)`); $('members').replaceChildren();
     const present = new Set(data.members.map(m => m.client_id));
     for (const id of [...state.peers.keys()]) if (!present.has(id)) closePeer(id);
+    const raised = data.members.filter(m => m.hand_raised);
+    const handStatus = raised.length ? tr('손을 든 참여자') + ' · ' + raised.map(m => m.name).join(', ') : '';
+    if ($('hands-status').textContent !== handStatus) $('hands-status').textContent = handStatus;
     for (const m of data.members) {
-      const el = document.createElement('span'); el.className = 'member' + (m.client_id === state.publisher ? ' sharing' : '');
-      el.textContent = m.name + (m.client_id === state.client ? tr(' (나)') : '') + (m.client_id === state.publisher ? tr(' · 공유 중') : ''); $('members').append(el);
+      const el = document.createElement('span'); el.className = 'member' + (m.client_id === state.publisher ? ' sharing' : '') + (m.hand_raised ? ' hand' : '');
+      el.textContent = m.name + (m.client_id === state.client ? tr(' (나)') : '') + (m.client_id === state.publisher ? tr(' · 공유 중') : '') + (m.hand_raised ? tr(' · 손듦') : ''); $('members').append(el);
     }
     renderMessages(data.messages); refreshControls();
     await applyCall(data, pollCallId);
@@ -665,7 +744,7 @@
     const epochAtRequest = state.epoch;
     const pollCallId = call.id;
     try {
-      const data = await rpc('live_room_state', { ...args(), p_after_message: state.message, p_after_signal: state.signal, p_call_id: pollCallId, p_call_camera: Boolean(callTrack("video")) });
+      const data = await rpc('live_room_state', { ...args(), p_after_message: state.message, p_after_signal: state.signal, p_call_id: pollCallId, p_call_camera: Boolean(callTrack("video")), p_hand:state.handRaised });
       if (generation !== state.generation) return;
       if (state.pollFailures) notice('연결이 복구되었습니다.'); state.pollFailures = 0;
       // A share start/stop may have completed while this older request was in flight.
@@ -1045,6 +1124,29 @@
   bind('logout','click', async () => { await leave(); const { error } = await state.db.auth.signOut(); if (error) throw error; state.adminLogin=false; await updateAccount(null); renderAuthMode(); notice('로그아웃했습니다.'); });
   bind('create-form','submit', async () => enter(await rpc('live_create_room', { p_title: $('room-title').value.trim(), p_password: $('create-password').value, p_name: displayName(), p_client: state.client })));
   $('join-method').addEventListener('change', () => updateJoinMethod());
+  function renderHandButton() {
+    $('raise-hand').setAttribute('aria-pressed', String(state.handRaised));
+    ui('raise-hand', state.handRaised ? '손 내리기' : '손들기');
+  }
+  bind('raise-hand','click', () => {
+    if (!state.room) return;
+    state.handRaised = !state.handRaised;
+    renderHandButton();
+    pollCallNow();
+  });
+  bind('clear-recent-rooms','click', () => {
+    const key = recentRoomKey();
+    if (key) localStorage.removeItem(key);
+    renderRecentRooms();
+    $('room-search').focus();
+  });
+  document.querySelectorAll('[data-room-jump]').forEach(button => {
+    button.addEventListener('click', () => {
+      const target = $(button.dataset.roomJump);
+      target.focus({ preventScroll:true });
+      target.scrollIntoView({ block:'start' });
+    });
+  });
   $('room-search').addEventListener('input', () => {
     directoryRequest++;
     clearTimeout(directoryTimer);
@@ -1280,18 +1382,21 @@
     event.preventDefault();
     if (!event.repeat && !sendingChat) $('chat-form').requestSubmit();
   });
+  bind('chat-reply-cancel','click',()=>{setChatReply(null);$('chat-text').focus();});
   bind('chat-form','submit', async () => {
     const draft = $('chat-text').value;
     if (sendingChat || !draft.trim()) return;
     const code = $('as-code').checked;
     const generation=state.generation;
     sendingChat = true;
-    const button = $('chat-form').querySelector('button'); button.disabled = true;
+    const reply = chatReply;
+    const button = $('chat-submit'); button.disabled = true;
     try {
-      await rpc('live_send_message', { ...args(), p_body: code ? draft : draft.trim(), p_is_code: code });
+      await rpc('live_send_message', { ...args(), p_body: code ? draft : draft.trim(), p_is_code: code, p_reply_to:reply });
       if(generation!==state.generation)return;
       // Keep anything the user started typing while this request was in flight.
       if ($('chat-text').value === draft) $('chat-text').value = '';
+      if (chatReply === reply) setChatReply(null);
       saveDraft();
       notice('');
     } finally { sendingChat = false; button.disabled = false; }

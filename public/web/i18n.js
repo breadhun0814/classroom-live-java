@@ -1,6 +1,19 @@
 (() => {
   'use strict';
   const words = {
+    "답장":"Reply",
+    "답장 취소":"Cancel reply",
+    "이전 메시지에 대한 답장":"Reply to an earlier message",
+    "원본을 보려면 이전 대화를 불러오거나 검색을 지워 주세요.":"Load older messages or clear search to see the original.",
+    "답장할 메시지를 찾을 수 없습니다. 답장을 취소한 뒤 다시 보내세요.":"The original message is unavailable. Cancel the reply and send again.",
+    "최근 들어간 방":"Recently joined rooms",
+    "기록 지우기":"Clear history",
+    "공유 화면":"Shared screen",
+    "방 안에서 이동":"Navigate in room",
+    "손들기":"Raise hand",
+    "손 내리기":"Lower hand",
+    " · 손듦":" · Hand raised",
+    "손을 든 참여자":"Hands raised",
     "대화 복사":"Copy conversation",
     "복사용 대화":"Conversation text",
     "대화를 복사했습니다.":"Conversation copied.",

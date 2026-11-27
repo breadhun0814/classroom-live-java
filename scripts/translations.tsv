@@ -297,3 +297,16 @@ Conversation text|コピー用の会話|供复制的对话文本|Nội dung cu�
 Conversation copied.|会話をコピーしました。|已复制对话。|Đã sao chép cuộc trò chuyện.
 Conversation selected. Copy it using Ctrl+C or your browser menu.|会話を選択しました。Ctrl+Cまたはブラウザーのメニューでコピーしてください。|已选中对话。请按 Ctrl+C 或使用浏览器菜单复制。|Đã chọn cuộc trò chuyện. Nhấn Ctrl+C hoặc dùng menu trình duyệt để sao chép.
 Your messages are ready. Download as TXT or copy them.|メッセージの準備ができました。TXTでダウンロードするかコピーできます。|消息已准备好。可以下载 TXT 或进行复制。|Tin nhắn đã sẵn sàng. Có thể tải TXT hoặc sao chép.
+Recently joined rooms|最近参加した部屋|最近加入的房间|Phòng đã tham gia gần đây
+Clear history|履歴を消去|清除记录|Xóa lịch sử
+Shared screen|共有画面|共享画面|Màn hình chia sẻ
+Navigate in room|部屋内の移動|房间内导航|Điều hướng trong phòng
+Raise hand|挙手|举手|Giơ tay
+Lower hand|手を下ろす|放下手|Hạ tay
+ · Hand raised| · 挙手中| · 已举手| · Đang giơ tay
+Hands raised|挙手中の参加者|已举手的参与者|Người tham gia đang giơ tay
+Reply|返信|回复|Trả lời
+Cancel reply|返信を取り消す|取消回复|Hủy trả lời
+Reply to an earlier message|以前のメッセージへの返信|回复较早的消息|Trả lời tin nhắn trước đó
+Load older messages or clear search to see the original.|元の発言を見るには以前の会話を読み込むか検索を解除してください。|请加载较早的对话或清除搜索以查看原消息。|Tải tin nhắn cũ hoặc xóa tìm kiếm để xem tin gốc.
+The original message is unavailable. Cancel the reply and send again.|元のメッセージが見つかりません。返信を取り消して送信し直してください。|原消息不可用。请取消回复后重发。|Không tìm thấy tin nhắn gốc. Hãy hủy trả lời và gửi lại.
