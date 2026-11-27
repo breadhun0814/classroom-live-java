@@ -7,7 +7,7 @@
   const setUiElement = (element,text) => { if(window.CL_I18N)window.CL_I18N.set(element,text);else element.textContent=String(text); };
   const ui = (id,text) => setUiElement($(id),text);
   const ask = text => window.confirm(tr(text));
-  const state = { db: null, user: null, room: null, client: sessionStorage.getItem('live-client') || crypto.randomUUID(), generation: 0, epoch: null, publisher: null, stream: null, peers: new Map(), pending: new Map(), message: 0, signal: 0, timer: null, polling: false, signup: false, watchAt: 0, ice: [], iceUntil: 0, pollFailures: 0, shareBusy: false, handRaised: false };
+  const state = { db: null, user: null, room: null, client: sessionStorage.getItem('live-client') || crypto.randomUUID(), generation: 0, epoch: null, publisher: null, stream: null, peers: new Map(), pending: new Map(), message: 0, signal: 0, timer: null, polling: false, signup: false, watchAt: 0, ice: [], iceUntil: 0, pollFailures: 0, shareBusy: false, handRaised: false, signupAllowed: true };
   sessionStorage.setItem('live-client', state.client);
   const notice = (text, error = false) => { if (/Could not find|schema cache/.test(text) && /live_/.test(text)) text='로컬 서버를 최신 버전으로 실행해 주세요.'; ui('notice',text); $('notice').classList.toggle('error', error); $('notice').hidden = !text; };
   function screen(name) { ['setup','auth','lobby','room','admin','profile'].forEach(id => { $(id).hidden = id !== name; }); }
@@ -1126,13 +1126,39 @@
     ui('admin-rooms-page',`전체 ${data.total}개 · ${Math.floor(data.offset/50)+1}페이지`);
     $('admin-rooms-prev').disabled=data.offset===0; $('admin-rooms-next').disabled=!data.has_more;
   }
-  async function loadAdmin() { await Promise.all([loadAdminUsers(),loadAdminRooms()]); }
+  let signupPolicy;
+  function showSignupPolicy(policy) {
+    signupPolicy=policy;
+    state.signupAllowed=policy.configured&&!policy.paused;
+    ui('signup-policy-status', !policy.configured ? '서버 설정에서 신규 회원가입이 닫혀 있습니다.'
+      : policy.paused ? '신규 회원가입이 닫혀 있습니다. 기존 계정은 로그인할 수 있습니다.'
+      : '신규 회원가입을 받고 있습니다.');
+    $('signup-policy-toggle').hidden=!policy.configured;
+    ui('signup-policy-toggle',policy.paused?'회원가입 다시 열기':'회원가입 닫기');
+  }
+  async function loadAdminSignupPolicy() {
+    const user = state.user;
+    const policy = await rpc('live_admin_signup_policy');
+    if (state.user===user && state.isAdmin) showSignupPolicy(policy);
+  }
+  bind('signup-policy-toggle','click',async()=>{
+    if (!signupPolicy?.configured || !state.isAdmin) return;
+    const user = state.user;
+    const policy=await rpc('live_admin_signup_policy',{p_paused:!signupPolicy.paused});
+    if (state.user===user && state.isAdmin) showSignupPolicy(policy);
+  });
+  async function loadAdmin() { await Promise.all([loadAdminUsers(),loadAdminRooms(),loadAdminSignupPolicy()]); }
   function renderAuthMode() {
+    if (!state.signupAllowed) state.signup=false;
+    $('signup-closed').hidden = state.signupAllowed || !!state.adminLogin;
+    ui('auth-invite',state.signupAllowed
+      ? '초대 링크로 접속했습니다. 로그인하거나 회원가입한 뒤 방 비밀번호를 입력하세요.'
+      : '초대 링크로 접속했습니다. 기존 계정으로 로그인한 뒤 방 비밀번호를 입력하세요.');
     ui('auth-title',state.adminLogin ? '관리자 로그인' : state.signup ? '회원가입' : '로그인');
     ui('auth-description',state.adminLogin ? '운영자로 지정한 본인 계정으로 로그인하세요.' : '나만의 계정으로 시작하세요.');
     ui('auth-submit',state.signup ? '계정 만들기' : '로그인'); $('name-label').hidden = !state.signup;
     $('display-name').required = !!state.signup; $('password').autocomplete = state.signup ? 'new-password' : 'current-password';
-    $('auth-toggle').hidden = !!state.adminLogin; ui('auth-toggle',state.signup ? '이미 계정이 있나요? 로그인' : '계정이 없나요? 회원가입');
+    $('auth-toggle').hidden = !!state.adminLogin || !state.signupAllowed; ui('auth-toggle',state.signup ? '이미 계정이 있나요? 로그인' : '계정이 없나요? 회원가입');
     ui('admin-login-toggle',state.adminLogin ? '일반 로그인으로 돌아가기' : '관리자 로그인');
   }
   bind('admin-login-toggle','click',async () => { state.adminLogin=!state.adminLogin; state.signup=false; renderAuthMode(); notice(''); });
@@ -1151,13 +1177,18 @@
     const result=await rpc('live_set_nickname',{p_nickname:$('profile-nickname').value}); state.nickname=result.nickname; $('account').textContent=displayName(); backFromProfile(); notice('닉네임을 저장했습니다.');
   });
   bind('auth-toggle', 'click', async () => {
+    if (!state.signupAllowed) return;
     state.signup = !state.signup; renderAuthMode(); notice('');
   });
   bind('auth-form','submit', async () => {
     const email = $('email').value.trim(); const password = $('password').value;
     if (state.signup) {
       const { data, error } = await state.db.auth.signUp({ email, password, options: { data: { display_name: $('display-name').value.trim().slice(0,24) }, emailRedirectTo: location.origin + location.pathname } });
-      if (error) throw error; $('password').value = '';
+      if (error) {
+        if (/회원가입이 닫혀/.test(error.message)) { state.signupAllowed=false; renderAuthMode(); }
+        throw error;
+      }
+      $('password').value = '';
       if (data.session) { state.signup=false; renderAuthMode(); await updateAccount(data.user); notice('가입되었습니다. 새 방을 만들거나 초대받은 방으로 들어가세요.'); }
       else notice('가입 확인 메일을 확인해 주세요. 메일의 링크를 누른 후 로그인하면 됩니다.');
     } else {
@@ -1567,6 +1598,8 @@
     if (!window.isSecureContext) { screen('setup'); notice('화면 공유를 위해 HTTPS와 서버 인증서 등록이 필요합니다. 접속 도움말을 확인하세요.',true); return; }
     state.db = window.CLASSROOM_LOCAL;
     const { data, error } = await state.db.auth.getSession(); if (error) throw error;
+    state.signupAllowed = data.signup_allowed !== false;
+    renderAuthMode();
     const saved = sessionStorage.getItem('live-room'); await updateAccount(data.session?.user || null);
     const authUpdate = async user => { try { await updateAccount(user,true); } catch(error) { cleanup(); await state.db.auth.signOut(); await updateAccount(null); notice(error.message,true); } };
     state.db.auth.onAuthStateChange((event, session) => { if (event === 'SIGNED_OUT') setTimeout(() => authUpdate(null), 0); else if (session?.user) setTimeout(() => authUpdate(session.user), 0); });

@@ -336,3 +336,12 @@ Showing the newest results first.|新しい検索結果から表示します。|
 There are no more search results.|これ以上検索結果はありません。|没有更多搜索结果。|Không còn kết quả tìm kiếm.
 No messages match your search.|検索語に一致する会話がありません。|没有与搜索词匹配的消息。|Không có tin nhắn khớp với từ khóa.
 Could not search messages.|会話を検索できませんでした。|无法搜索消息。|Không thể tìm kiếm tin nhắn.
+New account registration|新規登録|新用户注册|Đăng ký tài khoản mới
+Registration is closed. Contact the administrator if you need an account.|新規登録は停止中です。アカウントが必要な場合は管理者に連絡してください。|注册已关闭。如需账号，请联系管理员。|Đã đóng đăng ký. Hãy liên hệ quản trị viên nếu cần tài khoản.
+Registration is closed. Existing users can still sign in.|新規登録は停止中です。既存のアカウントではログインできます。|注册已关闭。现有用户仍可登录。|Đã đóng đăng ký. Tài khoản hiện có vẫn có thể đăng nhập.
+Registration is open.|新規登録を受付中です。|注册已开放。|Đang mở đăng ký.
+Server configuration disables registration.|サーバー設定で新規登録が無効です。|服务器配置已关闭注册。|Cấu hình máy chủ đã tắt đăng ký.
+Close registration|新規登録を停止|关闭注册|Đóng đăng ký
+Reopen registration|新規登録を再開|重新开放注册|Mở lại đăng ký
+Check the registration setting.|登録設定を確認してください。|请检查注册设置。|Hãy kiểm tra cài đặt đăng ký.
+Sign in with an existing account, then enter the room password.|既存のアカウントでログインしてから部屋のパスワードを入力してください。|使用现有账号登录，然后输入房间密码。|Đăng nhập bằng tài khoản hiện có, sau đó nhập mật khẩu phòng.

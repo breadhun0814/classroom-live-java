@@ -1,6 +1,15 @@
 (() => {
   'use strict';
   const words = {
+    "초대 링크로 접속했습니다. 기존 계정으로 로그인한 뒤 방 비밀번호를 입력하세요.":"Sign in with an existing account, then enter the room password.",
+    "신규 회원가입":"New account registration",
+    "신규 회원가입이 닫혀 있습니다. 계정이 필요하면 관리자에게 문의하세요.":"Registration is closed. Contact the administrator if you need an account.",
+    "신규 회원가입이 닫혀 있습니다. 기존 계정은 로그인할 수 있습니다.":"Registration is closed. Existing users can still sign in.",
+    "신규 회원가입을 받고 있습니다.":"Registration is open.",
+    "서버 설정에서 신규 회원가입이 닫혀 있습니다.":"Server configuration disables registration.",
+    "회원가입 닫기":"Close registration",
+    "회원가입 다시 열기":"Reopen registration",
+    "가입 상태를 확인하세요.":"Check the registration setting.",
     "현재 화면에서 검색":"Search visible messages",
     "전체 대화 검색":"Search all saved messages",
     "메시지 또는 참여자 이름":"Message or participant name",

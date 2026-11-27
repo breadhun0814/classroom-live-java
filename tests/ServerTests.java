@@ -62,6 +62,13 @@ public class ServerTests {
    check(ClassroomServer.rows(search.get("messages")).size()==1,"case-insensitive saved message search");
    check(ClassroomServer.rows(map(rpc(db,at,"live_search_messages",add(args(other,ca),"p_query","REPLY FIXTURE"))).get("messages")).isEmpty(),"search limited to current room");
    rpc(db,at,"live_close_room",m("p_room",other.get("room_id")));
+   failure(()->rpc(db,bt,"live_admin_signup_policy",m("p_paused",true)),"관리자만");
+   check(Boolean.TRUE.equals(map(rpc(db,at,"live_admin_signup_policy",m("p_paused",true))).get("paused")),"admin closes signup");
+   check(Boolean.FALSE.equals(db.auth("session",m(),"","policy",true).data().get("signup_allowed")),"public signup status reflects pause");
+   check(db.auth("signup",m("login","newaccount","password","Password123","nickname","New"),"","policy",true).data().containsKey("error"),"paused registration enforced");
+   check(Boolean.TRUE.equals(new ClassroomServer.Store(dir).data.get("signup_paused")),"signup pause survives restart");
+   check(Boolean.FALSE.equals(map(rpc(db,at,"live_admin_signup_policy",m("p_paused",false))).get("paused")),"admin reopens signup");
+   check(Boolean.FALSE.equals(db.auth("session",m(),"","policy",false).data().get("signup_allowed")),"server config overrides GUI");
    failure(()->rpc(db,bt,"live_close_room",m("p_room",room.get("room_id"))),"만든 사람");
    rpc(db,bt,"live_set_nickname",m("p_nickname","한글 English"));check(s(map(rpc(db,bt,"live_account_status",m())).get("nickname")).equals("한글 English"),"English nickname");
    String epoch=s(map(rpc(db,at,"live_share",add(ar,"p_start",true))).get("epoch"));failure(()->rpc(db,bt,"live_share",add(br,"p_start",true)),"다른 사람");

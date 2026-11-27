@@ -21,7 +21,7 @@ import java.util.zip.*;
 public class ClassroomServer {
     static final String COOKIE="__Host-classroom";
     static final SecureRandom RANDOM=new SecureRandom();
-    static final Set<String> ADMIN_OPS=Set.of("live_admin_list_users","live_admin_set_suspension","live_admin_room_members","live_admin_kick","live_admin_delete_room");
+    static final Set<String> ADMIN_OPS=Set.of("live_admin_list_users","live_admin_signup_policy","live_admin_set_suspension","live_admin_room_members","live_admin_kick","live_admin_delete_room");
     static Path base=Path.of("").toAbsolutePath();
     static class UserError extends RuntimeException { UserError(String s){super(s);} }
     static Map<String,Object> obj(Object... kv){Map<String,Object> m=new LinkedHashMap<>();for(int i=0;i<kv.length;i+=2)m.put((String)kv[i],kv[i+1]);return m;}
@@ -50,6 +50,7 @@ public class ClassroomServer {
 
     static class Store {
         final Path file;Map<String,Object> data;
+        boolean signupConfigured=true;
         final Map<String,Map<String,Object>> sessions=new HashMap<>();
         final Map<String,Map<String,Object>> members=new LinkedHashMap<>();
         final Map<String,Map<String,Object>> shares=new HashMap<>();
@@ -68,7 +69,8 @@ public class ClassroomServer {
         synchronized Auth auth(String action,Map<String,Object> a,String token,String ip,boolean signup)throws IOException{
             sessions.values().removeIf(s->num(s.get("expires"))<now());
             if(action.equals("logout")){sessions.remove(digest(token));return new Auth(obj(),"");}
-            if(action.equals("session")){try{return new Auth(obj("session",obj("user",publicUser(user(token)))),null);}catch(UserError e){return new Auth(obj("session",null),"");}}
+            boolean signupAllowed=signup&&!yes(data.get("signup_paused"));
+            if(action.equals("session")){try{return new Auth(obj("session",obj("user",publicUser(user(token))),"signup_allowed",signupAllowed),null);}catch(UserError e){return new Auth(obj("session",null,"signup_allowed",signupAllowed),"");}}
             if(!Set.of("login","signup").contains(action))throw new UserError("지원하지 않는 요청입니다.");
             String raw=str(a.get("login")).strip().toLowerCase(Locale.ROOT);if(raw.length()>100)raw=raw.substring(0,100);
             if(limited(action+":ip:"+ip,action.equals("signup")?5:60,300000)){save();return new Auth(obj("error","시도가 너무 많습니다. 5분 후 다시 시도하세요."),null);}
@@ -78,7 +80,7 @@ public class ClassroomServer {
                 String id=login(raw),pw=text(a.get("password"),8,128,"비밀번호",false);
                 Map<String,Object> u=find("users","login",id);
                 if(action.equals("signup")){
-                    if(!signup)throw new UserError("현재 회원가입이 닫혀 있습니다. 관리자에게 문의하세요.");
+                    if(!signupAllowed)throw new UserError("현재 회원가입이 닫혀 있습니다. 관리자에게 문의하세요.");
                     if(u!=null)throw new UserError("이미 사용 중인 아이디입니다.");
                     if(list("users").size()>=500)throw new UserError("회원 한도입니다. 관리자에게 문의하세요.");
                     u=obj("id",uid(),"login",id,"nickname",nickname(a.get("nickname")),"password",hash(pw),"admin",false,"suspended",false,"created",now(),"last_login",null);list("users").add(u);
@@ -88,6 +90,27 @@ public class ClassroomServer {
                 String idValue=str(u.get("id"));List<String> old=sessions.entrySet().stream().filter(e->Objects.equals(e.getValue().get("user"),idValue)).sorted(Comparator.comparingLong(e->num(e.getValue().get("expires")))).map(Map.Entry::getKey).toList();for(int i=0;i<old.size()-9;i++)sessions.remove(old.get(i));
                 String newToken=random(32);sessions.put(digest(newToken),obj("user",idValue,"expires",now()+7*86400000L));Map<String,Object> pu=publicUser(u);return new Auth(obj("user",pu,"session",obj("user",pu)),newToken);
             }catch(UserError e){save();return new Auth(obj("error",e.getMessage()),null);}
+        }
+        Map<String,Object> signupPolicy(String actor,Map<String,Object> args)throws IOException {
+            boolean paused=yes(data.get("signup_paused"));
+            if(args.containsKey("p_paused")){
+                if(!(args.get("p_paused") instanceof Boolean))throw new UserError("가입 상태를 확인하세요.");
+                if(!signupConfigured)throw new UserError("서버 설정에서 신규 회원가입이 닫혀 있습니다.");
+                boolean next=yes(args.get("p_paused"));
+                if(paused!=next){
+                    Object previous=data.put("signup_paused",next);
+                    List<Map<String,Object>> auditBefore=new ArrayList<>(list("audit"));
+                    audit(actor,next?"signup-pause":"signup-resume",null,null);
+                    try{save();}
+                    catch(IOException error){
+                        if(previous==null)data.remove("signup_paused");else data.put("signup_paused",previous);
+                        data.put("audit",auditBefore);
+                        throw error;
+                    }
+                    paused=next;
+                }
+            }
+            return obj("configured",signupConfigured,"paused",paused);
         }
         void requireAdmin(Map<String,Object> u){if(!yes(u.get("admin")))throw new UserError("관리자만 사용할 수 있습니다.");}
         String callEpoch(Map<String,Object> first, Map<String,Object> second) {
@@ -144,6 +167,7 @@ public class ClassroomServer {
             }
             if(name.startsWith("live_admin_")){
                 requireAdmin(u);if(!ADMIN_OPS.contains(name))throw new UserError("지원하지 않는 요청입니다.");
+                if(name.equals("live_admin_signup_policy"))return signupPolicy(userId,a);
                 String rid=str(a.get("p_room")),target=str(a.get("p_user"));
                 if(name.equals("live_admin_list_users")){
                     int off=(int)Math.max(0,Math.min(num(a.get("p_offset")),10000));String term=str(a.get("p_search")).strip().toLowerCase(Locale.ROOT);if(term.length()>100)term=term.substring(0,100);final String query=term;
@@ -253,7 +277,7 @@ public class ClassroomServer {
     static class Service implements AutoCloseable {
         HttpsServer server;ExecutorService pool;Map<String,Object> cfg;Store store;Path dir;List<Network> nets=new ArrayList<>();int port;final byte[] startupScript;
         Service(Map<String,Object> cfg,Store store,Path dir,int port)throws Exception{
-            this.cfg=cfg;this.store=store;this.dir=dir;for(Object n:(List<?>)cfg.get("allowed_cidrs"))nets.add(new Network(str(n)));
+            this.cfg=cfg;this.store=store;this.dir=dir;store.signupConfigured=yes(cfg.get("signup_enabled"));for(Object n:(List<?>)cfg.get("allowed_cidrs"))nets.add(new Network(str(n)));
             startupScript=loadStartupScript();
             server=HttpsServer.create(new InetSocketAddress("0.0.0.0",port),32);this.port=server.getAddress().getPort();SSLContext ssl=tls(dir);
             server.setHttpsConfigurator(new HttpsConfigurator(ssl){public void configure(HttpsParameters p){SSLParameters params=getSSLContext().getDefaultSSLParameters();params.setProtocols(new String[]{"TLSv1.3","TLSv1.2"});p.setSSLParameters(params);}});
