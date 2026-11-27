@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#143d3c">
+  <meta name="theme-color" content="#16234a">
   <meta name="description" content="Java HTTPS 서버와 WebRTC로 만든 교실 내부망 화면 공유·코드 채팅 프로젝트. 실제 화면, 예시 체험, 기술 설계와 검증 결과를 소개합니다.">
-  <meta name="portfolio-version" content="2026-11-27-audit1">
+  <meta name="portfolio-version" content="2026-11-27-blue1">
   <meta property="og:title" content="Classroom Live · 같은 화면에서, 함께 이해하는 수업">
   <meta property="og:description" content="Java 서버 한 대와 브라우저로 연결하는 교실. 화면 공유·코드 채팅 프로젝트 포트폴리오">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://breadhun0814.github.io/classroom-live-java/docs/assets/classroom.png">
-  <link rel="icon" type="image/svg+xml" href="./portfolio-icon.svg">
-  <link rel="stylesheet" href="./portfolio.css?v=20261127-audit1">
+  <link rel="icon" type="image/svg+xml" href="./portfolio-icon.svg?v=20261127-blue1">
+  <link rel="stylesheet" href="./portfolio.css?v=20261127-blue1">
   <link rel="canonical" href="https://breadhun0814.github.io/classroom-live-java/">
-  <script defer src="./portfolio.js?v=20261127-audit1"></script>
+  <script defer src="./portfolio.js?v=20261127-blue1"></script>
   <title>Classroom Live · 교실 화면 공유 프로젝트</title>
 </head>
 <body>
@@ -103,7 +103,7 @@
             <div class="demo-stage">
               <div class="demo-stage-top"><span id="demo-room-label">Java 수업 · 코드 함께 읽기</span><span>로컬 예시</span></div>
               <div id="pane-room" class="demo-pane" role="tabpanel" aria-labelledby="tab-room" data-demo-pane="0" tabindex="0">
-                <svg aria-hidden="true" style="color:#8ad2bd;width:30px;height:30px;margin-bottom:18px"><use href="#i-lock"/></svg>
+                <svg aria-hidden="true" style="color:#a8bcff;width:30px;height:30px;margin-bottom:18px"><use href="#i-lock"/></svg>
                 <h3>우리 교실의 수업 공간</h3><p>예시 코드 <strong>20261127ABCD</strong> · 비밀번호 <strong>demo123</strong></p>
                 <form id="demo-room-form" class="demo-room-form"><div class="room-inputs"><label>예시 초대 코드<input id="demo-room-code" type="text" maxlength="12" required autocomplete="off" placeholder="20261127ABCD"></label><label>예시 비밀번호<input id="demo-room-password" type="text" maxlength="30" required autocomplete="off" placeholder="demo123"></label></div><div class="demo-controls"><button id="fill-room-example" type="button">예시 값 채우기</button><button type="submit">입장 확인</button><button id="room-next" type="button" hidden>코드 채팅 살펴보기</button></div></form><p id="room-result" class="demo-notice" role="status">예시 값으로 입장을 확인해 보세요.</p>
               </div>
@@ -115,7 +115,7 @@
                 <div class="demo-controls"><button id="copy-code" type="button">예시 코드 복사</button></div>
               </div>
               <div id="pane-share" class="demo-pane" role="tabpanel" aria-labelledby="tab-share" data-demo-pane="2" tabindex="0" hidden>
-                <svg aria-hidden="true" style="color:#8ad2bd;width:30px;height:30px;margin-bottom:18px"><use href="#i-screen"/></svg><h3>내용에 맞춘 공유 설정</h3><p>글자를 선명하게 보거나, 움직임을 우선하도록<br>설정하는 프리셋을 제공합니다.</p>
+                <svg aria-hidden="true" style="color:#a8bcff;width:30px;height:30px;margin-bottom:18px"><use href="#i-screen"/></svg><h3>내용에 맞춘 공유 설정</h3><p>글자를 선명하게 보거나, 움직임을 우선하도록<br>설정하는 프리셋을 제공합니다.</p>
                 <div class="demo-controls"><button type="button" data-preset="text" aria-pressed="true">수업 글씨 선명하게</button><button type="button" data-preset="motion" aria-pressed="false">영상 부드럽게</button></div>
                 <p id="preset-description" class="demo-notice" role="status">글자 프리셋 예시: 원본 해상도 · 30fps · 해상도 유지 우선</p><p class="demo-notice">설정 예시입니다. 이 체험에서는 화면을 캡처하지 않습니다.</p>
               </div>
