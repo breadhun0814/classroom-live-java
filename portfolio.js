@@ -23,7 +23,7 @@
   dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
   const steps = [
     {title:'비밀번호 방',description:'이름이나 초대 코드와 비밀번호로 수업 공간에 입장합니다. 실제 서비스는 방마다 공유자를 포함해 최대 8개 접속을 허용합니다.'},
-    {title:'코드 채팅',description:'코드의 줄바꿈을 유지해 보내고 대화를 검색·복사·저장할 수 있습니다. 오른쪽에서 예시 메시지를 직접 입력해 보세요.'},
+    {title:'코드 채팅',description:'코드의 줄바꿈을 유지해 보내고 대화를 검색·복사·저장할 수 있습니다. 대화창에 예시 메시지를 직접 입력해 보세요.'},
     {title:'화면 공유',description:'실제 앱은 브라우저 화면을 WebRTC로 직접 전달합니다. 아래 프리셋은 설정의 차이를 설명하는 예시이며 화면을 캡처하지 않습니다.'},
     {title:'관리자 운영',description:'관리자는 회원의 이용 정지·복구, 방 참여자 퇴장과 방 삭제를 할 수 있습니다. 예시 버튼은 이 페이지의 표시 상태만 바꿉니다.'}
   ];
