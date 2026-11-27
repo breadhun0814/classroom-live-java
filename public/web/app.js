@@ -636,6 +636,7 @@
     $('diagnostics-text').value = '';
     endCall();
     if ($('invite-dialog').open) $('invite-dialog').close();
+    if ($('shortcuts-dialog').open) $('shortcuts-dialog').close();
     if ($('chat-export-dialog').open) $('chat-export-dialog').close();
     if ($('chat-search-dialog').open) $('chat-search-dialog').close();
     if ($('message-copy-dialog').open) $('message-copy-dialog').close();
@@ -646,6 +647,7 @@
     state.handRaised = false;
     renderHandButton();
     ui('hands-status', '');
+    $('call-presence-status').textContent='';
     saveDraft(); cachedMessages.clear(); chatUnread=0; tabUnread=0; updateUnread();
     clearTimeout(state.timer); state.timer = null; state.generation++; state.polling = false; state.shareBusy = false;
     stopTracks(); for (const id of [...state.peers.keys()]) closePeer(id); state.pending.clear();
@@ -791,12 +793,15 @@
     ui('member-count',`(${data.members.length}/8)`); $('members').replaceChildren();
     const present = new Set(data.members.map(m => m.client_id));
     for (const id of [...state.peers.keys()]) if (!present.has(id)) closePeer(id);
+    const callCount=data.members.filter(member=>member.call_id).length;
+    const callPresence=callCount ? tr('통화 참여 중') + ' · ' + callCount : '';
+    if ($('call-presence-status').textContent!==callPresence) $('call-presence-status').textContent=callPresence;
     const raised = data.members.filter(m => m.hand_raised);
     const handStatus = raised.length ? tr('손을 든 참여자') + ' · ' + raised.map(m => m.name).join(', ') : '';
     if ($('hands-status').textContent !== handStatus) $('hands-status').textContent = handStatus;
     for (const m of data.members) {
-      const el = document.createElement('span'); el.className = 'member' + (m.client_id === state.publisher ? ' sharing' : '') + (m.hand_raised ? ' hand' : '');
-      el.textContent = m.name + (m.client_id === state.client ? tr(' (나)') : '') + (m.client_id === state.publisher ? tr(' · 공유 중') : '') + (m.hand_raised ? tr(' · 손듦') : ''); $('members').append(el);
+      const el = document.createElement('span'); el.className = 'member' + (m.client_id === state.publisher ? ' sharing' : '') + (m.hand_raised ? ' hand' : '') + (m.call_id ? ' in-call' : '');
+      el.textContent = m.name + (m.client_id === state.client ? tr(' (나)') : '') + (m.client_id === state.publisher ? tr(' · 공유 중') : '') + (m.hand_raised ? tr(' · 손듦') : '') + (m.call_id ? ' · ' + tr('통화 참여 중') : '') + (m.user_id===data.room.owner_id ? ' · ' + tr('방장') : ''); $('members').append(el);
     }
     renderMessages(data.messages); refreshControls();
     await applyCall(data, pollCallId);
@@ -1668,7 +1673,7 @@
     }
   });
   bind('shortcuts','click',async()=>{$('shortcuts-dialog').showModal();});bind('close-shortcuts','click',async()=>{$('shortcuts-dialog').close();});
-  document.addEventListener('keydown',event=>{if(!state.room||$('room').hidden)return;if(event.ctrlKey&&event.key.toLowerCase()==='k'){event.preventDefault();$('chat-search').focus();}else if(event.altKey&&event.key.toLowerCase()==='m'){event.preventDefault();$('chat-text').focus();}else if(event.key==='Escape'&&document.activeElement===$('chat-search')){$('chat-search').value='';filterChat();}});
+  document.addEventListener('keydown',event=>{if(!state.room||$('room').hidden||document.querySelector('dialog[open]'))return;if(event.ctrlKey&&event.key.toLowerCase()==='k'){event.preventDefault();$('chat-search').focus();}else if(event.altKey&&event.key.toLowerCase()==='m'){event.preventDefault();$('chat-text').focus();}else if(event.key==='Escape'&&document.activeElement===$('chat-search')){$('chat-search').value='';filterChat();}});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){tabUnread=0;updateTabTitle();}});
   $('room-code').addEventListener('paste',event=>{if($('join-method').value!=='code')return;const text=event.clipboardData?.getData('text')||'';try{const code=new URL(text.trim()).searchParams.get('room');if(/^[A-Fa-f0-9]{12}$/.test(code||'')){event.preventDefault();$('room-code').value=code.toUpperCase();clearJoinError();$('join-invite').hidden=false;$('join-password').focus();}}catch{}});
   const chatSendMode = $('chat-send-mode');

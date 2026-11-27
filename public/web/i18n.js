@@ -1,6 +1,9 @@
 (() => {
   'use strict';
   const words = {
+    "대화 설정":"Chat settings",
+    "방장":"Room owner",
+    "통화 참여 중":"In call",
     "새 입장 잠김":"New entries locked",
     "새 입장 잠그기":"Lock new entries",
     "새 입장 잠금 풀기":"Unlock new entries",

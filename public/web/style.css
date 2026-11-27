@@ -87,3 +87,11 @@
 #room-lock[aria-pressed=true] { border-color:#e9b968; }
 
 #chat-send-mode { width:auto; max-width:100%; min-width:10rem; }
+
+#call-presence-status { margin:.45rem 0; }
+#call-presence-status:empty { margin:0; }
+.member.in-call { background:#244257; }
+
+.chat-shortcut-details { margin:.65rem 0; }
+.chat-shortcut-details summary { cursor:pointer; }
+.chat-shortcut-details p { margin:.45rem 0 0; }
