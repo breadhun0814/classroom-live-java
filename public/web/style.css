@@ -80,3 +80,5 @@
 #admin-audit>.actions,#audit-entries { margin-top:.65rem; }
 .audit-entry { display:flex; flex-wrap:wrap; gap:.4rem .85rem; padding:.6rem 0; border-bottom:1px solid var(--line); }
 .audit-entry time { color:var(--muted); }
+
+.call-device-memory { margin:.8rem 0 0; min-height:2.2rem; }

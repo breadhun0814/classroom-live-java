@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const words = {
+    "이 브라우저에 기기 선택 기억":"Remember devices in this browser",
     "관리자 조작 기록":"Administrator activity",
     "기록 새로고침":"Refresh activity",
     "신규 가입 닫기":"Closed new registrations",

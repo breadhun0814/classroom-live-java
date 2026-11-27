@@ -257,6 +257,32 @@
     void poll(state.generation);
   }
   const deviceKinds = { video: 'videoinput', audio: 'audioinput' };
+  const rememberDevices = $('remember-call-devices');
+  const deviceMemoryKey = 'classroom-remember-call-device';
+  try { rememberDevices.checked=localStorage.getItem(deviceMemoryKey)==='yes'; } catch {}
+  function rememberedDevice(kind) {
+    if (!rememberDevices.checked) return '';
+    try { return (localStorage.getItem(deviceMemoryKey+':'+kind)||'').slice(0,512); } catch { return ''; }
+  }
+  function saveDevice(kind,value) {
+    if (!rememberDevices.checked) return;
+    try {
+      if (value) localStorage.setItem(deviceMemoryKey+':'+kind,value);
+      else localStorage.removeItem(deviceMemoryKey+':'+kind);
+    } catch {}
+  }
+  rememberDevices.addEventListener('change', () => {
+    try {
+      if(rememberDevices.checked)localStorage.setItem(deviceMemoryKey,'yes');
+      else {
+        localStorage.removeItem(deviceMemoryKey);
+        for (const kind of Object.keys(deviceKinds)) localStorage.removeItem(deviceMemoryKey+':'+kind);
+      }
+    } catch {}
+    if (rememberDevices.checked) {
+      for (const kind of Object.keys(deviceKinds)) saveDevice(kind,$('call-'+kind+'-device').value);
+    }
+  });
   function callTrack(kind) {
     return call.stream?.getTracks().find(track => track.kind === kind && track.readyState === 'live');
   }
@@ -266,7 +292,7 @@
     if (!devices || call.stream !== stream || !$('call-setup').open) return;
     for (const [kind, deviceKind] of Object.entries(deviceKinds)) {
       const select = $('call-' + kind + '-device');
-      const current = callTrack(kind)?.getSettings().deviceId || select.value;
+      const current = callTrack(kind)?.getSettings().deviceId || select.value || rememberedDevice(kind);
       const options = devices.filter(device => device.kind === deviceKind && device.deviceId);
       select.replaceChildren(new Option(tr('기본 기기'), ''), ...options.map((device, index) =>
         new Option(device.label || tr(kind === 'video' ? '카메라' : '마이크') + ' ' + (index + 1), device.deviceId)));
@@ -417,7 +443,7 @@
     ui('call-confirm', call.id ? '완료' : camera || callTrack('audio') ? '통화 참여' : '듣기만 참여');
     updateMicCheck();
   }
-  async function changeCallTrack(kind, enable) {
+  async function changeCallTrack(kind, enable, useRemembered=true) {
     const stream = call.stream;
     if (!stream || call.changing.has(kind)) return;
     if (enable && !navigator.mediaDevices?.getUserMedia) {
@@ -437,6 +463,7 @@
           ? { width: { ideal: 320 }, height: { ideal: 240 }, frameRate: { ideal: 15, max: 15 } }
           : { echoCancellation: true, noiseSuppression: true };
         if (select.value) constraints.deviceId = { exact: select.value };
+        else if (useRemembered && rememberedDevice(kind)) constraints.deviceId = { ideal: rememberedDevice(kind) };
         const media = await navigator.mediaDevices.getUserMedia({ [kind]: constraints });
         [next] = media.getTracks();
         if (call.stream !== stream) { media.getTracks().forEach(track => track.stop()); return; }
@@ -465,6 +492,7 @@
       updateCallControls();
       if (call.id) { updateCallStatus(); pollCallNow(); }
       if (next) await refreshCallDevices(stream);
+      return call.stream === stream;
     } catch (error) {
       if (call.stream !== stream) return;
       if (previous) select.value = previous.getSettings().deviceId || '';
@@ -1679,8 +1707,9 @@
     for (const button of [id, 'call-preview-' + kind]) {
       bind(button, 'click', () => changeCallTrack(kind, !callTrack(kind)));
     }
-    bind('call-' + kind + '-device', 'change', () => {
-      if (callTrack(kind)) return changeCallTrack(kind, true);
+    bind('call-' + kind + '-device', 'change', async () => {
+      const selection = $('call-'+kind+'-device').value;
+      if (!callTrack(kind) || await changeCallTrack(kind,true,false)) saveDevice(kind,selection);
     });
   }
   bind('call-play', 'click', async () => {
