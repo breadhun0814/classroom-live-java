@@ -41,7 +41,7 @@
     $('preset-description').textContent=button.dataset.preset==='text'?'글자 프리셋 예시: 원본 해상도 · 30fps · 해상도 유지 우선':'움직임 프리셋 예시: 1080p · 60fps · H.264 우선';
   }
   document.querySelectorAll('[data-preset]').forEach(button=>button.addEventListener('click',()=>setPreset(button)));
-  const demoCall = { joined: false, camera: false, mic: false, sharing: true };
+  const demoCall = { joined: false, camera: false, mic: false, sharing: true, floating: false };
   function renderDemoCall() {
     for (const [kind, label] of [['camera', '카메라'], ['mic', '마이크']]) {
       const button = $('demo-call-' + kind);
@@ -49,6 +49,11 @@
       button.textContent = label + (demoCall[kind] ? ' 끄기' : ' 켜기');
     }
     $('demo-call-shared-code').hidden = !demoCall.sharing;
+    $('demo-call-float').disabled = !demoCall.sharing;
+    $('demo-call-float').setAttribute('aria-pressed', String(demoCall.floating));
+    $('demo-call-float').textContent = demoCall.floating ? '작은 창 예시 닫기' : '작은 창 예시';
+    $('demo-call-float-status').hidden = !demoCall.floating;
+    $('demo-call-shared-code').parentElement.classList.toggle('demo-call-screen-small', demoCall.floating);
     $('demo-call-share').setAttribute('aria-pressed', String(demoCall.sharing));
     $('demo-call-share').textContent = demoCall.sharing ? '예시 화면 공유 중지' : '예시 화면 공유 시작';
     $('demo-call-share-status').textContent = demoCall.sharing ? '발표자 화면 공유 중' : '예시 화면 공유 중지됨';
@@ -69,10 +74,15 @@
   }
   $('demo-call-share').addEventListener('click', () => {
     demoCall.sharing = !demoCall.sharing;
+    if (!demoCall.sharing) demoCall.floating = false;
+    renderDemoCall();
+  });
+  $('demo-call-float').addEventListener('click', () => {
+    demoCall.floating = !demoCall.floating;
     renderDemoCall();
   });
   function resetDemoCall() {
-    Object.assign(demoCall, { joined: false, camera: false, mic: false, sharing: true });
+    Object.assign(demoCall, { joined: false, camera: false, mic: false, sharing: true, floating: false });
     renderDemoCall();
   }
   $('demo-call-join').addEventListener('click', () => {
@@ -81,11 +91,30 @@
     $('demo-call-leave').focus();
   });
   $('demo-call-leave').addEventListener('click', () => { Object.assign(demoCall, { joined: false, camera: false, mic: false }); renderDemoCall(); $('demo-call-join').focus(); });
+  const demoRooms = [...document.querySelectorAll('[data-demo-room]')];
+  function renderDemoRooms() {
+    const search = $('demo-room-search').value.trim();
+    const owned = $('demo-own-rooms').checked;
+    for (const room of demoRooms) {
+      room.hidden = !room.textContent.includes(search) || (owned && !room.dataset.owned);
+    }
+    const visible = demoRooms.filter(room => !room.hidden).length;
+    $('demo-room-count').textContent = visible ? '예시 방 ' + visible + '개' : '조건에 맞는 예시 방이 없습니다.';
+  }
+  $('demo-room-search').addEventListener('input', renderDemoRooms);
+  $('demo-own-rooms').addEventListener('change', renderDemoRooms);
+  demoRooms.forEach(room => room.addEventListener('click', () => {
+    $('demo-room-code').value = room.dataset.demoRoom;
+    $('demo-room-password').value = '';
+    clearRoomResult();
+    $('room-result').textContent = '「' + room.textContent + '」 방을 선택했습니다. 예시 비밀번호로 입장을 확인해 보세요.';
+    $('demo-room-password').focus();
+  }));
   const roomForm=$('demo-room-form');
   function clearRoomResult(){['demo-room-code','demo-room-password'].forEach(id=>$(id).removeAttribute('aria-invalid'));$('room-result').textContent='예시 값으로 입장을 확인해 보세요.';$('room-next').hidden=true;}
   $('fill-room-example').addEventListener('click',()=>{$('demo-room-code').value='20261127ABCD';$('demo-room-password').value='demo123';clearRoomResult();});
   roomForm.addEventListener('input',clearRoomResult);
-  roomForm.addEventListener('submit',event=>{event.preventDefault();const codeOk=$('demo-room-code').value.trim().toUpperCase()==='20261127ABCD',passwordOk=$('demo-room-password').value==='demo123';$('demo-room-code').setAttribute('aria-invalid',String(!codeOk));$('demo-room-password').setAttribute('aria-invalid',String(!passwordOk));$('room-result').textContent=codeOk&&passwordOk?'예시 방 입장을 확인했습니다. 코드 채팅도 살펴보세요.':'위의 예시 코드와 비밀번호를 확인해 주세요. 실제 계정 정보는 입력하지 마세요.';$('room-next').hidden=!(codeOk&&passwordOk);});
+  roomForm.addEventListener('submit',event=>{event.preventDefault();const code=$('demo-room-code').value.trim().toUpperCase(),codeOk=demoRooms.some(room=>room.dataset.demoRoom===code),passwordOk=$('demo-room-password').value==='demo123';$('demo-room-code').setAttribute('aria-invalid',String(!codeOk));$('demo-room-password').setAttribute('aria-invalid',String(!passwordOk));$('room-result').textContent=codeOk&&passwordOk?'예시 방 입장을 확인했습니다. 코드 채팅도 살펴보세요.':'선택한 예시 방의 코드와 비밀번호를 확인해 주세요. 실제 계정 정보는 입력하지 마세요.';$('room-next').hidden=!(codeOk&&passwordOk);});
   $('room-next').addEventListener('click',()=>activateStep(1,true));
   const messages=$('demo-messages');let composing=false;
   $('demo-message').addEventListener('compositionstart',()=>{composing=true;});
@@ -98,7 +127,7 @@
     while(messages.children.length>25)messages.firstElementChild.remove();
     input.value='';messages.scrollTop=messages.scrollHeight;input.focus();
   });
-  $('reset-demo').addEventListener('click',()=>{messages.replaceChildren(...initialMessages.map(message=>message.cloneNode(true)));messages.scrollTop=0;$('demo-message').value='';composing=false;resetDemoCall();roomForm.reset();clearRoomResult();setPreset(document.querySelector('[data-preset=text]'));document.querySelectorAll('[data-suspend]').forEach(b=>{b.setAttribute('aria-pressed','false');b.textContent='이용 정지';});$('copy-code').textContent='예시 코드 복사';activateStep(0);$('demo-tabs').querySelector('[data-step]').focus();announce('체험을 처음 상태로 되돌렸습니다.');});
+  $('reset-demo').addEventListener('click',()=>{messages.replaceChildren(...initialMessages.map(message=>message.cloneNode(true)));messages.scrollTop=0;$('demo-message').value='';composing=false;resetDemoCall();roomForm.reset();$('demo-room-search').value='';$('demo-own-rooms').checked=false;renderDemoRooms();clearRoomResult();setPreset(document.querySelector('[data-preset=text]'));document.querySelectorAll('[data-suspend]').forEach(b=>{b.setAttribute('aria-pressed','false');b.textContent='이용 정지';});$('copy-code').textContent='예시 코드 복사';activateStep(0);$('demo-tabs').querySelector('[data-step]').focus();announce('체험을 처음 상태로 되돌렸습니다.');});
   document.querySelectorAll('[data-suspend]').forEach(button=>button.addEventListener('click',()=>{const paused=button.getAttribute('aria-pressed')!=='true';button.setAttribute('aria-pressed',String(paused));button.textContent=paused?'복구하기':'이용 정지';announce(paused?'예시 회원을 이용 정지 상태로 표시했습니다.':'예시 회원을 복구했습니다.');}));
   const routes={api:'계정·방·채팅과 SDP·ICE 연결 정보는 Java HTTPS 서버를 거칩니다. 브라우저는 응답 처리 후 약 1.8초마다 새 상태를 조회합니다.',video:'공유 화면은 발표자에서 시청자로, 통화 영상과 음성은 참여자 사이로 각각 직접 전달합니다. 외부 STUN/TURN은 사용하지 않으며, 참여자 PC 사이의 직접 통신이 필요합니다.'};
   document.querySelectorAll('[data-route-button]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-route-button]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));$('route-description').textContent=routes[button.dataset.routeButton];$('architecture-visual').dataset.route=button.dataset.routeButton;$('path-label').textContent=button.dataset.routeButton==='api'?'HTTPS API · 계정 / 채팅 / 연결 정보':'WebRTC P2P · 화면 공유 및 참여자 간 통화';}));

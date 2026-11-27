@@ -81,3 +81,9 @@ body { font-family: Inter, 'Segoe UI', 'Malgun Gothic', sans-serif; }
   .media-pipeline ol,.tech-choices dl>div { grid-template-columns:1fr; }
   .tech-choices dl>div { gap:.25rem; }
 }
+
+.demo-room-directory { margin-block:1rem; padding:.85rem; border:1px solid #40587c; border-radius:.6rem; }
+.demo-room-directory label { display:block; font-size:.875rem; color:#c7d9ee; }
+.demo-room-directory input[type=search] { width:100%; color:inherit; background:#101d2b; border:1px solid #617795; border-radius:.45rem; padding:.45rem .65rem; margin:.25rem 0; }
+.demo-room-directory .demo-controls { margin-top:.55rem; }
+.demo-call-screen-small { align-self:start; width:min(100%,15rem); box-shadow:0 .45rem 1.25rem #0007; }
