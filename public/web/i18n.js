@@ -1,6 +1,14 @@
 (() => {
   'use strict';
   const words = {
+    "관리자 조작 기록":"Administrator activity",
+    "기록 새로고침":"Refresh activity",
+    "신규 가입 닫기":"Closed new registrations",
+    "신규 가입 다시 열기":"Reopened new registrations",
+    "방에서 퇴장":"Removed from room",
+    "관리자가 방 삭제":"Administrator deleted a room",
+    "관리자 작업":"Administrator action",
+    "표시할 관리자 기록이 없습니다.":"There is no administrator activity to show.",
     "메시지 직접 복사":"Copy message manually",
     "복사할 메시지":"Message to copy",
     "브라우저가 자동 복사를 허용하지 않았습니다. 선택된 내용을 Ctrl+C 또는 복사 메뉴로 복사하세요.":"Your browser blocked automatic copying. Copy the selected text with Ctrl+C or the browser menu.",

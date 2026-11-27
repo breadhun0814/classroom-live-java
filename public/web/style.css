@@ -75,3 +75,8 @@
 #chat-search-results { display:grid; gap:.5rem; margin-bottom:.6rem; }
 .chat-search-result { padding:.65rem; border:1px solid var(--line); border-radius:.5rem; }
 .chat-search-result pre { margin:.35rem 0; white-space:pre-wrap; overflow-wrap:anywhere; }
+
+#admin-audit summary { cursor:pointer; font-weight:700; }
+#admin-audit>.actions,#audit-entries { margin-top:.65rem; }
+.audit-entry { display:flex; flex-wrap:wrap; gap:.4rem .85rem; padding:.6rem 0; border-bottom:1px solid var(--line); }
+.audit-entry time { color:var(--muted); }

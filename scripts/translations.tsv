@@ -351,3 +351,11 @@ Changed to the low bandwidth preset without stopping screen sharing.|共有を�
 Copy message manually|メッセージを手動でコピー|手动复制消息|Sao chép tin nhắn thủ công
 Message to copy|コピーするメッセージ|要复制的消息|Tin nhắn để sao chép
 Your browser blocked automatic copying. Copy the selected text with Ctrl+C or the browser menu.|自動コピーがブロックされました。選択したテキストをCtrl+Cまたはブラウザーのメニューでコピーしてください。|浏览器阻止了自动复制。请按 Ctrl+C 或使用浏览器菜单复制选中文字。|Trình duyệt đã chặn sao chép tự động. Nhấn Ctrl+C hoặc dùng menu trình duyệt để sao chép phần đã chọn.
+Administrator activity|管理者の操作履歴|管理员操作记录|Nhật ký quản trị viên
+Refresh activity|履歴を更新|刷新操作记录|Tải lại nhật ký
+Closed new registrations|新規登録を停止|关闭新用户注册|Đã đóng đăng ký mới
+Reopened new registrations|新規登録を再開|重新开放新用户注册|Đã mở lại đăng ký mới
+Removed from room|部屋から退出させた|从房间移出|Đã mời ra khỏi phòng
+Administrator deleted a room|管理者が部屋を削除|管理员删除了房间|Quản trị viên đã xóa phòng
+Administrator action|管理者の操作|管理员操作|Thao tác quản trị
+There is no administrator activity to show.|表示できる管理者操作はありません。|暂无管理员操作记录。|Không có thao tác quản trị để hiển thị.

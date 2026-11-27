@@ -150,7 +150,8 @@
       clearTimeout(directoryTimer);
       $('room-search').value = ''; $('rooms-own').checked = false;
       directoryRequest++;adminRequest++;adminRoomsRequest++;adminMembersRequest++;
-      for(const id of ['room-list','admin-users','admin-rooms','admin-room-members'])$(id).replaceChildren();
+      auditRequest++; $('admin-audit').open=false; $('audit-page').textContent='';
+      for(const id of ['room-list','admin-users','admin-rooms','admin-room-members','audit-entries'])$(id).replaceChildren();
       try{for(const key of Object.keys(sessionStorage))if(previousUserId&&key.startsWith(`classroom-draft:${previousUserId}:`))sessionStorage.removeItem(key);}catch{}
       cleanup(); screen('auth'); $('auth-invite').hidden = !inviteCode(); return;
     }
@@ -1104,6 +1105,7 @@
     await loadRooms();
   }
   let adminOffset = 0; let adminRoomOffset = 0; let adminRequest = 0; let adminRoomsRequest = 0; let adminMembersRequest=0;
+  let auditRequest=0; let auditOffset=0;
   function dateLabel(value) { return value ? new Date(value).toLocaleString(window.CL_I18N?.language() || 'ko') : '—'; }
   function actionButton(text, handler, danger = false) {
     const button = document.createElement('button'); setUiElement(button,text); if (danger) button.className = 'danger';
@@ -1189,9 +1191,9 @@
     if (!signupPolicy?.configured || !state.isAdmin) return;
     const user = state.user;
     const policy=await rpc('live_admin_signup_policy',{p_paused:!signupPolicy.paused});
-    if (state.user===user && state.isAdmin) showSignupPolicy(policy);
+    if (state.user===user && state.isAdmin) { showSignupPolicy(policy); await loadAudit(); }
   });
-  async function loadAdmin() { await Promise.all([loadAdminUsers(),loadAdminRooms(),loadAdminSignupPolicy()]); }
+  async function loadAdmin() { await Promise.all([loadAdminUsers(),loadAdminRooms(),loadAdminSignupPolicy(),loadAudit()]); }
   function renderAuthMode() {
     if (!state.signupAllowed) state.signup=false;
     $('signup-closed').hidden = state.signupAllowed || !!state.adminLogin;
@@ -1208,6 +1210,32 @@
   bind('admin-login-toggle','click',async () => { state.adminLogin=!state.adminLogin; state.signup=false; renderAuthMode(); notice(''); });
   bind('admin-button','click',async () => { if (state.room) await leave(); state.adminLogin=true; screen('admin'); await loadAdmin(); });
   bind('admin-back','click',async () => { state.adminLogin=false; screen('lobby'); await loadRooms(); });
+  async function loadAudit(offset=0) {
+    if (!state.isAdmin || !$('admin-audit').open) return;
+    const request=++auditRequest; const user=state.user;
+    const data=await rpc('live_admin_list_audit',{p_offset:offset});
+    if(request!==auditRequest || state.user!==user || !state.isAdmin || !$('admin-audit').open) return;
+    auditOffset=data.offset;
+    const list=$('audit-entries');list.replaceChildren();
+    const labels={'signup-pause':'신규 가입 닫기','signup-resume':'신규 가입 다시 열기',suspend:'이용 정지',
+      unsuspend:'이용 정지 해제',kick:'방에서 퇴장','delete-room':'관리자가 방 삭제'};
+    for(const entry of data.entries) {
+      const row=document.createElement('div');row.className='audit-entry';
+      const action=document.createElement('strong');setUiElement(action,labels[entry.action]||'관리자 작업');
+      const time=document.createElement('time');time.dateTime=entry.created_at;time.textContent=dateLabel(entry.created_at);
+      const names=document.createElement('span');
+      names.textContent=[entry.actor,entry.target,entry.room].filter(Boolean).join(' · ');
+      row.append(action,time,names);list.append(row);
+    }
+    if (!data.entries.length) { const empty=document.createElement('p');setUiElement(empty,'표시할 관리자 기록이 없습니다.');list.append(empty); }
+    ui('audit-page','전체 기록 '+data.total+' · '+(Math.floor(auditOffset/25)+1));
+    $('audit-prev').disabled=auditOffset===0;
+    $('audit-next').disabled=!data.has_more;
+  }
+  $('admin-audit').addEventListener('toggle',()=>{ if ($('admin-audit').open) loadAudit().catch(e=>notice(e.message,true)); });
+  bind('audit-refresh','click',()=>loadAudit());
+  $('audit-prev').addEventListener('click',()=>loadAudit(Math.max(0,auditOffset-25)).catch(e=>notice(e.message,true)));
+  $('audit-next').addEventListener('click',()=>loadAudit(auditOffset+25).catch(e=>notice(e.message,true)));
   bind('admin-search-form','submit',async () => loadAdminUsers());
   bind('admin-refresh-rooms','click',async () => loadAdminRooms());
   $('admin-prev').addEventListener('click',()=>loadAdminUsers(Math.max(0,adminOffset-50)).catch(e=>notice(e.message,true)));

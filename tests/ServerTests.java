@@ -69,6 +69,10 @@ public class ServerTests {
    check(Boolean.TRUE.equals(new ClassroomServer.Store(dir).data.get("signup_paused")),"signup pause survives restart");
    check(Boolean.FALSE.equals(map(rpc(db,at,"live_admin_signup_policy",m("p_paused",false))).get("paused")),"admin reopens signup");
    check(Boolean.FALSE.equals(db.auth("session",m(),"","policy",false).data().get("signup_allowed")),"server config overrides GUI");
+   failure(()->rpc(db,bt,"live_admin_list_audit",m()),"관리자만");
+   List<Map<String,Object>> activity=ClassroomServer.rows(map(rpc(db,at,"live_admin_list_audit",m())).get("entries"));
+   check(activity.get(0).get("action").equals("signup-resume")&&activity.get(1).get("action").equals("signup-pause"),"admin audit newest first");
+   check(activity.get(0).get("actor").equals("관리자")&&!activity.get(0).containsKey("password"),"audit returns display names, not login secrets");
    failure(()->rpc(db,bt,"live_close_room",m("p_room",room.get("room_id"))),"만든 사람");
    rpc(db,bt,"live_set_nickname",m("p_nickname","한글 English"));check(s(map(rpc(db,bt,"live_account_status",m())).get("nickname")).equals("한글 English"),"English nickname");
    String epoch=s(map(rpc(db,at,"live_share",add(ar,"p_start",true))).get("epoch"));failure(()->rpc(db,bt,"live_share",add(br,"p_start",true)),"다른 사람");

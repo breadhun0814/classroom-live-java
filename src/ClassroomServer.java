@@ -21,7 +21,7 @@ import java.util.zip.*;
 public class ClassroomServer {
     static final String COOKIE="__Host-classroom";
     static final SecureRandom RANDOM=new SecureRandom();
-    static final Set<String> ADMIN_OPS=Set.of("live_admin_list_users","live_admin_signup_policy","live_admin_set_suspension","live_admin_room_members","live_admin_kick","live_admin_delete_room");
+    static final Set<String> ADMIN_OPS=Set.of("live_admin_list_users","live_admin_list_audit","live_admin_signup_policy","live_admin_set_suspension","live_admin_room_members","live_admin_kick","live_admin_delete_room");
     static Path base=Path.of("").toAbsolutePath();
     static class UserError extends RuntimeException { UserError(String s){super(s);} }
     static Map<String,Object> obj(Object... kv){Map<String,Object> m=new LinkedHashMap<>();for(int i=0;i<kv.length;i+=2)m.put((String)kv[i],kv[i+1]);return m;}
@@ -112,6 +112,23 @@ public class ClassroomServer {
             }
             return obj("configured",signupConfigured,"paused",paused);
         }
+        Map<String,Object> auditPage(Map<String,Object> args){
+            List<Map<String,Object>> records=list("audit");
+            int requested=(int)Math.max(0,Math.min(num(args.get("p_offset")),5000));
+            int offset=Math.min(requested,Math.max(0,records.size()-1)/25*25);
+            List<Object> page=new ArrayList<>();
+            int first=records.size()-offset-1;
+            for(int i=first;i>=0&&i>first-25;i--){
+                Map<String,Object> record=records.get(i);
+                Map<String,Object> actor=find("users","id",record.get("actor"));
+                Map<String,Object> target=find("users","id",record.get("target_user"));
+                Map<String,Object> room=find("rooms","id",record.get("target_room"));
+                page.add(obj("action",record.get("action"),"created_at",iso(record.get("created")),
+                    "actor",actor==null?null:actor.get("nickname"),"target",target==null?null:target.get("nickname"),
+                    "room",room==null?null:room.get("title")));
+            }
+            return obj("entries",page,"total",records.size(),"offset",offset,"has_more",offset+25<records.size());
+        }
         void requireAdmin(Map<String,Object> u){if(!yes(u.get("admin")))throw new UserError("관리자만 사용할 수 있습니다.");}
         String callEpoch(Map<String,Object> first, Map<String,Object> second) {
             String a=str(first.get("call_id")), b=str(second.get("call_id"));
@@ -168,6 +185,7 @@ public class ClassroomServer {
             if(name.startsWith("live_admin_")){
                 requireAdmin(u);if(!ADMIN_OPS.contains(name))throw new UserError("지원하지 않는 요청입니다.");
                 if(name.equals("live_admin_signup_policy"))return signupPolicy(userId,a);
+                if(name.equals("live_admin_list_audit"))return auditPage(a);
                 String rid=str(a.get("p_room")),target=str(a.get("p_user"));
                 if(name.equals("live_admin_list_users")){
                     int off=(int)Math.max(0,Math.min(num(a.get("p_offset")),10000));String term=str(a.get("p_search")).strip().toLowerCase(Locale.ROOT);if(term.length()>100)term=term.substring(0,100);final String query=term;
