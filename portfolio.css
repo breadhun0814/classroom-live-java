@@ -42,3 +42,6 @@ body.dialog-open{overflow:hidden}.demo-room-form{margin-top:18px}.room-inputs{di
 .demo-call-avatar { grid-row: span 2; display: grid; place-items: center; width: 2rem; aspect-ratio: 1; background: #263a59; border-radius: 50%; font-weight: 700; }
 .demo-call-camera-on .demo-call-avatar, .demo-call-avatar-teacher { background: #385c9d; }
 @media (max-width: 620px) { .demo-call-stage { grid-template-columns: 1fr; } .demo-call-people { grid-template-columns: repeat(auto-fit, minmax(min(9rem, 100%), 1fr)); } }
+
+.media-guide-list { display: grid; gap: .9rem; padding-left: 1.5rem; margin: 1.5rem 0; }
+.media-guide-list li p { margin: .3rem 0 0; }
