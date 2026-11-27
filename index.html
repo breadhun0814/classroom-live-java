@@ -11,7 +11,7 @@
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://breadhun0814.github.io/classroom-live-java/docs/assets/collaboration-room.png">
   <link rel="icon" type="image/svg+xml" href="./portfolio-icon.svg?v=20261127-responsive1">
-  <link rel="stylesheet" href="./portfolio.css?v=20261127-local-collab1">
+  <link rel="stylesheet" href="./portfolio.css?v=20261127-technical-portfolio1">
   <link rel="canonical" href="https://breadhun0814.github.io/classroom-live-java/">
   <script defer src="./portfolio.js?v=20261127-local-collab1"></script>
   <title>Classroom Live · 화면 공유·화상 통화</title>
@@ -51,13 +51,13 @@
             <h1 id="hero-title">같은 화면을 보며<br>함께 작업하세요.</h1>
             <p class="hero-copy">회의에서 자료를 발표하고, 스터디에서 코드를 함께 보세요. 같은 네트워크에서 Java 서버 한 대와 브라우저로 화면 공유, 화상 통화, 코드 채팅을 사용할 수 있습니다.</p>
             <div class="hero-actions">
-              <a class="button" href="#demo">예시 화면 체험하기</a>
+              <a class="button" href="#demo">화면 공유·화상 통화 체험</a>
               <a class="button secondary" href="https://github.com/breadhun0814/classroom-live-java"><svg aria-hidden="true"><use href="#i-github"/></svg>GitHub 소스 보기</a>
             </div>
             <p class="micro">로그인 없이 둘러보는 포트폴리오입니다. 실제 기능은 같은 네트워크에서 실행 중인 서버에 접속해 사용합니다.</p>
           </div>
           <figure class="screenshot-card hero-image">
-            <button class="image-button" type="button" data-open-image aria-label="실제 Classroom Live 앱 화면 크게 보기"><img src="./docs/assets/collaboration-room.png" width="1440" height="1260" alt="관리자와 예시 참여자가 입장한 Classroom Live의 실제 방 화면. 화면 공유 설정과 Java 코드 채팅이 표시되어 있습니다." fetchpriority="high"></button>
+            <button class="image-button" type="button" data-open-image aria-label="실제 Classroom Live 앱 화면 크게 보기"><img src="./docs/assets/collaboration-room.png" width="1440" height="1260" alt="Classroom Live의 실제 예시 방. 화면 공유 영역, 화상 통화 조작부, 코드 채팅이 표시되어 있습니다." fetchpriority="high"></button>
             <figcaption><span>실제 앱 화면 · 촬영용 예시 데이터</span><button class="text-button" type="button" data-open-image>크게 보기</button></figcaption>
           </figure>
         </div>
@@ -190,10 +190,23 @@
             <div class="node"><svg aria-hidden="true"><use href="#i-screen"/></svg><strong>시청자 브라우저</strong><span>화면 수신 · 코드 채팅</span></div>
           </div>
         </div>
-        <div class="stack-grid">
-          <article class="stack-card"><svg aria-hidden="true"><use href="#i-server"/></svg><h3>서버 한 대의 실행 단위</h3><p>JDK의 HTTPS 서버가 API와 웹 UI를 함께 제공합니다. 인증서 도구와 정적 자원을 포함한 배포 흐름을 구성했습니다.</p><div class="stack-tags"><span>Java 17+</span><span>HttpsServer</span><span>keytool</span></div></article>
-          <article class="stack-card"><svg aria-hidden="true"><use href="#i-code"/></svg><h3>브라우저의 화면과 대화</h3><p>화면 캡처와 P2P 연결, 화질 설정과 연결 진단을 제공합니다. 참여자 PC에는 Java를 설치하지 않아도 됩니다.</p><div class="stack-tags"><span>Vanilla JS</span><span>WebRTC</span><span>HTML / CSS</span></div></article>
-          <article class="stack-card"><svg aria-hidden="true"><use href="#i-sliders"/></svg><h3>데이터와 운영 도구</h3><p>계정·방·대화는 로컬 JSON에 저장합니다. Swing 관리 앱에서 서버를 시작·종료하고 HTTPS 상태를 확인합니다.</p><div class="stack-tags"><span>JSON</span><span>Swing</span><span>PowerShell</span></div></article>
+        <div class="media-pipeline" aria-labelledby="pipeline-title">
+          <h3 id="pipeline-title">공유한 화면은 어떻게 보이나요?</h3>
+          <ol>
+            <li><strong>캡처</strong><p>발표자가 공유할 탭, 창, 전체 화면을 선택합니다. 브라우저의 <code>getDisplayMedia()</code>가 선택한 화면을 영상 트랙으로 만듭니다.</p></li>
+            <li><strong>연결</strong><p>발표자와 시청자가 연결 정보인 SDP와 ICE를 HTTPS 서버를 통해 교환합니다. 브라우저는 이 정보로 WebRTC 연결을 설정합니다.</p></li>
+            <li><strong>재생</strong><p>영상 트랙은 발표자 브라우저에서 각 시청자 브라우저로 직접 전송됩니다. 받은 화면은 방 상단의 영상 영역에서 재생하고, 카메라 타일은 그 아래에 표시합니다.</p></li>
+          </ol>
+          <p class="pipeline-note"><strong>화상 통화는 별도의 연결을 사용합니다.</strong> 사용자가 켠 카메라와 마이크는 <code>getUserMedia()</code>로 가져옵니다. 통화에 참여한 브라우저끼리 영상과 음성을 교환하므로, 통화에서 나가거나 재연결해도 화면 공유를 계속 볼 수 있습니다.</p>
+        </div>
+        <div class="tech-choices" id="technology">
+          <h3>기능별 기술 선택</h3>
+          <dl>
+            <div><dt>화면 공유와 화상 통화</dt><dd><strong>WebRTC · Media Capture API</strong><p>화면과 카메라를 서로 다른 연결에 실어 각각 시작하고 종료합니다. <code>getStats()</code>로 해상도와 프레임 등 연결 상태를 확인합니다.</p></dd></div>
+            <div><dt>방 입장, 인증, 코드 채팅</dt><dd><strong>Java 17 · JDK HttpsServer · JSON</strong><p>한 서버가 로그인과 방 권한을 확인하고, 웹 UI와 채팅·연결 정보를 제공합니다. 소규모 운영에 필요한 계정과 대화를 서버의 파일에 저장합니다.</p></dd></div>
+            <div><dt>참여자 화면</dt><dd><strong>HTML · CSS · JavaScript</strong><p>Chrome 또는 Edge에서 미디어 권한, 통화 조작, 코드 채팅을 처리합니다. 참여자 PC에는 별도의 Java 설치가 필요 없습니다.</p></dd></div>
+            <div><dt>설치와 운영</dt><dd><strong>Swing · keytool · PowerShell</strong><p>Swing 관리 창에서 서버를 시작하고 상태를 확인합니다. keytool로 HTTPS 인증서를 준비하고, PowerShell로 Windows 시작 절차를 자동화합니다.</p></dd></div>
+          </dl>
         </div>
         <div class="engineering"><h3>구현에서 다룬 문제</h3>
           <details><summary>화면 공유를 다시 시작할 때, 이전 신호가 남는다면?</summary><p>현재 방의 수명과 화면 공유 회차, 개별 연결을 generation·epoch·connectionId로 구분합니다. 늦게 도착한 이전 응답을 걸러내고, 원격 설명보다 먼저 도착한 ICE 후보는 대기열에 보관한 뒤 적용합니다.</p></details>
