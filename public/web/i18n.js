@@ -1,6 +1,9 @@
 (() => {
   'use strict';
   const words = {
+    "복사용 연결 진단":"Connection report text",
+    "화면과 통화 연결 진단을 복사했습니다.":"Copied the screen sharing and call connection report.",
+    "진단을 선택했습니다. Ctrl+C 또는 복사 메뉴로 복사하세요.":"Report selected. Copy it with Ctrl+C or the browser menu.",
     "고정된 메시지":"Pinned message",
     "고정":"Pin",
     "고정 해제":"Unpin",

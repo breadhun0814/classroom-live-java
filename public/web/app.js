@@ -601,6 +601,8 @@
   }
   function cleanup() {
     $('connection-help').open = false;
+    $('manual-diagnostics').hidden = true;
+    $('diagnostics-text').value = '';
     endCall();
     if ($('invite-dialog').open) $('invite-dialog').close();
     if ($('chat-export-dialog').open) $('chat-export-dialog').close();
@@ -763,6 +765,13 @@
       }
     }
   }
+  function returnToLobby(message, retryRoom=false) {
+    const room = state.room;
+    cleanup(); screen('lobby');
+    if (retryRoom && room?.code) selectRoomCode({code:room.code,title:room.title || tr('최근 들어간 방')});
+    notice(message,true);
+    void loadRooms();
+  }
   async function poll(generation) {
     if (generation !== state.generation || !state.room || state.polling) return;
     state.polling = true;
@@ -778,10 +787,19 @@
       if (generation !== state.generation) return;
       ui('connection-status','재연결 중'); $('connection-status').classList.add('offline');
       state.pollFailures++;
-      if (/이용 정지/.test(error.message)) { cleanup(); await state.db.auth.signOut(); await updateAccount(null); notice(error.message, true); return; }
-      if (/만료|로그인|삭제/.test(error.message)) { cleanup(); screen('lobby'); notice(error.message, true); return; }
+      if (/이용 정지|로그인이 필요/.test(error.message)) {
+        cleanup();
+        await state.db.auth.signOut().catch(()=>{});
+        await updateAccount(null);
+        notice(error.message,true);
+        return;
+      }
+      if (/만료|삭제/.test(error.message)) {
+        returnToLobby(error.message,/만료/.test(error.message));
+        return;
+      }
       notice('연결을 확인하고 자동으로 다시 연결하고 있어요. ' + error.message, true);
-      if (state.pollFailures >= 20) { cleanup(); screen('lobby'); notice('연결이 오래 끊어져 방에서 나왔습니다. 다시 입장해 주세요.', true); return; }
+      if (state.pollFailures >= 20) { returnToLobby('연결이 오래 끊어져 방에서 나왔습니다. 다시 입장해 주세요.',true); return; }
     } finally {
       if (generation === state.generation) { state.polling = false; if (state.room) state.timer = setTimeout(() => poll(generation), state.pollFailures ? 4000 : 1800); }
     }
@@ -1259,7 +1277,12 @@
   bind('fullscreen','click', async () => { if ($('video-card').requestFullscreen) await $('video-card').requestFullscreen(); });
   bind('exit-fullscreen','click',async()=>{if(document.fullscreenElement)await document.exitFullscreen();});
   function connectionReport(){
-    return {version:'java-lan3',role:state.stream?'presenter':state.publisher?'viewer':'waiting',online:navigator.onLine,relayConfigured:!!cfg.useTurnFunction,connectionIssue:state.connectionIssue||null,oldClientDetected:!!state.oldClientNotice,
+    const peerStates = [...call.peers.values()].map(peer=>peer.pc.connectionState);
+    return {call:{joined:!!call.id,microphone:!!callTrack('audio'),camera:!!callTrack('video'),
+      connected:peerStates.filter(status=>status==='connected').length,
+      pending:peerStates.filter(status=>status==='new'||status==='connecting').length,
+      interrupted:peerStates.filter(status=>status==='failed'||status==='disconnected').length},
+      version:'java-lan3',role:state.stream?'presenter':state.publisher?'viewer':'waiting',online:navigator.onLine,relayConfigured:!!cfg.useTurnFunction,connectionIssue:state.connectionIssue||null,oldClientDetected:!!state.oldClientNotice,
       capture:state.stream?.getVideoTracks()[0]?.getSettings()?(()=>{const s=state.stream.getVideoTracks()[0].getSettings();return {width:s.width,height:s.height,frameRate:s.frameRate,displaySurface:s.displaySurface};})():null,
       requested:state.stream?mediaProfile():null,
       browser:(navigator.userAgent.match(/(?:Edg|Chrome|Firefox|Version)\/[\d.]+/g)||[]).join(' '),
@@ -1296,8 +1319,21 @@
     $('help-reconnect').hidden=report.role!=='viewer';$('help-play').hidden=report.role!=='viewer';
   }
   bind('copy-diagnostics','click',async()=>{
-    const report=connectionReport();
-    await navigator.clipboard.writeText(JSON.stringify(report,null,2));notice('연결 진단을 복사했습니다. 공유하는 PC와 안 보이는 PC에서 각각 복사해 알려 주세요. 이메일·비밀번호·키·IP 주소는 포함하지 않습니다.');
+    const generation = state.generation;
+    const report=JSON.stringify(connectionReport(),null,2);
+    try {
+      await navigator.clipboard.writeText(report);
+      if (generation !== state.generation) return;
+      notice('화면과 통화 연결 진단을 복사했습니다.');
+    } catch {
+      if (generation !== state.generation) return;
+      showConnectionHelp();
+      $('manual-diagnostics').hidden = false;
+      const field = $('diagnostics-text');
+      field.value = report;
+      field.focus(); field.select();
+      notice('진단을 선택했습니다. Ctrl+C 또는 복사 메뉴로 복사하세요.');
+    }
   });
   function showConnectionHelp() {
     $('connection-help').open = true;

@@ -324,3 +324,6 @@ Pin|固定|置顶|Ghim
 Unpin|固定を解除|取消置顶|Bỏ ghim
 Only the room owner can pin messages.|部屋の作成者だけがメッセージを固定できます。|只有房主可以置顶消息。|Chỉ chủ phòng mới có thể ghim tin nhắn.
 The message to pin was not found.|固定するメッセージが見つかりません。|找不到要置顶的消息。|Không tìm thấy tin nhắn cần ghim.
+Connection report text|コピー用の接続診断|供复制的连接诊断|Nội dung chẩn đoán kết nối
+Copied the screen sharing and call connection report.|画面共有と通話の接続診断をコピーしました。|已复制屏幕共享和通话连接报告。|Đã sao chép báo cáo chia sẻ màn hình và cuộc gọi.
+Report selected. Copy it with Ctrl+C or the browser menu.|診断を選択しました。Ctrl+Cまたはブラウザーのメニューでコピーしてください。|已选中报告。请按 Ctrl+C 或使用浏览器菜单复制。|Đã chọn báo cáo. Nhấn Ctrl+C hoặc dùng menu trình duyệt để sao chép.
