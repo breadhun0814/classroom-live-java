@@ -619,7 +619,7 @@
     state.room = null; state.epoch = null; state.publisher = null; state.message = 0; state.signal = 0; state.pollFailures = 0; state.watchAttempts = 0; state.watchPaused = false;
     sessionStorage.removeItem('live-room'); $('messages').replaceChildren(); $('members').replaceChildren(); clearVideo();
     $('chat-text').value=''; $('chat-search').value=''; $('as-code').checked=false; ui('draft-status',''); ui('chat-count','0 / 8000'); ui('chat-search-count',''); $('older-chat').disabled=false; updateTabTitle();
-    $('share').hidden = false; $('stop').hidden = true; $('watch').hidden = true; $('resolution').disabled = false; $('fps').disabled = false; $('share-mode').disabled = false; for(const id of ['quality-level','video-codec','preset-text','preset-motion','preset-low'])$(id).disabled=false; showCaptureStats();
+    $('share').hidden = false; $('stop').hidden = true; $('share-reduce').hidden = true; $('watch').hidden = true; $('resolution').disabled = false; $('fps').disabled = false; $('share-mode').disabled = false; for(const id of ['quality-level','video-codec','preset-text','preset-motion','preset-low'])$(id).disabled=false; showCaptureStats();
   }
   async function enter(room) {
     consumeInvite();
@@ -713,7 +713,7 @@
   function refreshControls() {
     const ours = state.publisher === state.client && !!state.stream;
     $('share').hidden = ours; $('share').disabled = !!state.publisher && !ours;
-    $('stop').hidden = !ours; $('watch').hidden = !state.publisher || ours;
+    $('stop').hidden = !ours; $('share-reduce').hidden = !ours || $('quality-level').value === 'low'; $('watch').hidden = !state.publisher || ours;
     refreshScreenPip();
     $('resolution').disabled = ours; $('fps').disabled = ours; $('share-mode').disabled = ours; for(const id of ['quality-level','video-codec','preset-text','preset-motion','preset-low'])$(id).disabled=ours;
   }
@@ -834,7 +834,7 @@
     if(Number(source.width)*Number(source.height)>2560*1600)text+=' · 큰 원본은 PC 부하가 높습니다. 끊기면 1440p 또는 1080p로 낮춰 보세요.';
     ui('capture-stats',text);
   }
-  async function prepareCapture(stream) {
+  async function prepareCapture(stream, isCurrent=()=>true) {
     const track=stream.getVideoTracks()[0];if(!track)throw new Error('공유할 영상 트랙이 없습니다.');
     state.captureWarning=false;const p=mediaProfile();track.contentHint=p.text?'text':'motion';if(p.text&&track.contentHint!=='text')track.contentHint='detail';
     if(typeof track.applyConstraints==='function'){
@@ -847,7 +847,7 @@
         if(navigator.mediaDevices.getSupportedConstraints?.().resizeMode)constraints.resizeMode={ideal:'none'};
       }else constraints.height={ideal:p.height,max:p.height};
       try{await track.applyConstraints(constraints);}
-      catch{state.captureWarning=true;notice('브라우저가 원본 캡처 설정 일부를 적용하지 못했습니다. 실제 캡처 해상도를 확인하세요.',true);}
+      catch{if(isCurrent()){state.captureWarning=true;notice('브라우저가 원본 캡처 설정 일부를 적용하지 못했습니다. 실제 캡처 해상도를 확인하세요.',true);}}
     }
   }
   function preferCodec(peer) {
@@ -875,26 +875,33 @@
     }else{video.style.width='';video.style.height='';}
     $('native-size').setAttribute('aria-pressed',String(nativeView));ui('native-size',nativeView?'화면에 맞춰 보기':'원본 크기로 보기');
   }
-  async function configureSender(peer) {
+  function configureSender(peer) {
+    peer.qualityQueue = (peer.qualityQueue || Promise.resolve()).then(() => configureSenderNow(peer));
+    return peer.qualityQueue;
+  }
+  async function configureSenderNow(peer) {
+    if (peer.pc.signalingState==='closed' || !state.stream) return true;
     // Apply after the remote answer: negotiated encodings and transactionId are now valid.
     const sender = peer.pc.getSenders().find(s => s.track?.kind === 'video');
-    if (!sender) return;
+    if (!sender) return true;
     const profile = mediaProfile();
+    const height = Number(sender.track?.getSettings?.().height || 0);
+    const scale = profile.level==='low' ? Math.max(1,height/profile.height) : 1;
     const makeParameters = () => {
       const p = sender.getParameters();
       if (!p.encodings?.length) throw new Error('브라우저에서 영상 인코딩 설정을 제공하지 않습니다.');
       for (const encoding of p.encodings) {
-        encoding.maxBitrate = profile.bitrate; encoding.maxFramerate = profile.fps; encoding.scaleResolutionDownBy = 1;
+        encoding.maxBitrate = profile.bitrate; encoding.maxFramerate = profile.fps; encoding.scaleResolutionDownBy = scale;
       }
       return p;
     };
     try {
       const p = makeParameters(); p.degradationPreference = profile.text ? 'maintain-resolution' : 'maintain-framerate';
-      await sender.setParameters(p); peer.qualityConfigured = true;
+      await sender.setParameters(p); peer.qualityConfigured = true; return true;
     } catch (error) {
       // Some browsers reject degradationPreference; keep the standard encoding limits.
-      try { await sender.setParameters(makeParameters()); peer.qualityConfigured = true; }
-      catch (fallbackError) { peer.qualityConfigured = false; console.warn('전송 품질 설정 실패:', fallbackError.message); notice('브라우저가 고화질 전송 설정을 적용하지 못했습니다. Chrome/Edge를 업데이트하고 다시 공유해 주세요.', true); }
+      try { await sender.setParameters(makeParameters()); peer.qualityConfigured = true; return true; }
+      catch (fallbackError) { peer.qualityConfigured = false; console.warn('전송 품질 설정 실패:', fallbackError.message); if(peer.pc.signalingState!=='closed')notice('브라우저가 고화질 전송 설정을 적용하지 못했습니다. Chrome/Edge를 업데이트하고 다시 공유해 주세요.', true); return false; }
     }
   }
   async function updateMediaStats() {
@@ -1028,7 +1035,7 @@
       if(!p.native)video.height={ideal:p.height,max:p.height};
       stream = await navigator.mediaDevices.getDisplayMedia({video,audio:false});
       if (generation !== state.generation) { stream.getTracks().forEach(t => t.stop()); return; }
-      await prepareCapture(stream);
+      await prepareCapture(stream,()=>generation===state.generation);
       if (generation !== state.generation) { stream.getTracks().forEach(t=>t.stop()); return; }
       await loadIce(); const result = await rpc('live_share', { ...roomArgs, p_start: true }); claimed = true;
       if (generation !== state.generation) { await rpc('live_share', { ...roomArgs, p_start: false }); stream.getTracks().forEach(t=>t.stop()); return; }
@@ -1301,10 +1308,30 @@
   window.addEventListener('resize',sizeVideo);
   bind('preset-text','click',async()=>{$('resolution').value='native';$('fps').value='30';$('share-mode').value='text';$('quality-level').value='high';$('video-codec').value='auto';notice('원본 해상도 · 글자 선명도 · 고화질 · 30fps로 설정했습니다.');});
   bind('preset-motion','click',async()=>{$('resolution').value='1080';$('fps').value='60';$('share-mode').value='motion';$('quality-level').value='high';$('video-codec').value='h264';notice('1080p · 움직임 우선 · 고화질 · 60fps로 설정했습니다. 실제 성능에 따라 달라집니다.');});
-  bind('preset-low','click', () => {
+  function setLowShareProfile() {
     $('resolution').value='720'; $('fps').value='15'; $('share-mode').value='text';
-    $('quality-level').value='low'; $('video-codec').value='auto';
+    $('quality-level').value='low';
+  }
+  bind('preset-low','click', () => {
+    setLowShareProfile(); $('video-codec').value='auto';
     notice('느린 연결용으로 설정했습니다. 목표 720p · 15fps · 시청자당 최대 2 Mbps입니다.');
+  });
+  bind('share-reduce','click',async()=>{
+    const stream=state.stream;
+    const generation=state.generation;
+    if (!stream || state.publisher!==state.client) return;
+    const isCurrent=()=>state.generation===generation && state.stream===stream;
+    setLowShareProfile();
+    await prepareCapture(stream,isCurrent);
+    if (!isCurrent()) return;
+    const results=await Promise.all([...state.peers.values()]
+      .filter(peer=>peer.pc.remoteDescription && peer.pc.signalingState!=='closed')
+      .map(configureSender));
+    if (!isCurrent()) return;
+    refreshControls(); showCaptureStats();
+    notice(results.includes(false)
+      ? '일부 연결에 부하 줄이기 설정을 적용하지 못했습니다. 계속 끊기면 공유를 다시 시작하세요.'
+      : '화면 공유를 유지하면서 느린 연결용 설정으로 변경했습니다.',results.includes(false));
   });
   bind('fullscreen','click', async () => { if ($('video-card').requestFullscreen) await $('video-card').requestFullscreen(); });
   bind('exit-fullscreen','click',async()=>{if(document.fullscreenElement)await document.exitFullscreen();});

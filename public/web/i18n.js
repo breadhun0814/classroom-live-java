@@ -1,6 +1,9 @@
 (() => {
   'use strict';
   const words = {
+    "공유 중 부하 줄이기":"Reduce load while sharing",
+    "일부 연결에 부하 줄이기 설정을 적용하지 못했습니다. 계속 끊기면 공유를 다시 시작하세요.":"Some connections could not reduce load. Restart sharing if interruptions continue.",
+    "화면 공유를 유지하면서 느린 연결용 설정으로 변경했습니다.":"Changed to the low bandwidth preset without stopping screen sharing.",
     "초대 링크로 접속했습니다. 기존 계정으로 로그인한 뒤 방 비밀번호를 입력하세요.":"Sign in with an existing account, then enter the room password.",
     "신규 회원가입":"New account registration",
     "신규 회원가입이 닫혀 있습니다. 계정이 필요하면 관리자에게 문의하세요.":"Registration is closed. Contact the administrator if you need an account.",

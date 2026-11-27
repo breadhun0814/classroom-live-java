@@ -345,3 +345,6 @@ Close registration|新規登録を停止|关闭注册|Đóng đăng ký
 Reopen registration|新規登録を再開|重新开放注册|Mở lại đăng ký
 Check the registration setting.|登録設定を確認してください。|请检查注册设置。|Hãy kiểm tra cài đặt đăng ký.
 Sign in with an existing account, then enter the room password.|既存のアカウントでログインしてから部屋のパスワードを入力してください。|使用现有账号登录，然后输入房间密码。|Đăng nhập bằng tài khoản hiện có, sau đó nhập mật khẩu phòng.
+Reduce load while sharing|共有中の負荷を下げる|在共享中降低负载|Giảm tải trong khi chia sẻ
+Some connections could not reduce load. Restart sharing if interruptions continue.|一部の接続に軽量設定を適用できませんでした。途切れる場合は共有を再開してください。|部分连接无法降低负载。如果仍中断，请重新开始共享。|Một số kết nối không thể giảm tải. Nếu vẫn gián đoạn, hãy bắt đầu chia sẻ lại.
+Changed to the low bandwidth preset without stopping screen sharing.|共有を続けたまま低速回線向け設定に変更しました。|已在保持屏幕共享的同时切换到低带宽设置。|Đã chuyển sang băng thông thấp mà không dừng chia sẻ màn hình.
